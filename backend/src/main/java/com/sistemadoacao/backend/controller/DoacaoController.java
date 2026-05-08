@@ -25,7 +25,7 @@ import com.sistemadoacao.backend.service.DoacaoService;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
-
+import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -167,6 +167,23 @@ public class DoacaoController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<List<Doacao>> listarDoacoesAprovadas() {
         return ResponseEntity.ok(doacaoService.listarDoacoes());
+    }
+
+    @Operation(summary = "Rever doação", description = "Altera o status da doação para REVER quando o doador não concorda com avaliação da AI.")
+    @ApiResponse(responseCode = "200", description = "Doação rever com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("rever/{id}")
+    public ResponseEntity<Doacao> reverDoacao(@PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.reverDoacao(id));
+    }
+
+    @GetMapping("/tecnico")
+    @Operation(summary = "Lista doações que estao com status REVER ou REPARO", description = "Retorna todas as doações com status REVER ou REPARO. Usar esse endpoint para selecionar doações para avaliação técnica.")
+    @ApiResponse(responseCode = "200", description = "Doações status rever retornadas com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<DoacaoReverDTO>> listarDoacoesRever() {
+        return ResponseEntity.ok(doacaoService.listarDoacoesReverReparo());
     }
 
 }
