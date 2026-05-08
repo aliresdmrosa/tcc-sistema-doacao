@@ -48,6 +48,7 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
                                 d.data_cadastro as dataCadastro,
                                 d.quantidade as quantidade,
                                 d.status as status,
+                                d.equipamento as equipamento,
                                 p.nome as nome,
                                 p.cpf as cpf,
                                 p.email as email,
