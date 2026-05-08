@@ -1,0 +1,154 @@
+.pagina-doacao {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  min-height: 100vh;
+}
+
+.topo-pagina {
+  max-width: 1000px;
+  margin: 0 auto 24px auto;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.datas {
+  margin-top: 16px;
+}
+
+.datas p {
+  margin: 4px 0;
+  color: #6f6487;
+  font-size: 0.95rem;
+}
+
+.card-doacao {
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+}
+
+.form-doacao {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bloco-formulario {
+  background: #faf8fd;
+  border: 1px solid #eee7f8;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.titulo-bloco {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.titulo-bloco mat-icon {
+  color: #6e6d6f;
+}
+
+.titulo-bloco h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #323232;
+  font-weight: 500;
+}
+
+.linha {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.campo-descricao {
+  width: 100%;
+}
+
+.grupo-radio {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.botao-confirmar {
+  min-width: 150px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.botao-cancelar,
+.botao-reparo {
+  min-width: 130px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.botao-reparo {
+  background: #ede4fb;
+}
+
+.botao-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #7f7f7f;
+  margin: 32px 0 0 32px;
+  transition: 0.2s ease;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.botao-voltar mat-icon {
+  font-size: 25px;
+}
+
+@media (max-width: 768px) {
+  .pagina-doacao {
+    padding: 20px;
+  }
+
+  .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .acoes-formulario {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .botao-confirmar,
+  .botao-cancelar,
+  .botao-reparo {
+    width: 100%;
+  }
+}

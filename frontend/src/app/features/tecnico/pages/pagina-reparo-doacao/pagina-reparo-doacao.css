@@ -1,0 +1,193 @@
+.pagina-reparo-doacao {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  max-width: 1000px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #7f7f7f;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.card-identificacao {
+  max-width: 1000px;
+  margin: 0 auto 40px;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+  background: #fff8ff;
+}
+
+.card-identificacao mat-card-content {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.icone-identificacao {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e4d7fb;
+  color: #5c43a3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dados-identificacao h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2f2347;
+}
+
+.dados-identificacao p,
+.status-identificacao p {
+  margin: 4px 0;
+  color: #4c4560;
+  font-size: 0.92rem;
+}
+
+.status-identificacao {
+  justify-self: center;
+}
+
+.card-listagem {
+  max-width: 1000px;
+  margin: 0 auto 40px;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.tabela-container {
+  overflow-x: auto;
+}
+
+.tabela-reparos {
+  width: 100%;
+  background: #ffffff;
+}
+
+.mat-mdc-header-row {
+  background: #f6f2fb;
+}
+
+.mat-mdc-header-cell {
+  color: #3b2f57;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.mat-mdc-cell {
+  color: #4c4560;
+  font-size: 0.92rem;
+}
+
+mat-paginator {
+  border-top: 1px solid #eeeeee;
+}
+
+.novo-reparo-titulo {
+  max-width: 1000px;
+  margin: 0 auto 20px;
+  padding-top: 8px;
+  border-top: 1px solid #ded6ea;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icone-novo-reparo {
+  width: 40px;
+  height: 40px;
+  background: #6d4bb3;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.novo-reparo-titulo h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.form-reparo {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.campo-descricao {
+  width: 100%;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.botao-salvar {
+  min-width: 180px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.botao-cancelar {
+  min-width: 140px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ede4fb;
+}
+
+@media (max-width: 768px) {
+  .pagina-reparo-doacao {
+    padding: 20px;
+  }
+
+  .card-identificacao mat-card-content {
+    grid-template-columns: 1fr;
+  }
+
+  .status-identificacao {
+    justify-self: start;
+  }
+
+  .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .acoes-formulario {
+    flex-direction: column;
+  }
+
+  .botao-salvar,
+  .botao-cancelar {
+    width: 100%;
+  }
+}

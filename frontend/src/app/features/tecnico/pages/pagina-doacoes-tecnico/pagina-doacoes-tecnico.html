@@ -1,0 +1,124 @@
+<div class="pagina-doacoes-tecnico">
+
+  <div class="cabecalho-pagina">
+    <h1>Doações</h1>
+    <p>Visualize e avalie as doações cadastradas no sistema.</p>
+  </div>
+
+  <mat-card class="card-listagem">
+    <mat-card-content>
+
+      <div class="barra-filtros">
+
+        <mat-form-field appearance="outline" class="campo-pesquisa">
+          <mat-label>Pesquisar por nome, id ou cpf</mat-label>
+
+          <input
+            matInput
+            [(ngModel)]="termoPesquisa"
+            (keyup)="pesquisar()" />
+
+          <button
+            *ngIf="termoPesquisa"
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="limparPesquisa()">
+            <mat-icon>close</mat-icon>
+          </button>
+
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-data">
+          <mat-label>Filtrar data</mat-label>
+
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [(ngModel)]="dataFiltro"
+            (dateChange)="aplicarFiltroData()" />
+
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+      </div>
+
+      <div class="tabela-container">
+
+        <table mat-table [dataSource]="dataSource" class="tabela-doacoes">
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cpf">
+            <th mat-header-cell *matHeaderCellDef>CPF</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.cpf }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.nome }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="equipamento">
+            <th mat-header-cell *matHeaderCellDef>Equipamento</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.equipamento }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataCadastro">
+            <th mat-header-cell *matHeaderCellDef>Data de Cadastro</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.dataCadastro }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataUltimaAtualizacao">
+            <th mat-header-cell *matHeaderCellDef>Data última Atualização</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.dataUltimaAtualizacao }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado da Doação</th>
+            <td mat-cell *matCellDef="let doacao">{{ doacao.estado }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+
+            <td mat-cell *matCellDef="let doacao">
+              <button
+                mat-icon-button
+                class="botao-acoes"
+                [matMenuTriggerFor]="menuAcoes"
+                aria-label="Ver mais detalhes">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #menuAcoes="matMenu">
+                <button mat-menu-item (click)="verDetalhes(doacao)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>Ver mais detalhes</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <mat-paginator
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons>
+        </mat-paginator>
+
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

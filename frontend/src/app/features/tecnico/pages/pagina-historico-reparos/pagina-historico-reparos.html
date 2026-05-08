@@ -1,0 +1,101 @@
+<div class="pagina-historico-reparos">
+
+  <div class="cabecalho-pagina">
+    <h1>Histórico de Reparos</h1>
+    <p>Visualize os equipamentos avaliados ou reparados por você.</p>
+  </div>
+
+  <mat-card class="card-listagem">
+    <mat-card-content>
+
+      <div class="barra-filtros">
+
+        <mat-form-field appearance="outline" class="campo-pesquisa">
+          <mat-label>Pesquisar equipamento ou id</mat-label>
+
+          <input
+            matInput
+            [(ngModel)]="termoPesquisa"
+            (keyup)="pesquisar()" />
+
+          <button
+            *ngIf="termoPesquisa"
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="limparPesquisa()">
+            <mat-icon>close</mat-icon>
+          </button>
+
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+      </div>
+
+      <div class="tabela-container">
+
+        <table mat-table [dataSource]="dataSource" class="tabela-historico">
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="equipamento">
+            <th mat-header-cell *matHeaderCellDef>Equipamento</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.equipamento }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataInicio">
+            <th mat-header-cell *matHeaderCellDef>Data de Início</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.dataInicio }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataFinalizacao">
+            <th mat-header-cell *matHeaderCellDef>Data de Finalização</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.dataFinalizacao }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado da Doação</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.estado }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+
+            <td mat-cell *matCellDef="let historico">
+              <button
+                mat-icon-button
+                class="botao-acoes"
+                [matMenuTriggerFor]="menuAcoes"
+                aria-label="Ver mais detalhes">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #menuAcoes="matMenu">
+                <button mat-menu-item (click)="verDetalhes(historico)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>Ver mais detalhes</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <mat-paginator
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons>
+        </mat-paginator>
+
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

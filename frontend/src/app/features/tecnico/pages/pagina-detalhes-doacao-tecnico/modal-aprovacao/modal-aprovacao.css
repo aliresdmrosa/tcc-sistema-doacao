@@ -1,0 +1,51 @@
+.modal-container {
+  position: relative;
+  padding: 28px 32px 24px;
+}
+
+.botao-fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.subtitulo {
+  margin: 0 0 18px;
+  color: #6f6487;
+  font-size: 1rem;
+}
+
+.campo-select {
+  width: 220px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.campo-texto {
+  width: 100%;
+}
+
+.campo-texto textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.acoes-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 8px 0 0;
+}
+
+.acoes-modal button {
+  min-width: 120px;
+  height: 44px;
+  border-radius: 10px;
+}

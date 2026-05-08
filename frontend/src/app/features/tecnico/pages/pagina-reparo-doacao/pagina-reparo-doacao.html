@@ -1,0 +1,120 @@
+<div class="pagina-reparo-doacao">
+
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
+  <mat-card class="card-identificacao">
+    <mat-card-content>
+      <div class="icone-identificacao">
+        <mat-icon>check</mat-icon>
+      </div>
+
+      <div class="dados-identificacao">
+        <h2>Identificação Doação</h2>
+        <p>ID: {{ idDoacao }}</p>
+        <p>Item: Notebook Dell</p>
+      </div>
+
+      <div class="status-identificacao">
+        <p>Status atual: Em reparo</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="card-listagem">
+    <mat-card-content>
+
+      <div class="tabela-container">
+        <table mat-table [dataSource]="dataSource" class="tabela-reparos">
+
+          <ng-container matColumnDef="data">
+            <th mat-header-cell *matHeaderCellDef>Data</th>
+            <td mat-cell *matCellDef="let reparo">{{ reparo.data }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tecnico">
+            <th mat-header-cell *matHeaderCellDef>Técnico</th>
+            <td mat-cell *matCellDef="let reparo">{{ reparo.tecnico }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="descricao">
+            <th mat-header-cell *matHeaderCellDef>Descrição</th>
+            <td mat-cell *matCellDef="let reparo">{{ reparo.descricao }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let reparo">{{ reparo.status }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <mat-paginator
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <section class="novo-reparo-titulo">
+    <div class="icone-novo-reparo">
+      <mat-icon>edit</mat-icon>
+    </div>
+
+    <h2>Novo Reparo</h2>
+  </section>
+
+  <section class="form-reparo">
+
+    <div class="linha-dupla">
+      <mat-form-field appearance="outline">
+        <mat-label>Técnico</mat-label>
+        <input matInput [(ngModel)]="tecnico" />
+        <mat-hint>Escolha nome técnico</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Data</mat-label>
+        <input matInput type="date" [(ngModel)]="dataReparo" />
+        <mat-hint>Data</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Novo Status</mat-label>
+        <mat-select [(ngModel)]="novoStatus">
+          <mat-option value="EM_REPARO">Em reparo</mat-option>
+          <mat-option value="REPARO_CONCLUIDO">Reparo concluído</mat-option>
+          <mat-option value="FINALIZADO">Finalizado</mat-option>
+        </mat-select>
+        <mat-hint>Status após reparo</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="campo-descricao">
+      <mat-label>Descrição</mat-label>
+      <textarea matInput rows="5" [(ngModel)]="descricao"></textarea>
+      <mat-hint>Descrição do problema</mat-hint>
+    </mat-form-field>
+
+    <div class="acoes-formulario">
+      <button mat-raised-button color="primary" type="button" class="botao-salvar" (click)="salvarReparo()">
+        <mat-icon>check</mat-icon>
+        Salvar Reparo
+      </button>
+
+      <button mat-stroked-button type="button" class="botao-cancelar" (click)="cancelar()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+    </div>
+
+  </section>
+
+</div>

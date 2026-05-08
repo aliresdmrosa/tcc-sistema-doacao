@@ -1,0 +1,41 @@
+<div class="modal-container">
+
+  <button mat-icon-button class="botao-fechar" type="button" (click)="fechar()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <h2 mat-dialog-title>Justificativa Aprovação</h2>
+
+  <mat-dialog-content>
+    <p class="subtitulo">Escreva o motivo</p>
+
+    <mat-form-field appearance="outline" class="campo-select">
+      <mat-label>Destino</mat-label>
+      <mat-select [(ngModel)]="tipoDestino">
+        <mat-option value="DOACAO">Doação</mat-option>
+        <mat-option value="REPARO">Reparo</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="campo-texto">
+      <mat-label>Texto</mat-label>
+      <textarea
+        matInput
+        rows="5"
+        placeholder="Digite a justificativa"
+        [(ngModel)]="justificativa">
+      </textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="acoes-modal">
+    <button mat-raised-button color="primary" type="button" (click)="enviar()">
+      Enviar
+    </button>
+
+    <button mat-stroked-button type="button" (click)="fechar()">
+      Cancelar
+    </button>
+  </mat-dialog-actions>
+
+</div>
