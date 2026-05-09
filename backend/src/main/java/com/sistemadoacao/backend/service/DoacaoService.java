@@ -1,7 +1,7 @@
 package com.sistemadoacao.backend.service;
 
-
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +11,7 @@ import com.sistemadoacao.backend.dto.AnaliseIAResponse;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
+import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 import com.sistemadoacao.backend.dto.GraficoDTO;
 import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
 import com.sistemadoacao.backend.exception.AprovarErroException;
@@ -141,7 +142,7 @@ public class DoacaoService {
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
             return doacao;
-        }catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             log.error("Doação não encontrada para aprovação com ID {}", id);
             throw e; // Re-throw para ser tratado pelo GlobalExceptionHandler
         } catch (Exception e) {
@@ -169,7 +170,7 @@ public class DoacaoService {
             doacaoReprovar.setStatus(Status.REPROVADO);
             repository.save(doacaoReprovar);
             return doacaoReprovar;
-        }catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             log.error("Doação não encontrada para reprovação com ID {}", id);
             throw e; // Re-throw para ser tratado pelo GlobalExceptionHandler
         } catch (Exception e) {
@@ -215,16 +216,16 @@ public class DoacaoService {
             log.error("Doação não encontrado com ID {}", id);
             throw new NotFoundException("Doação não encontrado com ID: " + id);
         }
-        
-        if("string".equals(atualizado.imagem().getOriginalFilename())) {
+
+        if ("string".equals(atualizado.imagem().getOriginalFilename())) {
             log.error("Imagem nula ou inválida para doação com ID {}", id);
             throw new ImageNullException("Imagem nula ou inválida para doação com ID: " + id);
         }
 
-        // validar imagem e salvar 
+        // validar imagem e salvar
         String nomeArquivoAtualizado = fileService.salvarArquivo(atualizado.imagem());
         ImagemDoacao nomeImagem = new ImagemDoacao(nomeArquivoAtualizado);
-        
+
         // atualizar campos da doacao
         if (atualizado.equipamento() != null) {
             existente.setEquipamento(atualizado.equipamento());
@@ -273,10 +274,10 @@ public class DoacaoService {
 
         // atualizar historico
         existente = atualizarHistoricoDoacao(existente, analise.descricao() + " - " + analise.recomendacao());
-        
+
         // O CascadeType.ALL salvará a imagem automaticamente
-            existente = atualizarHistoricoDoacao(existente, analise.descricao() + " - " + analise.recomendacao());
-            log.debug("Doação cadastrada com ID {}", existente.getId());
+        existente = atualizarHistoricoDoacao(existente, analise.descricao() + " - " + analise.recomendacao());
+        log.debug("Doação cadastrada com ID {}", existente.getId());
 
         return repository.save(existente);
     }
@@ -341,11 +342,14 @@ public class DoacaoService {
             Doacao salva = atualizarHistoricoDoacao(novaDoacao, analise.descricao() + " - " + analise.recomendacao());
             log.debug("Doação cadastrada com ID {}", salva.getId());
 
-            if(analise.status().equals(Status.REPROVADO)) {
-            emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise.descricao() + " - STATUS: " + analise.status() + " -  \nInfelizmente sua doação foi avaliada pela IA como REPROVADA. \n Caso queira uma reavaliação, por favor, solicite uma revisao pelo tecnico");
-            }
-            else{
-                emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise.descricao() + " - STATUS: " + analise.status() + " - \nParabéns! Sua doação foi avaliada pela IA como APROVADA ou REPARO. \n Por favor, enviar sua doação para o endereço de coleta.");
+            if (analise.status().equals(Status.REPROVADO)) {
+                emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise
+                        .descricao() + " - STATUS: " + analise.status()
+                        + " -  \nInfelizmente sua doação foi avaliada pela IA como REPROVADA. \n Caso queira uma reavaliação, por favor, solicite uma revisao pelo tecnico");
+            } else {
+                emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise
+                        .descricao() + " - STATUS: " + analise.status()
+                        + " - \nParabéns! Sua doação foi avaliada pela IA como APROVADA ou REPARO. \n Por favor, enviar sua doação para o endereço de coleta.");
             }
 
             return new DoacaoResponseDTO(
@@ -356,20 +360,36 @@ public class DoacaoService {
                     salva.getStatus(),
                     salva.getStatusConservacao(),
                     salva.getDataCadastro());
-        }
-        catch (RequestImageIaException e4) {
+        } catch (RequestImageIaException e4) {
             log.error("Erro ao analisar imagem da doação com IA: {}", e4.getMessage());
             throw new RequestImageIaException("Formato de imagem invalido");
-        }  catch (ImageErroLerException e3) {
+        } catch (ImageErroLerException e3) {
             log.error("Erro ao cadastrar doação", e3);
             throw new ErroCadastoException("Erro ao cadastrar doação", e3);
-        } 
+        }
     }
 
     public List<DoacaoResponseDTO> listarDoacoesPorUsuario(Long id) {
-        if(id == null)
+        if (id == null)
             throw new IdNullException("ID não pode ser nulo");
         return repository.findByDoadorId(id).stream().map(DoacaoResponseDTO::new).toList();
     }
-}
 
+    public Doacao reverDoacao(Long id) {
+        return repository.findById(id).map(doacao -> {
+            doacao.setStatus(Status.REVER);
+            return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
+        }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    }
+
+    public List<DoacaoReverDTO> listarDoacoesReverReparo() {
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO));
+    }
+
+    public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO)).stream()
+                .filter(d -> d.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    }
+}

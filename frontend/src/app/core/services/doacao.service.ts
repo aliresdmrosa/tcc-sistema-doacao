@@ -32,5 +32,15 @@ export class DoacaoService {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario`);
     }
 
+      listarDoacoesReverReparo(): Observable<DoacaoDTO[]> {
+        return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/tecnico`);
+    }
+
+    listarDoacoesReverReparoPorId(id: number): Observable<DoacaoDTO> {
+      return this.http.get<DoacaoDTO>(`${this.apiUrl}/tecnico/${id}`);
+  }
+
+
+
 
 }

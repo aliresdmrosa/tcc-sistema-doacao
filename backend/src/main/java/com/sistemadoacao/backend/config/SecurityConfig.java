@@ -53,7 +53,8 @@ public class SecurityConfig {
                     req.requestMatchers("/doacao/**").permitAll(); // Doações são abertas
                     req.requestMatchers("/usuarios").permitAll(); // Cadastro de usuário é aberto
                     req.requestMatchers("/reparo/**").permitAll();
-                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto                                             
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto   
+                    req.requestMatchers("/uploads/**").permitAll(); // Permite acesso aos arquivos de upload
                     req.anyRequest().authenticated(); // Todo o resto precisa de login
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

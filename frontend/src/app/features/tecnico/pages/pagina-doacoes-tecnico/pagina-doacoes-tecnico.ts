@@ -13,17 +13,17 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
-
-// depois, importar service  
+import { DoacaoService } from '../../../../core/services/doacao.service';
+ 
 
 interface DoacaoTecnico {
-  id: string;
-  cpf: string;
-  nome: string;
-  equipamento: string;
-  dataCadastro: string;
-  dataUltimaAtualizacao: string;
-  estado: string;
+  id?: number;
+  cpf?: string;
+  nome?: string;
+  equipamento?: string;
+  dataCadastro?: string;
+  dataUltimaAtualizacao?: string;
+  estado?: string;
 }
 
 @Component({
@@ -48,7 +48,8 @@ interface DoacaoTecnico {
 })
 export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
 
-  private router = inject(Router); // 👈 AQUI
+  private router = inject(Router); 
+  private doacaoService = inject(DoacaoService);
 
   displayedColumns: string[] = [
     'id',
@@ -57,58 +58,11 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     'equipamento',
     'dataCadastro',
     'dataUltimaAtualizacao',
-    'estado',
+    'status',
     'acoes'
   ];
 
-  // mock
-  doacoesMock: DoacaoTecnico[] = [
-    {
-      id: '001',
-      cpf: '010.100.555-85',
-      nome: 'Maria',
-      equipamento: 'Computador',
-      dataCadastro: '01/05/2025',
-      dataUltimaAtualizacao: '01/05/2025',
-      estado: 'REVER'
-    },
-    {
-      id: '002',
-      cpf: '123.456.789-10',
-      nome: 'José',
-      equipamento: 'Notebook',
-      dataCadastro: '02/05/2025',
-      dataUltimaAtualizacao: '02/05/2025',
-      estado: 'REVER'
-    },
-    {
-      id: '003',
-      cpf: '987.654.321-00',
-      nome: 'Ana',
-      equipamento: 'Monitor',
-      dataCadastro: '03/05/2025',
-      dataUltimaAtualizacao: '03/05/2025',
-      estado: 'REPARO'
-    },
-    {
-      id: '004',
-      cpf: '222.333.444-55',
-      nome: 'Carlos',
-      equipamento: 'Desktop',
-      dataCadastro: '04/05/2025',
-      dataUltimaAtualizacao: '04/05/2025',
-      estado: 'REVER'
-    },
-    {
-      id: '005',
-      cpf: '111.222.333-44',
-      nome: 'Fernanda',
-      equipamento: 'Notebook',
-      dataCadastro: '05/05/2025',
-      dataUltimaAtualizacao: '05/05/2025',
-      estado: 'REPARO'
-    }
-  ];
+  
 
   dataSource = new MatTableDataSource<DoacaoTecnico>();
 
@@ -117,40 +71,48 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // injetar service aqui
 
   ngOnInit(): void {
-
-    // mock
-    this.carregarDadosMock();
-
-    // chamda api  
+    this.buscarDoacoesDaApi();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
 
-  // mock
-  carregarDadosMock(): void {
-    this.dataSource.data = this.doacoesMock;
-  }
 
   // chamda api 
   buscarDoacoesDaApi(): void {
+    this.doacaoService.listarDoacoesReverReparo().subscribe({
+      next: (doacoes) => {
+        console.log('Doações recebidas da API:', doacoes);
+        this.dataSource.data = doacoes.map(doacao => ({
+          id: doacao.id,
+          cpf: doacao.cpf,
+          nome: doacao.nome,
+          equipamento: doacao.equipamento,
+          dataCadastro: doacao.dataCadastro,
+          dataUltimaAtualizacao: doacao.dataAlteracaoStatus,
+          status: doacao.status
+        }));
+      },
+      error: (error) => {
+        console.error('Erro ao carregar doações:', error);
+       
+      }
+    });
   }
 
   pesquisar(): void {
     const termo = this.termoPesquisa.trim().toLowerCase();
 
-    this.dataSource.filterPredicate = (doacao: DoacaoTecnico, filtro: string) => {
-      return (
-        doacao.nome.toLowerCase().includes(filtro) ||
-        doacao.id.toLowerCase().includes(filtro) ||
-        doacao.cpf.toLowerCase().includes(filtro) ||
-        doacao.equipamento.toLowerCase().includes(filtro)
-      );
-    };
+    this.dataSource.filterPredicate = (doacao: DoacaoTecnico, filtro: string): boolean => {
+  const termo = filtro.trim().toLowerCase();
+
+  return (doacao.nome || '').toLowerCase().includes(termo) ||
+         (doacao.cpf || '').includes(termo) ||
+         (doacao.equipamento || '').toLowerCase().includes(termo);
+};
 
     this.dataSource.filter = termo;
   }
@@ -162,24 +124,24 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
 
   aplicarFiltroData(): void {
     if (!this.dataFiltro) {
-      this.dataSource.data = this.doacoesMock;
+      this.dataSource.data = this.dataSource.data; // Mantém os dados atuais sem filtro
       return;
     }
 
     const dataSelecionada = this.formatarData(this.dataFiltro);
 
-    this.dataSource.data = this.doacoesMock.filter(
+    this.dataSource.data = this.dataSource.data.filter(
       doacao => doacao.dataCadastro === dataSelecionada
     );
   }
 
   limparFiltroData(): void {
     this.dataFiltro = null;
-    this.dataSource.data = this.doacoesMock;
+    this.dataSource.data = this.dataSource.data;
   }
 
   verDetalhes(doacao: DoacaoTecnico): void {
-    this.router.navigate(['/tecnico/doacoes', doacao.id]); // 👈 NAVEGAÇÃO
+    this.router.navigate(['/tecnico/doacoes', doacao.id]); //NAVEGAÇÃO
   }
 
   private formatarData(data: Date): string {

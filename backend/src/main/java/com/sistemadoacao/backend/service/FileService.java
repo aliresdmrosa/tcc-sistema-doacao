@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.tika.Tika;
@@ -24,7 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileService {
 
-    protected final String PASTA = "C:/tcc-sistema-doacao/uploads/";
+    @Value("${upload.path}")
+    private String PASTA;
+
     private final Tika tika = new Tika();
 
     private final int tamanhoMaximo = 5 * 1024 * 1024; // 5MB
@@ -32,6 +35,7 @@ public class FileService {
     private static final List<String> tipos = Arrays.asList(
             "image/jpeg",
             "image/png",
+            "image/webp",
             "application/pdf");
 
     public String salvarArquivo(MultipartFile arquivo) {
@@ -67,7 +71,7 @@ public class FileService {
 
             log.info("Tipo de arquivo detectado: " + tipoDetectado);
             log.info("Arquivo salvo com sucesso: " + nomeArquivo);
-            return nomeArquivo;
+            return "/uploads/" + nomeArquivo;
         } catch (IOException e) {
             throw new ImageErroLerException("Erro ao ler o arquivo: " + e.getMessage());
         } catch(SecurityException e) {
