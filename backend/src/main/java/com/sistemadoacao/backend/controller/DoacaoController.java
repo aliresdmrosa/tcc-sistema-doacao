@@ -186,4 +186,12 @@ public class DoacaoController {
         return ResponseEntity.ok(doacaoService.listarDoacoesReverReparo());
     }
 
+    @GetMapping("/tecnico/{id}")
+    @Operation(summary = "Lista doação por ID com status REVER ou REPARO", description = "Retorna a doação com status REVER ou REPARO pelo ID. Usar esse endpoint para selecionar doações para avaliação técnica.")
+    @ApiResponse(responseCode = "200", description = "Doação status rever retornada com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<DoacaoReverDTO> listarDoacaoReverReparoPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.listarDoacaoReverReparoPorId(id));
+    }
+
 }

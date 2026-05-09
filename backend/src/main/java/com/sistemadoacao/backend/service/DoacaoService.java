@@ -385,4 +385,11 @@ public class DoacaoService {
     public List<DoacaoReverDTO> listarDoacoesReverReparo() {
         return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO));
     }
+
+    public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO)).stream()
+                .filter(d -> d.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    }
 }
