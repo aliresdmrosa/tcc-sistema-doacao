@@ -1,5 +1,6 @@
 package com.sistemadoacao.backend.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sistemadoacao.backend.dto.AnaliseIAResponse;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -41,11 +41,11 @@ public class OpenAIService {
         Map<String, Object> textContent = new HashMap<>();
         textContent.put("type", "input_text");
         textContent.put("text",
-                "Analise a imagem de um computador e determine seu estado:\n" +
+                "Analise a imagem e se nao for de um computador ou periférico status deve ser REPROVADO caso contrario determine seu estado:\n" +
                 "- APROVADO: funcionando normalmente\n" +
                 "- REPARO: possui defeitos, mas pode ser consertado\n" +
                 "- REPROVADO: não tem conserto\n\n" +
-                "Responda APENAS com JSON válido no formato com no maximo 20 caracteres:\n" +
+                "Responda formato com no maximo 20 caracteres:\n" +
                 "{\n" +
                 "  \"status\": \"APROVADO | REPARO | REPROVADO\",\n" +
                 "  \"descricao\": \"Descreva o problema ou estado de forma resumida\",\n" +
@@ -97,15 +97,18 @@ public class OpenAIService {
                 .asText();
 
         //  JSON retornado pela IA para o formato do AnaliseIAResponse
-        AnaliseIAResponse analise = mapper.readValue(respostaTexto, AnaliseIAResponse.class);
-        System.out.println("Análise da IA: " + analise);
+        System.out.println("Análise da IA: " + respostaTexto);
+        AnaliseIAResponse analise = mapper.readValue(respostaTexto.replace("```json```", "").replace("```", "").trim(), AnaliseIAResponse.class);
 
         return analise;
 
-    } catch (Exception e) {
+    } catch (JsonProcessingException e) {
         
         throw new RequestImageIaException("Erro ao processar análise da IA: " + e.getMessage());
 
+    }
+    catch (Exception e) {
+        throw new RequestImageIaException("Erro ao solicitar análise da IA: " + e.getMessage());
     }
 }
 

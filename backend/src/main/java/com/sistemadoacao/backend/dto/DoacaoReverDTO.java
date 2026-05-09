@@ -19,4 +19,7 @@ public interface DoacaoReverDTO {
     String getCpf();
     String getEmail();
     java.sql.Timestamp getDataAlteracaoStatus();
+    String getUrl();
+    String getStatusConservacao();
+    Long getImagemId();
 }
