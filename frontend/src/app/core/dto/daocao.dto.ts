@@ -10,4 +10,7 @@ export interface DoacaoDTO {
     email?: string;
     cpf?: string;
     dataAlteracaoStatus?: string;
+    imagemId?: number;
+    url?: string;
+
 } 
