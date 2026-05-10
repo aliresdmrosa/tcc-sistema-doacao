@@ -43,7 +43,7 @@
 
           <ng-container matColumnDef="equipamento">
             <th mat-header-cell *matHeaderCellDef>Equipamento</th>
-            <td mat-cell *matCellDef="let historico">{{ historico.equipamento }}</td>
+            <td mat-cell *matCellDef="let historico">{{ historico.equipamentoDoacao }}</td>
           </ng-container>
 
           <ng-container matColumnDef="dataInicio">
@@ -53,12 +53,12 @@
 
           <ng-container matColumnDef="dataFinalizacao">
             <th mat-header-cell *matHeaderCellDef>Data de Finalização</th>
-            <td mat-cell *matCellDef="let historico">{{ historico.dataFinalizacao }}</td>
+            <td mat-cell *matCellDef="let historico">{{ historico.dataFim }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="estado">
-            <th mat-header-cell *matHeaderCellDef>Estado da Doação</th>
-            <td mat-cell *matCellDef="let historico">{{ historico.estado }}</td>
+          <ng-container matColumnDef="descrição">
+            <th mat-header-cell *matHeaderCellDef>Descrição do Reparo</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.descricao }}</td>
           </ng-container>
 
           <ng-container matColumnDef="acoes">

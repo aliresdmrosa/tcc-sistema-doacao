@@ -154,4 +154,10 @@ public class ReparoService {
         reparoRepository.save(reparoConcluir);
     }
 
+    public List<ReparoResponseDTO> listarReparosTecnico(Long idUsuarioLogado) {
+        log.info("id do tecnico logado: {}", idUsuarioLogado);
+        List<Reparo> reparos = reparoRepository.findAllByIdTecnico(idUsuarioLogado);
+        return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
+    }
+
 }

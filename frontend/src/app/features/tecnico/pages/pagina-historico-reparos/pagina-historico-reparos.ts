@@ -10,15 +10,18 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
+import { ReparoService } from '../../../../core/services/reparo.service';
 
 // depois, importar service
 
 interface HistoricoReparo {
   id: string;
-  equipamento: string;
+  equipamentoDoacao: string;
   dataInicio: string;
-  dataFinalizacao: string;
+  dataFim: string;
   estado: string;
+  descricao: string;
+  conclusao: string;
 }
 
 @Component({
@@ -42,75 +45,18 @@ interface HistoricoReparo {
 export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
   private router = inject(Router);
+  private reparoService = inject(ReparoService);
 
   displayedColumns: string[] = [
     'id',
     'equipamento',
     'dataInicio',
     'dataFinalizacao',
-    'estado',
+    'descrição',
     'acoes'
   ];
 
-  // mock
-  historicoMock: HistoricoReparo[] = [
-    {
-      id: '001',
-      equipamento: 'Computador',
-      dataInicio: '01/05/2025',
-      dataFinalizacao: '01/05/2025',
-      estado: 'ENTREGUE'
-    },
-    {
-      id: '002',
-      equipamento: 'Notebook',
-      dataInicio: '01/05/2025',
-      dataFinalizacao: '01/05/2025',
-      estado: 'ENTREGUE'
-    },
-    {
-      id: '003',
-      equipamento: 'Monitor',
-      dataInicio: '01/05/2025',
-      dataFinalizacao: '01/05/2025',
-      estado: 'EM ANÁLISE'
-    },
-    {
-      id: '004',
-      equipamento: 'Teclado',
-      dataInicio: '01/05/2025',
-      dataFinalizacao: '01/05/2025',
-      estado: 'EM REPARO'
-    },
-    {
-      id: '005',
-      equipamento: 'Mouse',
-      dataInicio: '01/05/2025',
-      dataFinalizacao: '-',
-      estado: 'EM REPARO'
-    },
-    {
-      id: '006',
-      equipamento: 'Notebook',
-      dataInicio: '02/05/2025',
-      dataFinalizacao: '04/05/2025',
-      estado: 'ENTREGUE'
-    },
-    {
-      id: '007',
-      equipamento: 'Computador',
-      dataInicio: '03/05/2025',
-      dataFinalizacao: '-',
-      estado: 'EM ANÁLISE'
-    },
-    {
-      id: '008',
-      equipamento: 'Monitor',
-      dataInicio: '04/05/2025',
-      dataFinalizacao: '05/05/2025',
-      estado: 'ENTREGUE'
-    }
-  ];
+  
 
   dataSource = new MatTableDataSource<HistoricoReparo>();
 
@@ -122,20 +68,25 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
   ngOnInit(): void {
 
-    // mock
-    this.carregarDadosMock();
-
-    // chamada api
+    this.reparoService.listarReparoTecnico().subscribe({
+      next: (dados) => {
+        console.log('Dados do histórico de reparos:', dados);
+        this.dataSource.data = dados;
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar histórico de reparos:', erro);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
 
-  // mock
-  carregarDadosMock(): void {
-    this.dataSource.data = this.historicoMock;
-  }
+  // // mock
+  // carregarDadosMock(): void {
+  //   this.dataSource.data = this.historicoMock;
+  // }
 
   // chamada api
   buscarHistoricoDaApi(): void {
@@ -147,7 +98,7 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
     this.dataSource.filterPredicate = (historico: HistoricoReparo, filtro: string) => {
       return (
         historico.id.toLowerCase().includes(filtro) ||
-        historico.equipamento.toLowerCase().includes(filtro) ||
+        historico.equipamentoDoacao.toLowerCase().includes(filtro) ||
         historico.estado.toLowerCase().includes(filtro)
       );
     };

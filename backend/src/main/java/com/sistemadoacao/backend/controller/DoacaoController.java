@@ -3,6 +3,8 @@ package com.sistemadoacao.backend.controller;
 
 import java.util.List;
 
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +24,7 @@ import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.service.DoacaoService;
+import com.sistemadoacao.backend.dto.AlterStatusDTO;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
@@ -147,18 +150,19 @@ public class DoacaoController {
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
     @PatchMapping("aprovar/{id}")
-    public ResponseEntity<Doacao> aprovarDoacao(@PathVariable Long id) {
-        return ResponseEntity.ok(doacaoService.aprovarDoacao(id));
+    public ResponseEntity<Void> aprovarDoacao(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        doacaoService.aprovarDoacao(id, body.motivo());
+        return ResponseEntity.ok().build();
     }
 
-    // TODO : ENVIAR EMAIL PARA USUÁRIO INFORMANDO QUE SUA DOAÇÃO FOI REPROVADA, COM O MOTIVO DA REPROVAÇÃO
+    
     @Operation(summary = "Reprovar doação", description = "Altera o status da doação para REPROVADO.")
     @ApiResponse(responseCode = "200", description = "Doação reprovada com sucesso")
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
     @PatchMapping("reprovar/{id}")
-    public ResponseEntity<Doacao> reprovarDoacao(@RequestBody String motivoReprovar, @PathVariable Long id) {
-        return ResponseEntity.ok(doacaoService.reprovarDoacao(id, motivoReprovar));
+    public ResponseEntity<Doacao> reprovarDoacao(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.reprovarDoacao(id, body.motivo()));
     }
 
     @GetMapping("/aprovada")

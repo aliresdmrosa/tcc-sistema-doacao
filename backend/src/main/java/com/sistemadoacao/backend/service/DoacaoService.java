@@ -120,7 +120,7 @@ public class DoacaoService {
         return repository.findById(id).orElseThrow(() -> new NotFoundException("Doacao nao encontada com ID: " + id));
     }
 
-    public Doacao aprovarDoacao(@NonNull Long id) {
+    public Doacao aprovarDoacao(@NonNull Long id, String motivo) {
         if (id == null) {
             throw new IdNullException("ID da doação nao pode ser nulo.");
         }
@@ -130,7 +130,7 @@ public class DoacaoService {
             // historico
             HistoricoDoacao historicoDoacao = new HistoricoDoacao();
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
-            historicoDoacao.setObservacao("Doacao aprovada");
+            historicoDoacao.setObservacao("Doacao aprovada: " + motivo.replace("{}", motivo));
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
             historicoDoacao.setStatus(Status.APROVADO);
 
@@ -141,6 +141,8 @@ public class DoacaoService {
             Doacao doacao = repository.findById(id).orElseThrow();
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO");
             return doacao;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para aprovação com ID {}", id);
@@ -169,6 +171,8 @@ public class DoacaoService {
 
             doacaoReprovar.setStatus(Status.REPROVADO);
             repository.save(doacaoReprovar);
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "REPROVADO");
             return doacaoReprovar;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para reprovação com ID {}", id);

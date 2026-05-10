@@ -40,6 +40,14 @@ export class DoacaoService {
       return this.http.get<DoacaoDTO>(`${this.apiUrl}/tecnico/${id}`);
   }
 
+    aprovarDoacao(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovar/${id}`, { motivo });
+    }
+
+    reprovarDoacao(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
+    }
+
 
 
 

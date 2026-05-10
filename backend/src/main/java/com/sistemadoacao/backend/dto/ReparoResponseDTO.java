@@ -14,7 +14,7 @@ public record ReparoResponseDTO(
     LocalDate dataInicio,
     LocalDateTime dataFim,
     Long idDoacao,           
-    Equipamento equipamentoDoacao 
+    Equipamento equipamentoDoacao
 ) {
     
     public ReparoResponseDTO(Reparo reparo) {

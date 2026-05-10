@@ -14,4 +14,7 @@ public interface ReparoRepository extends JpaRepository<Reparo, Long> {
     // Busca todos os reparos filtrando pelo ID da doação
     @Query("SELECT r FROM Reparo r WHERE r.doacao.id = :doacaoId")
     List<Reparo> findAllByDoacaoId(@Param("doacaoId") Long doacaoId);
+
+    @Query("SELECT r FROM Reparo r WHERE idTecnico = :idUsuarioLogado")
+    List<Reparo> findAllByIdTecnico(@Param("idUsuarioLogado") Long idUsuarioLogado);
 }

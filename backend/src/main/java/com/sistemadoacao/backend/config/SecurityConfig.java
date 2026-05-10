@@ -50,7 +50,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Permite requisições OPTIONS para CORS
                     req.requestMatchers("/login").permitAll(); // Login é aberto
-                    req.requestMatchers("/doacao/**").permitAll(); // Doações são abertas
                     req.requestMatchers("/usuarios").permitAll(); // Cadastro de usuário é aberto
                     req.requestMatchers("/reparo/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto   
@@ -66,7 +65,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Permite a URL do seu front-end (ex: localhost:4200)
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 
