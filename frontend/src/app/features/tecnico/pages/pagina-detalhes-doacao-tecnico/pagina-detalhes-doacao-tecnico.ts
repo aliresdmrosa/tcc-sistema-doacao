@@ -88,7 +88,15 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
       if (resultado && this.doacao) {
         console.log('Aprovar doação:', this.doacao.id, resultado);
 
-        // chamada api para aprovar
+        this.doacaoService.aprovarDoacao(this.doacao.id, resultado.justificativa).subscribe({
+          next: () => {
+            console.log('Doação aprovada com sucesso');
+            this.router.navigate(['/tecnico/doacoes']);
+          },
+          error: (error) => {
+            console.error('Erro ao aprovar a doação:', error);
+          }
+        });
       }
     });
   }
@@ -101,8 +109,15 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     dialogRef.afterClosed().subscribe(justificativa => {
       if (justificativa && this.doacao) {
         console.log('Reprovar doação:', this.doacao.id, justificativa);
-
-        // chamada api para reprovar
+        this.doacaoService.reprovarDoacao(this.doacao.id, justificativa).subscribe({
+          next: () => {
+            console.log('Doação reprovada com sucesso');
+            this.router.navigate(['/tecnico/doacoes']);
+          },
+          error: (error) => {
+            console.error('Erro ao reprovar a doação:', error);
+          }
+        });
       }
     });
   }
