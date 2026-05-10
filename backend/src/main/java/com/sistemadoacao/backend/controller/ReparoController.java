@@ -57,6 +57,20 @@ public class ReparoController {
         }
     }
 
+    @GetMapping("/tecnico")
+    @Operation(summary = "Lista todos os reparos de um tecnico", description = "Retorna uma lista de todos os reparos cadastrado no sistema.")
+    @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
+    @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<ReparoResponseDTO>> listarTodosReparosTecnico() {
+        try {
+            return ResponseEntity.ok(reparoService.listarReparosTecnico(utils.getIdUsuarioLogado()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Lista todos os reparos de uma doacao", description = "Retorna uma lista de todos os reparos de uma doacao.")
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")

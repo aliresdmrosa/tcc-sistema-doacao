@@ -62,4 +62,22 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
             logger.error("Erro ao enviar email de avaliação da IA para " + email + ": " + e.getMessage());
         }
     }
+
+    public void enviarEmailStatusDoacao(String email, String nome, String status) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            if(email != null && !email.isBlank()) {
+                message.setTo(email);
+            }else {
+                logger.warn("Email do destinatário está vazio ou nulo. Não será possível enviar o email de status da doação., destinatário: " + nome);
+                return;
+            }
+            message.setSubject("Atualização do status da sua doação");
+            message.setText("Olá " + nome + ",\n\nO status da sua doação foi atualizado para: " + status + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            mailSender.send(message);
+            logger.info("Email de atualização de status da doação enviado com sucesso para " + email);
+        } catch (MailException e) {
+            logger.error("Erro ao enviar email de atualização de status da doação para " + email + ": " + e.getMessage());
+        }
+    }
 }
