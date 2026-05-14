@@ -1,0 +1,81 @@
+<div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+</div>
+
+<div class="pagina-atribuir">
+
+  <div class="topo-pagina">
+
+    <div>
+      <h1>Atribuir Equipamento ao Solicitante</h1>
+      <p>Atribua um equipamento em bom estado ao solicitante.</p>
+    </div>
+
+    <div class="filtros">
+
+        <mat-form-field appearance="outline">
+          <mat-select [(value)]="estadoSelecionado">
+            <mat-option value="NOVO">Novo</mat-option>
+            <mat-option value="USADO">Usado</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-select [(value)]="tipoSelecionado">
+            <mat-option value="COMPUTADOR">Computador</mat-option>
+            <mat-option value="NOTEBOOK">Notebook</mat-option>
+            <mat-option value="MONITOR">Monitor</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+      </div>
+  </div>
+
+  <div class="lista-equipamentos">
+
+    <mat-card class="card-equipamento" *ngFor="let equipamento of equipamentos">
+
+      <div class="conteudo-card">
+
+        <div class="imagem-area">
+        <img [src]="equipamento.imagem" alt="equipamento" />
+        </div>
+
+        <div class="informacoes">
+
+          <div class="cabecalho-card">
+            <h2>{{ equipamento.nome }}</h2>
+            <span>ID:{{ equipamento.id }}</span>
+          </div>
+
+          <p>
+            Descrição da avaliação:
+            {{ equipamento.descricao }}
+          </p>
+
+          <button
+            mat-raised-button
+            color="primary"
+            class="botao-selecionar"
+            (click)="selecionarEquipamento(equipamento)"
+          >
+            <mat-icon>check</mat-icon>
+            Selecionar
+          </button>
+
+        </div>
+
+      </div>
+
+    </mat-card>
+
+  </div>
+
+  <mat-paginator
+    [length]="10"
+    [pageSize]="2"
+    [pageSizeOptions]="[2, 4, 6]"
+    showFirstLastButtons>
+  </mat-paginator>
+
+</div>

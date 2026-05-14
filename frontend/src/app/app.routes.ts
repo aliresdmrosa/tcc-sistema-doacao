@@ -14,6 +14,11 @@ import { PaginaListarUsuarios } from './features/admin/pages/pagina-listar-usuar
 import { PaginaCadastrarTecnico } from './features/admin/pages/pagina-cadastrar-tecnico/pagina-cadastrar-tecnico';
 import { PaginaEditarUsuario } from './features/admin/pages/pagina-editar-usuario/pagina-editar-usuario';
 import { PaginaDetalhesTecnico } from './features/admin/pages/pagina-detalhes-tecnico/pagina-detalhes-tecnico';
+import { PaginaListarDoacaoAdmin } from './features/admin/pages/pagina-listar-doacao/pagina-listar-doacao';
+import { PaginaListarSolicitacao } from './features/admin/pages/pagina-listar-solicitacao/pagina-listar-solicitacao';
+import { PaginaDetalhesDoacaoAdmin } from './features/admin/pages/pagina-detalhes-doacao-admin/pagina-detalhes-doacao-admin';
+import { PaginaDetalhesSolicitacaoAdmin } from './features/admin/pages/pagina-detalhes-solicitacao-admin/pagina-detalhes-solicitacao-admin';
+import { PaginaAtribuirEquipamentoComponent } from './features/admin/pages/pagina-atribuir-equipamento/pagina-atribuir-equipamento';
 
 // Técnico
 import { PaginaDashboardTecnico } from './features/tecnico/pages/pagina-dashboard-tecnico/pagina-dashboard-tecnico';
@@ -84,6 +89,38 @@ export const routes: Routes = [
       {
         path: 'admin/tecnicos/:id',
         component: PaginaDetalhesTecnico,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+
+      {
+        path: 'admin/doacoes',
+        component: PaginaListarDoacaoAdmin,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+
+      {
+        path: 'admin/solicitacoes',
+        component: PaginaListarSolicitacao,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/doacoes/:id',
+        component: PaginaDetalhesDoacaoAdmin,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/solicitacoes/:id',
+        component: PaginaDetalhesSolicitacaoAdmin,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/atribuir-equipamento',
+        component: PaginaAtribuirEquipamentoComponent,
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },

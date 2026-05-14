@@ -1,0 +1,112 @@
+.pagina-solicitacao-admin {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  display: flex;
+  align-items: center;
+  max-width: 1000px;
+  margin: 32px auto 16px;
+  cursor: pointer;
+  color: #7f7f7f;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.topo-pagina {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.topo-pagina p {
+  margin: 8px 0 0;
+  color: #6f6487;
+}
+
+.card-solicitacao {
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+}
+
+.form-solicitacao {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bloco-formulario {
+  background: #faf8fd;
+  border: 1px solid #eee7f8;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.titulo-bloco {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.titulo-bloco h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #323232;
+  font-weight: 500;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.campo-justificativa {
+  width: 100%;
+}
+
+.grupo-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acao-perigo mat-icon,
+.acao-perigo span {
+  color: #b42318;
+}
+
+@media (max-width: 768px) {
+  .pagina-solicitacao-admin {
+    padding: 20px;
+  }
+
+  .topo-pagina {
+    flex-direction: column;
+  }
+
+  .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+}
