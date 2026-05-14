@@ -1,12 +1,11 @@
 <div class="container">
   <mat-card class="card">
     <mat-card-header class="titulo-subtitulo">
-      <mat-card-title>Login</mat-card-title>
-      <mat-card-subtitle>Acesse o sistema com seu e-mail e senha</mat-card-subtitle>
+      <mat-card-title>Insira seu e-mail para<br>redefinir a senha</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="entrar()" class="formulario">
+      <form [formGroup]="redefinirSenhaForm" (ngSubmit)="redefinirSenha()" class="formulario">
         <mat-form-field appearance="outline">
           <mat-label>E-mail</mat-label>
           <input matInput type="email" formControlName="email" />
@@ -20,29 +19,25 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Senha</mat-label>
-          <input matInput type="password" formControlName="senha" />
-
-          <mat-error *ngIf="campoTemErro('senha', 'required')">
-            A senha é obrigatória
-          </mat-error>
-        </mat-form-field>
-
         <div class="acoes">
           <button
             mat-raised-button
             color="primary"
             type="submit"
-            [disabled]="loginForm.invalid || carregando"
+            [disabled]="redefinirSenhaForm.invalid || carregando"
             style="width: 100%;">
-            {{ carregando ? 'Entrando...' : 'Entrar' }}
+            {{ carregando ? 'Enviando...' : 'Redefinir Senha' }}
           </button>
         </div>
 
-        <div class="mensagens" style="text-align: center;">
-          <p>Redefinir senha</p>
-          <p>Não tem conta? Crie uma</p>
+        <div class="cancelar" style="text-align: center;">
+          <button
+            mat-button
+            type="button"
+            (click)="voltar()"
+            style="color: #007BE8;">
+            Cancelar
+          </button>
         </div>
       </form>
     </mat-card-content>

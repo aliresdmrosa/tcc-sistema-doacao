@@ -7,6 +7,8 @@ import { LayoutPrincipal } from './layouts/layout-principal/layout-principal';
 // Páginas públicas
 import { PaginaLogin } from './features/auth/pages/pagina-login/pagina-login';
 import { PaginaCadastrarUsuario } from './features/usuario/pages/pagina-cadastrar-usuario/pagina-cadastrar-usuario';
+import { PaginaRedefinirSenha } from './features/auth/pages/pagina-redefinir-senha/pagina-redefinir-senha';
+
 
 // Admin
 import { PaginaDashboardAdmin } from './features/admin/pages/pagina-dashboard-admin/pagina-dashboard-admin';
@@ -47,7 +49,8 @@ export const routes: Routes = [
     component: LayoutAutenticacao,
     children: [
       { path: 'login', component: PaginaLogin },
-      { path: 'cadastro', component: PaginaCadastrarUsuario }
+      { path: 'cadastro', component: PaginaCadastrarUsuario },
+      { path: 'redefinir-senha', component: PaginaRedefinirSenha }
     ]
   },
   {
