@@ -5,12 +5,15 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
-import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 @Component({
   selector: 'app-pagina-cadastro-solicitacao',
@@ -21,10 +24,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   templateUrl: './pagina-cadastro-solicitacao.html',
   styleUrl: './pagina-cadastro-solicitacao.css'
@@ -33,41 +38,67 @@ export class PaginaCadastroSolicitacao {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private solicitacaoService = inject(SolicitacaoService);
+  private dialog = inject(MatDialog);
 
+  tiposEquipamento = [
+    { valor: 'COMPUTADOR', label: 'Computador' },
+    { valor: 'NOTEBOOK', label: 'Notebook' },
+    { valor: 'MONITOR', label: 'Monitor' },
+    { valor: 'TECLADO', label: 'Teclado' },
+    { valor: 'MOUSE', label: 'Mouse' }
+  ];
 
   form = this.fb.group({
+    equipamento: ['', Validators.required],
     curso: ['', Validators.required],
     grr: ['', Validators.required],
     motivo: ['', [Validators.required, Validators.minLength(10)]],
     semComputador: [false, Validators.requiredTrue],
     matriculaAtiva: [false, Validators.requiredTrue]
   });
-  snackBar: any;
 
   voltar(): void {
     this.router.navigate(['/usuario/listar-solicitacoes']);
   }
 
-  cadastrar(): void {
+  cadastrar(formDirective: FormGroupDirective): void {
     const dados: SolicitacaoDTO = {
+      equipamento: this.form.value.equipamento!,
       curso: this.form.value.curso!,
       grr: this.form.value.grr!,
       motivo: this.form.value.motivo!,
       semComputador: this.form.value.semComputador!,
       ativo: this.form.value.matriculaAtiva!
-    }
+    };
 
     this.solicitacaoService.cadastrarSolicitacao(dados).subscribe({
-      next: (dados) => {
-      
-        alert('Solicitação cadastrada com sucesso!' +dados);
-        
+      next: () => {
+        this.dialog.open(DialogBaseComponent, {
+          width: '420px',
+          disableClose: true,
+          data: {
+            tipo: 'success',
+            icone: 'celebration',
+            titulo: 'Solicitação registrada com sucesso!',
+            mensagem: '',
+            mostrarConfirmar: false
+          }
+        });
+
+        this.resetarFormulario(formDirective);
       },
       error: () => {
-        
-        alert('Erro ao cadastrar solicitação');
+        this.dialog.open(DialogBaseComponent, {
+          width: '420px',
+          data: {
+            tipo: 'error',
+            titulo: 'Erro ao cadastrar solicitação',
+            mensagem: 'Não foi possível registrar sua solicitação. Tente novamente.',
+            textoConfirmar: 'OK'
+          }
+        });
       }
-    })
+    });
   }
 
   confirmar(formDirective: FormGroupDirective): void {
@@ -76,11 +107,9 @@ export class PaginaCadastroSolicitacao {
       return;
     }
 
-    this.cadastrar();
+    this.cadastrar(formDirective);
 
     console.log('Dados da solicitação:', this.form.value);
-
-  
   }
 
   cancelar(formDirective: FormGroupDirective): void {
@@ -89,6 +118,7 @@ export class PaginaCadastroSolicitacao {
 
   resetarFormulario(formDirective: FormGroupDirective): void {
     this.form.reset({
+      equipamento: '',
       curso: '',
       grr: '',
       motivo: '',
@@ -97,6 +127,7 @@ export class PaginaCadastroSolicitacao {
     });
 
     formDirective.resetForm({
+      equipamento: '',
       curso: '',
       grr: '',
       motivo: '',
@@ -107,6 +138,10 @@ export class PaginaCadastroSolicitacao {
 
   get curso() {
     return this.form.get('curso');
+  }
+
+  get equipamento() {
+    return this.form.get('equipamento');
   }
 
   get grr() {

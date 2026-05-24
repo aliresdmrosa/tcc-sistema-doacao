@@ -1,7 +1,7 @@
 <div class="container">
   <mat-card class="card">
-    <mat-card-header>
-      <mat-card-title>Bem-Vindo</mat-card-title>
+    <mat-card-header class="titulo-subtitulo">
+      <mat-card-title>Criar conta</mat-card-title>
       <mat-card-subtitle>Preencha os dados para criar sua conta</mat-card-subtitle>
     </mat-card-header>
 
@@ -59,6 +59,12 @@
             [disabled]="cadastroForm.invalid || carregando">
             {{ carregando ? 'Cadastrando...' : 'Cadastrar' }}
           </button>
+        </div>
+
+        <div class="mensagens">
+          <a class="link-auth" routerLink="/login">
+            Já tem uma conta? Fazer login
+          </a>
         </div>
       </form>
     </mat-card-content>

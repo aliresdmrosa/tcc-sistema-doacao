@@ -26,6 +26,20 @@
 
           <div class="linha">
             <mat-form-field appearance="outline">
+              <mat-label>Equipamento</mat-label>
+              <mat-select formControlName="equipamento">
+                <mat-option *ngFor="let tipo of tiposEquipamento" [value]="tipo.valor">
+                  {{ tipo.label }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="equipamento?.hasError('required') && equipamento?.touched">
+                Selecione o equipamento desejado.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="linha">
+            <mat-form-field appearance="outline">
               <mat-label>Curso</mat-label>
               <input
                 matInput

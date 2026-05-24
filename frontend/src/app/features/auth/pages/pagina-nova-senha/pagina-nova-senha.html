@@ -1,1 +1,50 @@
-<p>pagina-nova-senha works!</p>
+<div class="container">
+  <mat-card class="card">
+    <mat-card-header class="titulo-subtitulo">
+      <mat-card-title>Escolha sua nova senha</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="enviar()" class="formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input matInput type="password" formControlName="senha" />
+          <mat-error *ngIf="campoTemErro('senha', 'required')">
+            A senha é obrigatória.
+          </mat-error>
+          <mat-error *ngIf="campoTemErro('senha', 'minlength')">
+            A senha deve ter pelo menos 6 caracteres.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirmar senha</mat-label>
+          <input matInput type="password" formControlName="confirmarSenha" />
+          <mat-error *ngIf="campoTemErro('confirmarSenha', 'required')">
+            Confirme sua nova senha.
+          </mat-error>
+          <mat-error *ngIf="mostrarErroConfirmacao()">
+            As senhas devem ser iguais.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="acoes">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || !senhasIguais() || carregando"
+            style="width: 100%;">
+            {{ carregando ? 'Enviando...' : 'Enviar' }}
+          </button>
+        </div>
+
+        <div class="voltar-login">
+          <button mat-button type="button" (click)="voltarLogin()">
+            Voltar ao login
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

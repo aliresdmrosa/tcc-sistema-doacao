@@ -17,7 +17,6 @@ interface DetalhesDoacaoTecnico {
   nome: string;
   cpf: string;
   equipamento: string;
-  quantidade: number;
   descricao: string;
   imagem: string;
   estadoConservacao: string;
@@ -48,7 +47,6 @@ export class PaginaDetalhesDoacaoTecnico {
     nome: 'Vitória Laís Souza',
     cpf: '000.000.000-00',
     equipamento: 'Computador',
-    quantidade: 1,
     descricao: 'Minha doação foi reprovada pela IA, porém está em bom estado. Solicito análise do técnico.',
     imagem: '',
     estadoConservacao: 'USADO',
@@ -60,7 +58,6 @@ export class PaginaDetalhesDoacaoTecnico {
     nome: [{ value: this.doacao.nome, disabled: true }],
     cpf: [{ value: this.doacao.cpf, disabled: true }],
     equipamento: [{ value: this.doacao.equipamento, disabled: true }],
-    quantidade: [{ value: this.doacao.quantidade, disabled: true }],
     descricao: [{ value: this.doacao.descricao, disabled: true }],
     imagem: [{ value: this.doacao.imagem, disabled: true }],
     estadoConservacao: [{ value: this.doacao.estadoConservacao, disabled: true }]

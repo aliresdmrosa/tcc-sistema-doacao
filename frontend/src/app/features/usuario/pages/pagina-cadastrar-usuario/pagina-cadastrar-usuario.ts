@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
 
@@ -19,7 +20,8 @@ import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    RouterLink
   ],
   templateUrl: './pagina-cadastrar-usuario.html',
   styleUrl: './pagina-cadastrar-usuario.css'

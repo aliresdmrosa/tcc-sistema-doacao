@@ -35,6 +35,10 @@
   height: 56px;
 }
 
-.mensagens {
-  color: #007BE8;
+.cancelar {
+  text-align: center;
+}
+
+.cancelar button {
+  color: #007be8;
 }

@@ -8,7 +8,9 @@ import { LayoutPrincipal } from './layouts/layout-principal/layout-principal';
 import { PaginaLogin } from './features/auth/pages/pagina-login/pagina-login';
 import { PaginaCadastrarUsuario } from './features/usuario/pages/pagina-cadastrar-usuario/pagina-cadastrar-usuario';
 import { PaginaRedefinirSenha } from './features/auth/pages/pagina-redefinir-senha/pagina-redefinir-senha';
-
+import { PaginaMensagemRedefinirSenha } from './features/auth/pages/pagina-mensagem-redefinir-senha/pagina-mensagem-redefinir-senha';
+import { PaginaNovaSenha } from './features/auth/pages/pagina-nova-senha/pagina-nova-senha';
+import { PaginaSucessoRedefinirSenha } from './features/auth/pages/pagina-sucesso-redefinir-senha/pagina-sucesso-redefinir-senha';
 
 // Admin
 import { PaginaDashboardAdmin } from './features/admin/pages/pagina-dashboard-admin/pagina-dashboard-admin';
@@ -50,7 +52,10 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: PaginaLogin },
       { path: 'cadastro', component: PaginaCadastrarUsuario },
-      { path: 'redefinir-senha', component: PaginaRedefinirSenha }
+      { path: 'redefinir-senha', component: PaginaRedefinirSenha },
+      { path: 'mensagem-redefinir-senha', component: PaginaMensagemRedefinirSenha },
+      { path: 'nova-senha', component: PaginaNovaSenha },
+      { path: 'sucesso-redefinir-senha', component: PaginaSucessoRedefinirSenha }
     ]
   },
   {
@@ -164,7 +169,7 @@ export const routes: Routes = [
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['USUARIO'] }
       },
-       {
+      {
         path: 'usuario/cadastro-doacao',
         component: PaginaCadastroDoacao,
         //canActivate: [perfilGuard],

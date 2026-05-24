@@ -16,7 +16,6 @@ interface DetalhesDoacaoAdmin {
   nomeDoador: string;
   cpf: string;
   tipoItem: string;
-  quantidade: number;
   descricao: string;
   imagem: string;
   estadoConservacao: string;
@@ -55,7 +54,6 @@ export class PaginaDetalhesDoacaoAdmin {
     nomeDoador: 'Vitória Laís Souza',
     cpf: '000.000.000-00',
     tipoItem: 'Computador',
-    quantidade: 1,
     descricao: 'Ex tela quebrada',
     imagem: 'Aqui ficam as imagens a serem analisadas',
     estadoConservacao: 'USADO',
@@ -67,7 +65,6 @@ export class PaginaDetalhesDoacaoAdmin {
     nomeDoador: [{ value: this.doacao.nomeDoador, disabled: true }],
     cpf: [{ value: this.doacao.cpf, disabled: true }],
     tipoItem: [{ value: this.doacao.tipoItem, disabled: true }],
-    quantidade: [{ value: this.doacao.quantidade, disabled: true }],
     descricao: [{ value: this.doacao.descricao, disabled: true }],
     imagem: [{ value: this.doacao.imagem, disabled: true }],
     estadoConservacao: [{ value: this.doacao.estadoConservacao, disabled: true }]

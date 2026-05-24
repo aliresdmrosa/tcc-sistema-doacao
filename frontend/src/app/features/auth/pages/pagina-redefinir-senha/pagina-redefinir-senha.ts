@@ -6,8 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthService } from '../../../../core/services/auth.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-pagina-redefinir-senha',
@@ -19,9 +18,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class PaginaRedefinirSenha {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
 
   carregando = false;
 
@@ -39,13 +36,15 @@ export class PaginaRedefinirSenha {
 
     // chamar api
     setTimeout(() => {
-      this.router.navigate(['/auth/pagina-mensagem-redefinir-senha']);
+      this.router.navigate(['/mensagem-redefinir-senha'], {
+        state: { email: this.redefinirSenhaForm.value.email }
+      });
       this.carregando = false;
     }, 1000);
   }
 
   voltar(): void {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 
   campoTemErro(nomeCampo: string, erro: string): boolean {
