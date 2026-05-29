@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexResponsive,
 ApexStroke, ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
+import { DoacaoService } from '../../../../core/services/doacao.service';
 
 export type DonutChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -32,12 +33,15 @@ export type BarChartOptions = {
   templateUrl: './pagina-dashboard-tecnico.html',
   styleUrl: './pagina-dashboard-tecnico.css'
 })
-export class PaginaDashboardTecnico {
+export class PaginaDashboardTecnico implements OnInit {
   @ViewChild('donutChart') donutChart!: ChartComponent;
   @ViewChild('barChart') barChart!: ChartComponent;
 
   // pegar do token depois
   nomeUsuario = 'Aluno Técnico';
+
+  private doacaoService = inject(DoacaoService);
+  private cdr = inject(ChangeDetectorRef);
 
   // vir da API
   totalDoacoes = 0;
@@ -108,8 +112,43 @@ export class PaginaDashboardTecnico {
       text: 'Beneficiados'
     }
   };
+carregarDadosDashboard(): void {
+    this.doacaoService.obterDadosDashboard()
+    
+    .subscribe({
+      next: (dados) => {
+        console.log('Dados do dashboard:', dados);
+        this.totalDoacoes = dados.totalDoacoes;
+        this.totalAlunosBeneficiados = dados.totalDoacoesRealizadas;
+        this.donutChartOptions.series = dados.doacoesPorEquipamento.map(item => item.total);
+        this.donutChartOptions.labels = dados.doacoesPorEquipamento.map(item => item.equipamento);
 
-  constructor() {
-    // API do técnico
+        const dadosMeses = new Array(12).fill(0); // Inicializa um array com 12 meses
+
+        dados.doacoesPorMes.forEach(item => {
+          const index = Number(item.mes) - 1; // Ajusta o índice (Janeiro = 0, Fevereiro = 1, ...)
+            dadosMeses[index] = item.total; // Preenche o total de doações para o mês correspondente
+        });
+        
+
+        this.barChartOptions = {
+          ...this.barChartOptions,
+          series: [{
+            ...this.barChartOptions.series[0], 
+            data: [...dadosMeses] // Nova referência de array
+          }]
+        };
+
+        this.cdr.detectChanges(); // Atualiza os gráficos com os novos dados  
+
+      },
+      error: (err) => {
+        console.error('Erro ao carregar dados do dashboard:', err);
+      }
+    });
+  }
+ 
+  ngOnInit(): void {
+    this.carregarDadosDashboard();
   }
 }

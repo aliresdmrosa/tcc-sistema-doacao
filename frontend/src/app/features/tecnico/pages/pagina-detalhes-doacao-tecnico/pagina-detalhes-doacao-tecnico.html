@@ -5,11 +5,11 @@
 
   <div class="topo-pagina">
     <div>
-      <h1>Detalhes da doação #{{ doacao.id }}</h1>
+      <h1>Detalhes da doação #{{ doacao?.id }}</h1>
 
       <div class="datas">
-        <p>Data do Cadastro: {{ doacao.dataCadastro }}</p>
-        <p>Última modificação em: {{ doacao.dataUltimaModificacao }}</p>
+        <p>Data do Cadastro: {{ doacao?.dataCadastro }}</p>
+        <p>Última modificação em: {{ doacao?.dataAlteracaoStatus }}</p>
       </div>
     </div>
   </div>
@@ -65,10 +65,16 @@
             <h2>Imagem do item</h2>
           </div>
 
-          <mat-form-field appearance="outline" class="campo-descricao">
+          <!-- <mat-form-field appearance="outline" class="campo-descricao">
             <mat-label>Imagem enviada</mat-label>
             <textarea matInput rows="2" formControlName="imagem"></textarea>
-          </mat-form-field>
+          </mat-form-field> -->
+
+          <mat-card class="card-imagem">
+
+            <img mat-card-image src="http://localhost:8080{{ doacao?.url }}" alt="Imagem do item doado" class="imagem-item"/>
+
+          </mat-card>
         </section>
 
         <section class="bloco-formulario">
@@ -76,10 +82,11 @@
             <h2>Estado de conservação</h2>
           </div>
 
-          <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">
+          <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio"
+            value="{{doacao?.statusConservacao}}">
             <mat-radio-button value="NOVO">Novo</mat-radio-button>
             <mat-radio-button value="USADO">Usado</mat-radio-button>
-            <mat-radio-button value="PRECISA_REPARO">Precisa de reparo</mat-radio-button>
+            <mat-radio-button value="REPARO">Precisa de reparo</mat-radio-button>
           </mat-radio-group>
         </section>
 

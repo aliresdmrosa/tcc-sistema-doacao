@@ -32,5 +32,23 @@ export class DoacaoService {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario`);
     }
 
+      listarDoacoesReverReparo(): Observable<DoacaoDTO[]> {
+        return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/tecnico`);
+    }
+
+    listarDoacoesReverReparoPorId(id: number): Observable<DoacaoDTO> {
+      return this.http.get<DoacaoDTO>(`${this.apiUrl}/tecnico/${id}`);
+  }
+
+    aprovarDoacao(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovar/${id}`, { motivo });
+    }
+
+    reprovarDoacao(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
+    }
+
+
+
 
 }
