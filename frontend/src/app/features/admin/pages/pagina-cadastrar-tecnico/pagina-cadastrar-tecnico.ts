@@ -6,9 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { TecnicoCadastroRequest } from '../../../../core/models/usuario.model';
+import { CURSOS, SENHA_FORTE_REGEX, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 @Component({
   selector: 'app-pagina-cadastrar-tecnico',
@@ -20,6 +23,8 @@ import { TecnicoCadastroRequest } from '../../../../core/models/usuario.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
     MatSnackBarModule
   ],
   templateUrl: './pagina-cadastrar-tecnico.html',
@@ -32,15 +37,21 @@ export class PaginaCadastrarTecnico {
   private router = inject(Router);
 
   carregando = false;
+  ocultarSenha = true;
+  cursos = CURSOS;
 
   tecnicoForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
+    cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
     email: ['', [Validators.required, Validators.email]],
-    senha: ['', [Validators.required, Validators.minLength(6)]],
-    grr: ['', [Validators.required]],
+    senha: ['', [Validators.required, Validators.pattern(SENHA_FORTE_REGEX)]],
+    grr: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     curso: ['', [Validators.required]]
   });
+
+  voltar(): void {
+    this.router.navigate(['/admin/usuarios']);
+  }
 
   salvar(): void {
     if (this.tecnicoForm.invalid) {
@@ -52,7 +63,7 @@ export class PaginaCadastrarTecnico {
 
     const dados: TecnicoCadastroRequest = {
       nome: this.tecnicoForm.value.nome ?? '',
-      cpf: this.tecnicoForm.value.cpf ?? '',
+      cpf: apenasNumeros(this.tecnicoForm.value.cpf),
       email: this.tecnicoForm.value.email ?? '',
       senha: this.tecnicoForm.value.senha ?? '',
       grr: this.tecnicoForm.value.grr ?? '',
@@ -66,7 +77,7 @@ export class PaginaCadastrarTecnico {
         });
 
         this.tecnicoForm.reset();
-        this.carregando = false;
+        this.definirCarregando(false);
 
         this.router.navigate(['/admin/usuarios']);
       },
@@ -77,19 +88,39 @@ export class PaginaCadastrarTecnico {
           this.snackBar.open('Você não tem permissão para cadastrar aluno técnico.', 'Fechar', {
             duration: 4000
           });
+        } else if (erro.status === 409) {
+          this.snackBar.open('Não foi possível cadastrar. Verifique se o e-mail já existe.', 'Fechar', {
+            duration: 4000
+          });
         } else {
           this.snackBar.open('Erro ao cadastrar aluno técnico.', 'Fechar', {
             duration: 3000
           });
         }
 
-        this.carregando = false;
+        this.definirCarregando(false);
       }
+    });
+  }
+
+  private definirCarregando(valor: boolean): void {
+    setTimeout(() => {
+      this.carregando = valor;
     });
   }
 
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.tecnicoForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
+  }
+
+  aplicarMascaraCpf(): void {
+    const campo = this.tecnicoForm.get('cpf');
+    campo?.setValue(formatarCpf(campo.value), { emitEvent: false });
+  }
+
+  aplicarMascaraGrr(): void {
+    const campo = this.tecnicoForm.get('grr');
+    campo?.setValue(normalizarGrr(campo.value), { emitEvent: false });
   }
 }

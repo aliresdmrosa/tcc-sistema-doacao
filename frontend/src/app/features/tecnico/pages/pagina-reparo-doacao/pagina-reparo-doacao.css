@@ -5,12 +5,16 @@
 }
 
 .botao-voltar {
-  max-width: 1000px;
-  margin: 0 auto 16px;
-  display: flex;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: #7f7f7f;
+  border-radius: 50%;
+  transition: 0.2s ease;
 }
 
 .botao-voltar:hover {
@@ -27,20 +31,9 @@
 
 .card-identificacao mat-card-content {
   display: grid;
-  grid-template-columns: auto 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 16px;
-}
-
-.icone-identificacao {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #e4d7fb;
-  color: #5c43a3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .dados-identificacao h2 {
@@ -100,22 +93,8 @@ mat-paginator {
 .novo-reparo-titulo {
   max-width: 1000px;
   margin: 0 auto 20px;
-  padding-top: 8px;
-  border-top: 1px solid #ded6ea;
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-
-.icone-novo-reparo {
-  width: 40px;
-  height: 40px;
-  background: #6d4bb3;
-  color: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .novo-reparo-titulo h2 {

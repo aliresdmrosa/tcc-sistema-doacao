@@ -43,31 +43,4 @@ export class DialogBaseComponent {
     this.dialogRef.close(false);
 
   }
-
-  obterIcone(): string {
-
-    if (this.data.icone) {
-
-      return this.data.icone;
-
-    }
-
-    switch (this.data.tipo) {
-
-      case 'success':
-        return 'check_circle';
-
-      case 'error':
-        return 'error';
-
-      case 'warning':
-        return 'warning';
-
-      case 'confirm':
-        return 'help';
-
-      default:
-        return 'info';
-    }
-  }
 }

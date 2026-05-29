@@ -1,8 +1,7 @@
+<div class="pagina-detalhes-usuario">
   <div class="botao-voltar" (click)="voltar()">
     <mat-icon>arrow_back</mat-icon>
   </div>
-
-<div class="pagina-detalhes-usuario">
 
   <div class="topo-pagina">
     <h1>Detalhes do Usuário #{{ usuario.id }}</h1>
@@ -37,7 +36,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>CPF</mat-label>
-            <input matInput formControlName="cpf" type="text" />
+            <input matInput formControlName="cpf" type="text" maxlength="14" (input)="aplicarMascaraCpf()" />
 
             <mat-error *ngIf="campoTemErro('cpf', 'required')">
               O CPF é obrigatório
@@ -59,12 +58,16 @@
 
           <mat-form-field appearance="outline">
             <mat-label>GRR</mat-label>
-            <input matInput formControlName="grr" type="text" />
+            <input matInput formControlName="grr" type="text" maxlength="8" (input)="aplicarMascaraGrr()" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Curso</mat-label>
-            <input matInput formControlName="curso" type="text" />
+            <mat-select formControlName="curso">
+              <mat-option *ngFor="let curso of cursos" [value]="curso.valor">
+                {{ curso.label }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
 
           <div class="acoes" *ngIf="!modoEdicao">

@@ -24,11 +24,31 @@ export class UsuarioService {
   }
 
   cadastrarTecnico(dados: TecnicoCadastroRequest): Observable<Usuario> {
-    return this.http.post<Usuario>(`${this.apiUrl}/tecnico`, dados);
+    const payload = {
+      usuario: {
+        nome: dados.nome,
+        cpf: dados.cpf,
+        email: dados.email,
+        senha: dados.senha
+      },
+      curso: dados.curso,
+      grr: dados.grr
+    };
+
+    return this.http.post<Usuario>(`${this.apiUrl}/tecnico`, payload);
   }
 
   cadastrarAdmin(dados: AdminCadastroRequest): Observable<Usuario> {
-    return this.http.post<Usuario>(`${this.apiUrl}/admin`, dados);
+    const payload = {
+      usuario: {
+        nome: dados.nome,
+        cpf: dados.cpf,
+        email: dados.email,
+        senha: dados.senha
+      }
+    };
+
+    return this.http.post<Usuario>(`${this.apiUrl}/admin`, payload);
   }
 
   atualizarUsuario(id: number, dados: UsuarioAtualizacaoRequest): Observable<Usuario> {

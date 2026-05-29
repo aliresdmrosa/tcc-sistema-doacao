@@ -92,14 +92,14 @@
                 mat-icon-button
                 class="botao-acoes"
                 [matMenuTriggerFor]="menuAcoes"
-                aria-label="Ver mais detalhes">
+                aria-label="Ver detalhes ou editar">
                 <mat-icon>more_vert</mat-icon>
               </button>
 
               <mat-menu #menuAcoes="matMenu">
                 <button mat-menu-item (click)="verDetalhes(doacao)">
                   <mat-icon>visibility</mat-icon>
-                  <span>Ver mais detalhes</span>
+                  <span>Ver detalhes ou editar</span>
                 </button>
               </mat-menu>
             </td>

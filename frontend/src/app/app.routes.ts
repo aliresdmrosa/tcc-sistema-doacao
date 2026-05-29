@@ -16,7 +16,6 @@ import { PaginaSucessoRedefinirSenha } from './features/auth/pages/pagina-sucess
 import { PaginaDashboardAdmin } from './features/admin/pages/pagina-dashboard-admin/pagina-dashboard-admin';
 import { PaginaListarUsuarios } from './features/admin/pages/pagina-listar-usuarios/pagina-listar-usuarios';
 import { PaginaCadastrarTecnico } from './features/admin/pages/pagina-cadastrar-tecnico/pagina-cadastrar-tecnico';
-import { PaginaEditarUsuario } from './features/admin/pages/pagina-editar-usuario/pagina-editar-usuario';
 import { PaginaDetalhesTecnico } from './features/admin/pages/pagina-detalhes-tecnico/pagina-detalhes-tecnico';
 import { PaginaListarDoacaoAdmin } from './features/admin/pages/pagina-listar-doacao/pagina-listar-doacao';
 import { PaginaListarSolicitacao } from './features/admin/pages/pagina-listar-solicitacao/pagina-listar-solicitacao';
@@ -78,12 +77,6 @@ export const routes: Routes = [
       {
         path: 'admin/usuarios/novo-tecnico',
         component: PaginaCadastrarTecnico,
-        //canActivate: [perfilGuard],
-        data: { perfisPermitidos: ['ADMINISTRADOR'] }
-      },
-      {
-        path: 'admin/usuarios/editar/:id',
-        component: PaginaEditarUsuario,
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },

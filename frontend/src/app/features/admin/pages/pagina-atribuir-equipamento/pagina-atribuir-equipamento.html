@@ -1,8 +1,7 @@
-<div class="botao-voltar" (click)="voltar()">
-    <mat-icon>arrow_back</mat-icon>
-</div>
-
 <div class="pagina-atribuir">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
 
   <div class="topo-pagina">
 
@@ -14,17 +13,18 @@
     <div class="filtros">
 
         <mat-form-field appearance="outline">
-          <mat-select [(value)]="estadoSelecionado">
-            <mat-option value="NOVO">Novo</mat-option>
-            <mat-option value="USADO">Usado</mat-option>
+          <mat-select [(value)]="estadoSelecionado" [disabled]="temEquipamentoSelecionado">
+            <mat-option *ngFor="let estado of estadosConservacao" [value]="estado.valor">
+              {{ estado.label }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-select [(value)]="tipoSelecionado">
-            <mat-option value="COMPUTADOR">Computador</mat-option>
-            <mat-option value="NOTEBOOK">Notebook</mat-option>
-            <mat-option value="MONITOR">Monitor</mat-option>
+          <mat-select [(value)]="tipoSelecionado" [disabled]="temEquipamentoSelecionado">
+            <mat-option *ngFor="let tipo of tiposEquipamento" [value]="tipo.valor">
+              {{ tipo.label }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
 
@@ -33,7 +33,11 @@
 
   <div class="lista-equipamentos">
 
-    <mat-card class="card-equipamento" *ngFor="let equipamento of equipamentos">
+    <mat-card
+      class="card-equipamento"
+      *ngFor="let equipamento of equipamentosFiltrados"
+      [class.card-selecionado]="equipamentoEstaSelecionado(equipamento)"
+      [class.card-indisponivel]="temEquipamentoSelecionado && !equipamentoEstaSelecionado(equipamento)">
 
       <div class="conteudo-card">
 
@@ -46,6 +50,7 @@
           <div class="cabecalho-card">
             <h2>{{ equipamento.nome }}</h2>
             <span>ID:{{ equipamento.id }}</span>
+            <span class="badge-estado">{{ obterTextoEstado(equipamento.estado) }}</span>
           </div>
 
           <p>
@@ -54,13 +59,25 @@
           </p>
 
           <button
+            *ngIf="!equipamentoEstaSelecionado(equipamento)"
             mat-raised-button
             color="primary"
             class="botao-selecionar"
+            [disabled]="temEquipamentoSelecionado"
             (click)="selecionarEquipamento(equipamento)"
           >
             <mat-icon>check</mat-icon>
             Selecionar
+          </button>
+
+          <button
+            *ngIf="equipamentoEstaSelecionado(equipamento)"
+            mat-stroked-button
+            class="botao-cancelar-selecao"
+            (click)="cancelarSelecao(equipamento)"
+          >
+            <mat-icon>close</mat-icon>
+            Cancelar selecao
           </button>
 
         </div>
@@ -69,10 +86,14 @@
 
     </mat-card>
 
+    <div class="estado-vazio" *ngIf="equipamentosFiltrados.length === 0">
+      Nenhum equipamento encontrado para os filtros selecionados.
+    </div>
+
   </div>
 
   <mat-paginator
-    [length]="10"
+    [length]="equipamentosFiltrados.length"
     [pageSize]="2"
     [pageSizeOptions]="[2, 4, 6]"
     showFirstLastButtons>

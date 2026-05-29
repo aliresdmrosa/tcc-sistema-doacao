@@ -14,6 +14,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { CURSOS, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 @Component({
   selector: 'app-pagina-cadastro-solicitacao',
@@ -39,6 +40,7 @@ export class PaginaCadastroSolicitacao {
   private router = inject(Router);
   private solicitacaoService = inject(SolicitacaoService);
   private dialog = inject(MatDialog);
+  cursos = CURSOS;
 
   tiposEquipamento = [
     { valor: 'COMPUTADOR', label: 'Computador' },
@@ -51,7 +53,7 @@ export class PaginaCadastroSolicitacao {
   form = this.fb.group({
     equipamento: ['', Validators.required],
     curso: ['', Validators.required],
-    grr: ['', Validators.required],
+    grr: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
     motivo: ['', [Validators.required, Validators.minLength(10)]],
     semComputador: [false, Validators.requiredTrue],
     matriculaAtiva: [false, Validators.requiredTrue]
@@ -78,7 +80,6 @@ export class PaginaCadastroSolicitacao {
           disableClose: true,
           data: {
             tipo: 'success',
-            icone: 'celebration',
             titulo: 'Solicitação registrada com sucesso!',
             mensagem: '',
             mostrarConfirmar: false
@@ -158,5 +159,10 @@ export class PaginaCadastroSolicitacao {
 
   get matriculaAtiva() {
     return this.form.get('matriculaAtiva');
+  }
+
+  aplicarMascaraGrr(): void {
+    const campo = this.form.get('grr');
+    campo?.setValue(normalizarGrr(campo.value), { emitEvent: false });
   }
 }

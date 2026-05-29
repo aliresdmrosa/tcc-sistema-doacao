@@ -108,7 +108,6 @@ export class PaginaCadastroDoacao {
           disableClose: true,
           data: {
             tipo: 'success',
-            icone: 'celebration',
             titulo: 'Doação registrada com sucesso aguardando avaliação',
             mensagem: '',
             mostrarConfirmar: false

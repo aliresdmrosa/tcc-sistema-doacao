@@ -8,8 +8,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ModalConfirmarExclusao } from './modal-confirmar-exclusao/modal-confirmar-exclusao';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 interface ReparoResumo {
   id: number;
@@ -42,8 +44,8 @@ interface TecnicoDetalhes {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSnackBarModule,
-    ModalConfirmarExclusao
+    MatSelectModule,
+    MatSnackBarModule
   ],
   templateUrl: './pagina-detalhes-tecnico.html',
   styleUrls: ['./pagina-detalhes-tecnico.css']
@@ -59,6 +61,7 @@ export class PaginaDetalhesTecnico implements OnInit {
 
   modoEdicao = false;
   carregando = false;
+  cursos = CURSOS;
 
   tecnico: TecnicoDetalhes = {
     id: 1,
@@ -89,8 +92,8 @@ export class PaginaDetalhesTecnico implements OnInit {
   tecnicoForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required]],
-    grr: [''],
+    cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
+    grr: ['', [Validators.pattern(/^\d{8}$/)]],
     curso: ['']
   });
 
@@ -116,7 +119,7 @@ export class PaginaDetalhesTecnico implements OnInit {
     this.tecnicoForm.patchValue({
       email: this.tecnico.email,
       nome: this.tecnico.nome,
-      cpf: this.tecnico.cpf,
+      cpf: formatarCpf(this.tecnico.cpf),
       grr: this.tecnico.grr,
       curso: this.tecnico.curso
     });
@@ -148,7 +151,7 @@ export class PaginaDetalhesTecnico implements OnInit {
     const dadosAtualizados = {
       email: this.tecnicoForm.value.email ?? '',
       nome: this.tecnicoForm.value.nome ?? '',
-      cpf: this.tecnicoForm.value.cpf ?? '',
+      cpf: apenasNumeros(this.tecnicoForm.value.cpf),
       grr: this.tecnicoForm.value.grr ?? '',
       curso: this.tecnicoForm.value.curso ?? ''
     };
@@ -174,9 +177,17 @@ export class PaginaDetalhesTecnico implements OnInit {
   }
 
   deletar(): void {
-    const dialogRef = this.dialog.open(ModalConfirmarExclusao, {
-      width: 'auto',
-      disableClose: true
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir este perfil?',
+        mensagem: 'Essa ação será permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
     });
 
     dialogRef.afterClosed().subscribe((confirmou) => {
@@ -203,5 +214,15 @@ export class PaginaDetalhesTecnico implements OnInit {
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.tecnicoForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
+  }
+
+  aplicarMascaraCpf(): void {
+    const campo = this.tecnicoForm.get('cpf');
+    campo?.setValue(formatarCpf(campo.value), { emitEvent: false });
+  }
+
+  aplicarMascaraGrr(): void {
+    const campo = this.tecnicoForm.get('grr');
+    campo?.setValue(normalizarGrr(campo.value), { emitEvent: false });
   }
 }

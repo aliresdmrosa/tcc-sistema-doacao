@@ -1,19 +1,14 @@
 .modal-base {
   position: relative;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
-}
-
-.faixa-topo {
-  height: 6px;
-  background: #3f51b5;
 }
 
 .botao-fechar {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
 
   color: #667085;
 }
@@ -31,48 +26,6 @@
 
   align-items: center;
   text-align: center;
-}
-
-.icone-status {
-  width: 72px;
-  height: 72px;
-
-  border-radius: 50%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-bottom: 20px;
-}
-
-.icone-status.success {
-  background: #eef3ff;
-  border: 1px solid #dbe5ff;
-}
-
-.icone-status.error {
-  background: #ffecec;
-  border: 1px solid #ffd5d5;
-}
-
-.icone-status.warning {
-  background: #fff8e1;
-  border: 1px solid #ffe7a3;
-}
-
-.icone-status.confirm {
-  background: #f4f4f4;
-  border: 1px solid #dddddd;
-}
-
-.icone-status mat-icon {
-  color: #3f51b5;
-
-  font-size: 38px;
-
-  width: 38px;
-  height: 38px;
 }
 
 .textos h2 {
@@ -111,5 +64,5 @@
   min-width: 120px;
   height: 42px;
 
-  border-radius: 10px;
+  border-radius: 8px;
 }

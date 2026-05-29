@@ -6,8 +6,6 @@ export interface DialogBaseData {
 
   tipo?: 'success' | 'error' | 'warning' | 'confirm';
 
-  icone?: string;
-
   textoConfirmar?: string;
 
   textoCancelar?: string;

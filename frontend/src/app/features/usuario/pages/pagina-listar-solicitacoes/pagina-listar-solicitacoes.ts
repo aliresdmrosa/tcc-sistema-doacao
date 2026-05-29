@@ -207,6 +207,8 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
       case 'REPROVADA':
       case 'REPROVADO':
         return 'status-reprovado';
+      case 'EM_ANALISE':
+        return 'status-analise';
       case 'PENDENTE':
         return 'status-pendente';
       case 'ENTREGUE_DOADO':

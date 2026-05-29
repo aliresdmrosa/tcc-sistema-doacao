@@ -9,6 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 interface SolicitacaoAdmin {
   id: string;
@@ -33,13 +35,15 @@ interface SolicitacaoAdmin {
     MatFormFieldModule,
     MatTableModule,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './pagina-listar-solicitacao.html',
   styleUrls: ['./pagina-listar-solicitacao.css']
 })
 export class PaginaListarSolicitacao implements AfterViewInit {
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -65,7 +69,7 @@ export class PaginaListarSolicitacao implements AfterViewInit {
       equipamento: 'Computador',
       dataCadastro: new Date(2025, 4, 1),
       dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'SOLICITADA'
+      status: 'PENDENTE'
     },
     {
       id: '002',
@@ -180,15 +184,33 @@ export class PaginaListarSolicitacao implements AfterViewInit {
   }
 
   editar(solicitacao: SolicitacaoAdmin): void {
-    console.log('Editar solicitação:', solicitacao.id);
-
-    // rota futura
-    // this.router.navigate(['/admin/solicitacoes/editar', solicitacao.id]);
+    this.verDetalhes(solicitacao);
   }
 
   excluir(solicitacao: SolicitacaoAdmin): void {
-    console.log('Excluir solicitação:', solicitacao.id);
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir esta solicitação?',
+        mensagem: 'Essa ação será permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
 
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      console.log('Excluir solicitação:', solicitacao.id);
+
+      this.solicitacoes = this.solicitacoes.filter((item) => item.id !== solicitacao.id);
+      this.dataSource.data = this.solicitacoes;
+    });
   }
 
   obterClasseStatus(status: string): string {
@@ -205,11 +227,11 @@ export class PaginaListarSolicitacao implements AfterViewInit {
       return 'status-reprovado';
     }
 
-    if (
-      statusNormalizado.includes('pendente') ||
-      statusNormalizado.includes('analise') ||
-      statusNormalizado.includes('solicitada')
-    ) {
+    if (statusNormalizado.includes('analise')) {
+      return 'status-analise';
+    }
+
+    if (statusNormalizado.includes('pendente')) {
       return 'status-pendente';
     }
 

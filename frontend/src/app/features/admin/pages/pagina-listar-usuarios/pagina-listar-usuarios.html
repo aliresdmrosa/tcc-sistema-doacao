@@ -1,30 +1,38 @@
-<div class="container">
-  <mat-card class="card">
-    <div class="header">
-      <div class="titulo-pesquisar-user">
-        <h2>Pesquisar Usuários</h2>
-        <p>Gerencie os usuários cadastrados no sistema</p>
-      </div>
+<div class="pagina-listar-usuarios">
 
-      <button
-        mat-raised-button
-        color="primary"
-        routerLink="/admin/usuarios/novo-tecnico">
-        Novo Aluno Técnico
-      </button>
+  <div class="topo-pagina">
+    <div class="titulo-area">
+      <h1>Usuarios</h1>
+      <p>Pesquise, visualize e gerencie os usuarios cadastrados no sistema.</p>
     </div>
 
+    <button
+      mat-raised-button
+      color="primary"
+      routerLink="/admin/usuarios/novo-tecnico">
+      Novo Aluno Tecnico
+    </button>
+  </div>
+
+  <mat-card class="card-listagem">
     <mat-card-content>
-      <mat-form-field appearance="outline" class="campo-busca">
-        <mat-label>Buscar por nome, e-mail, CPF ou perfil</mat-label>
-        <input
-          matInput
-          (keyup)="aplicarFiltro($event)"
-          placeholder="Digite para pesquisar" />
-      </mat-form-field>
+
+      <div class="barra-filtros">
+        <mat-form-field appearance="outline" class="campo-busca">
+          <mat-label>Pesquisar</mat-label>
+
+          <input
+            matInput
+            type="text"
+            (keyup)="aplicarFiltro($event)"
+            placeholder="Buscar por nome, e-mail, CPF ou perfil" />
+
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
 
       <div class="tabela-container" *ngIf="!carregando; else loading">
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z2 full-width-table">
+        <table mat-table [dataSource]="dataSource" class="tabela-usuarios">
 
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>ID</th>
@@ -52,22 +60,27 @@
           </ng-container>
 
           <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <th mat-header-cell *matHeaderCellDef>Acoes</th>
+
             <td mat-cell *matCellDef="let usuario">
-              <div class="acoes">
+              <div class="acoes-tabela">
                 <button
                   mat-icon-button
                   color="primary"
-                  [routerLink]="['/admin/usuarios/editar', usuario.id]"
-                  aria-label="Editar usuário">
-                  <mat-icon>edit</mat-icon>
+                  type="button"
+                  matTooltip="Ver detalhes ou editar"
+                  (click)="editarUsuario(usuario)"
+                  aria-label="Ver detalhes ou editar usuario">
+                  <mat-icon>more_vert</mat-icon>
                 </button>
 
                 <button
                   mat-icon-button
                   color="warn"
+                  type="button"
+                  class="botao-excluir"
                   (click)="excluirUsuario(usuario.id)"
-                  aria-label="Excluir usuário">
+                  aria-label="Excluir usuario">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -77,12 +90,12 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell sem-dados" colspan="6">
-              Nenhum usuário encontrado.
-            </td>
-          </tr>
         </table>
+
+        <div class="sem-registros" *ngIf="dataSource.filteredData.length === 0">
+          <mat-icon>group</mat-icon>
+          <p>Nenhum usuario encontrado.</p>
+        </div>
 
         <mat-paginator
           [pageSize]="5"
@@ -92,8 +105,12 @@
       </div>
 
       <ng-template #loading>
-        <p>Carregando usuários...</p>
+        <div class="estado-tela">
+          <mat-icon>hourglass_top</mat-icon>
+          <p>Carregando usuarios...</p>
+        </div>
       </ng-template>
     </mat-card-content>
   </mat-card>
+
 </div>

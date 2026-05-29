@@ -95,6 +95,12 @@
   color: #b26b00;
 }
 
+.status-analise {
+  background: #e8f1ff;
+  color: #205493;
+
+}
+
 .status-default {
   background: #f1f1f1;
   color: #555555;
@@ -107,7 +113,7 @@
 }
 
 .botao-excluir {
-  color: #b42318;
+  color: #6f6f6f;
 }
 
 .estado-tela {

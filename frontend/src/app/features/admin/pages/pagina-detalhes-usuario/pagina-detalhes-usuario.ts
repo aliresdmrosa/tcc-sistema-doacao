@@ -7,9 +7,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { ModalConfirmarExclusao } from './modal-confirmar-exclusao/modal-confirmar-exclusao';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 interface DoacaoResumo {
   id: number;
@@ -48,9 +50,9 @@ interface UsuarioDetalhes {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
     MatSnackBarModule,
-    MatDialogModule,
-    ModalConfirmarExclusao
+    MatDialogModule
   ],
   templateUrl: './pagina-detalhes-usuario.html',
   styleUrls: ['./pagina-detalhes-usuario.css']
@@ -66,6 +68,7 @@ export class PaginaDetalhesUsuario implements OnInit {
 
   modoEdicao = false;
   carregando = false;
+  cursos = CURSOS;
 
   usuario: UsuarioDetalhes = {
     id: 1,
@@ -101,9 +104,9 @@ export class PaginaDetalhesUsuario implements OnInit {
 
   usuarioForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required]],
+    cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
     email: ['', [Validators.required, Validators.email]],
-    grr: [''],
+    grr: ['', [Validators.pattern(/^\d{8}$/)]],
     curso: ['']
   });
 
@@ -128,7 +131,7 @@ export class PaginaDetalhesUsuario implements OnInit {
   preencherFormulario(): void {
     this.usuarioForm.patchValue({
       nome: this.usuario.nome,
-      cpf: this.usuario.cpf,
+      cpf: formatarCpf(this.usuario.cpf),
       email: this.usuario.email,
       grr: this.usuario.grr,
       curso: this.usuario.curso
@@ -160,7 +163,7 @@ export class PaginaDetalhesUsuario implements OnInit {
 
     const dadosAtualizados = {
       nome: this.usuarioForm.value.nome ?? '',
-      cpf: this.usuarioForm.value.cpf ?? '',
+      cpf: apenasNumeros(this.usuarioForm.value.cpf),
       email: this.usuarioForm.value.email ?? '',
       grr: this.usuarioForm.value.grr ?? '',
       curso: this.usuarioForm.value.curso ?? ''
@@ -187,10 +190,17 @@ export class PaginaDetalhesUsuario implements OnInit {
   }
 
 deletar(): void {
-  const dialogRef = this.dialog.open(ModalConfirmarExclusao, {
-    width: 'auto',
-    panelClass: 'modal-exclusao-container',
-    disableClose: true
+  const dialogRef = this.dialog.open(DialogBaseComponent, {
+    width: '420px',
+    disableClose: true,
+    data: {
+      tipo: 'confirm',
+      titulo: 'Deseja excluir este perfil?',
+      mensagem: 'Essa ação será permanente.',
+      textoConfirmar: 'Confirmar',
+      textoCancelar: 'Cancelar',
+      mostrarCancelar: true
+    }
   });
 
   dialogRef.afterClosed().subscribe((confirmou) => {
@@ -211,15 +221,33 @@ deletar(): void {
 }
 
   abrirDoacao(id: number): void {
-    this.router.navigate(['/admin/doacoes', id]);
+    this.router.navigate(['/admin/doacoes', id], {
+      queryParams: {
+        voltarPara: `/admin/usuarios/${this.idUsuario}`
+      }
+    });
   }
 
   abrirSolicitacao(id: number): void {
-    this.router.navigate(['/admin/solicitacoes', id]);
+    this.router.navigate(['/admin/solicitacoes', id], {
+      queryParams: {
+        voltarPara: `/admin/usuarios/${this.idUsuario}`
+      }
+    });
   }
 
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.usuarioForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
+  }
+
+  aplicarMascaraCpf(): void {
+    const campo = this.usuarioForm.get('cpf');
+    campo?.setValue(formatarCpf(campo.value), { emitEvent: false });
+  }
+
+  aplicarMascaraGrr(): void {
+    const campo = this.usuarioForm.get('grr');
+    campo?.setValue(normalizarGrr(campo.value), { emitEvent: false });
   }
 }

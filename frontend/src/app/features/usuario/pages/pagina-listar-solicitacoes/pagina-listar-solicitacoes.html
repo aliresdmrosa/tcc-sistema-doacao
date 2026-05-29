@@ -85,8 +85,8 @@
                 mat-icon-button
                 [matMenuTriggerFor]="menuAcoes"
                 [matMenuTriggerData]="{ item: solicitacao }"
-                aria-label="Ver detalhes"
-                matTooltip="Ver detalhes">
+                aria-label="Ver detalhes ou editar"
+                matTooltip="Ver detalhes ou editar">
                 <mat-icon>more_vert</mat-icon>
               </button>
             </td>
@@ -100,16 +100,8 @@
           <ng-template matMenuContent let-item="item">
             <button mat-menu-item (click)="verDetalhes(item)">
               <mat-icon>visibility</mat-icon>
-              <span>Ver detalhes</span>
+              <span>Ver detalhes ou editar</span>
             </button>
-
-            <!-- futuro -->
-            <!--
-            <button mat-menu-item>
-              <mat-icon>edit</mat-icon>
-              <span>Editar</span>
-            </button>
-            -->
           </ng-template>
         </mat-menu>
 

@@ -5,12 +5,16 @@
 }
 
 .botao-voltar {
-  max-width: 1080px;
-  margin: 0 auto 18px;
-  display: flex;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   color: #7f7f7f;
   cursor: pointer;
+  border-radius: 50%;
+  transition: 0.2s ease;
 }
 
 .botao-voltar:hover {
@@ -189,7 +193,6 @@ mat-form-field {
     grid-template-columns: 1fr;
   }
 
-  .botao-voltar,
   .topo-pagina,
   .conteudo {
     max-width: 720px;

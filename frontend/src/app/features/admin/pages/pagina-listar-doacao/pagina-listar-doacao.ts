@@ -10,6 +10,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 interface DoacaoAdmin {
   id: string;
@@ -34,13 +36,15 @@ interface DoacaoAdmin {
     MatFormFieldModule,
     MatTableModule,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDialogModule
   ],
   templateUrl: './pagina-listar-doacao.html',
   styleUrls: ['./pagina-listar-doacao.css']
 })
 export class PaginaListarDoacaoAdmin implements AfterViewInit {
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -145,14 +149,33 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
   }
 
   editar(doacao: DoacaoAdmin): void {
-    console.log('Editar doação:', doacao.id);
-
-    // rota futura
-    // this.router.navigate(['/admin/doacoes/editar', doacao.id]);
+    this.verDetalhes(doacao);
   }
 
   excluir(doacao: DoacaoAdmin): void {
-    console.log('Excluir doação:', doacao.id);
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir esta doação?',
+        mensagem: 'Essa ação será permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      console.log('Excluir doação:', doacao.id);
+
+      this.doacoes = this.doacoes.filter((item) => item.id !== doacao.id);
+      this.dataSource.data = this.doacoes;
+    });
   }
 
   obterClasseStatus(status: string): string {
@@ -169,10 +192,11 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
       return 'status-reprovado';
     }
 
-    if (
-      statusNormalizado.includes('pendente') ||
-      statusNormalizado.includes('analise')
-    ) {
+    if (statusNormalizado.includes('analise')) {
+      return 'status-analise';
+    }
+
+    if (statusNormalizado.includes('pendente')) {
       return 'status-pendente';
     }
 

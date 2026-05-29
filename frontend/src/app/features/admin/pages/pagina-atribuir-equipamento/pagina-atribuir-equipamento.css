@@ -12,9 +12,15 @@
 }
 
 .botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: #6f6487;
-  margin-bottom: 16px;
+  border-radius: 50%;
   transition: 0.2s;
 }
 
@@ -64,6 +70,15 @@
   padding: 22px 24px;
   box-sizing: border-box;
   background: #ffffff;
+}
+
+.card-selecionado {
+  border-color: #4054b2;
+  box-shadow: 0 8px 24px rgba(64, 84, 178, 0.14);
+}
+
+.card-indisponivel {
+  opacity: 0.62;
 }
 
 .card-equipamento mat-card-content {
@@ -116,6 +131,15 @@
   font-weight: 500;
 }
 
+.badge-estado {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f1edf8;
+  color: #4f3f6f !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+}
+
 .informacoes p {
   margin: 0 0 24px;
   color: #4f4f4f;
@@ -130,6 +154,27 @@
   padding: 0 20px;
   font-weight: 500;
   margin-top: auto;
+}
+
+.botao-cancelar-selecao {
+  align-self: flex-end;
+  border-radius: 10px;
+  height: 42px;
+  padding: 0 20px;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+.estado-vazio {
+  width: 100%;
+  max-width: 820px;
+  padding: 28px;
+  border: 1px dashed #d8cdea;
+  border-radius: 16px;
+  color: #6f6487;
+  text-align: center;
+  background: #ffffff;
+  box-sizing: border-box;
 }
 
 mat-paginator {

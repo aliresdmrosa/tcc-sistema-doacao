@@ -1,34 +1,70 @@
-<div class="botao-voltar" (click)="voltar()">
-  <mat-icon>arrow_back</mat-icon>
-</div>
-
 <div class="pagina-solicitacao-admin">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
 
   <div class="topo-pagina">
     <div>
-      <h1>Analisar Solicitação #{{ solicitacao.id }}</h1>
-      <p>Visualize os dados da solicitação e realize a análise.</p>
+      <h1>Detalhes da Solicitacao #{{ solicitacao.id }}</h1>
+      <p>Visualize os dados da solicitacao e realize a analise.</p>
+
+      <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
+        {{ obterTextoStatus(solicitacao.status) }}
+      </span>
+
+      <div class="equipamento-atribuido" *ngIf="equipamentoAtribuido">
+        <span>Equipamento atribuido</span>
+        <strong>{{ equipamentoAtribuido.nome }} - ID:{{ equipamentoAtribuido.id }}</strong>
+      </div>
+
+      <button
+        *ngIf="podeAtribuirEquipamento"
+        type="button"
+        class="link-atribuir"
+        (click)="atribuirEquipamento()">
+        Atribuir equipamento
+      </button>
     </div>
 
     <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
       <mat-icon>more_vert</mat-icon>
-      Ações
+      Acoes
     </button>
 
     <mat-menu #menuAcoes="matMenu">
-      <button mat-menu-item (click)="editar()">
+      <button mat-menu-item *ngIf="!modoEdicao" (click)="editar()">
         <mat-icon>edit</mat-icon>
         <span>Editar</span>
       </button>
 
-      <button mat-menu-item (click)="aprovar()">
+      <button mat-menu-item *ngIf="modoEdicao" (click)="salvarEdicao()">
+        <mat-icon>check</mat-icon>
+        <span>Salvar alteracoes</span>
+      </button>
+
+      <button mat-menu-item *ngIf="modoEdicao" (click)="cancelarEdicao()">
+        <mat-icon>close</mat-icon>
+        <span>Cancelar edicao</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmAnalise" (click)="marcarEmAnalise()">
+        <mat-icon>schedule</mat-icon>
+        <span>Analisar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item (click)="reprovar()">
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="reprovar()">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
+      </button>
+
+      <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Reabrir analise</span>
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
@@ -68,7 +104,7 @@
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Informações da solicitação</h2>
+            <h2>Informacoes da solicitacao</h2>
           </div>
 
           <div class="linha-dupla">
@@ -91,16 +127,16 @@
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Declarações</h2>
+            <h2>Declaracoes</h2>
           </div>
 
           <div class="grupo-checkbox">
             <mat-checkbox formControlName="declaracaoComputador">
-              Declaro que não possuo computador para a realização das atividades curriculares do curso.
+              Declaro que nao possuo computador para a realizacao das atividades curriculares do curso.
             </mat-checkbox>
 
             <mat-checkbox formControlName="declaracaoMatricula">
-              Confirmo que minha matrícula está ativa no semestre atual.
+              Confirmo que minha matricula esta ativa no semestre atual.
             </mat-checkbox>
           </div>
         </section>

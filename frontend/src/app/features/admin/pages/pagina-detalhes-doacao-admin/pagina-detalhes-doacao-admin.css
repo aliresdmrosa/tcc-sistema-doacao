@@ -5,12 +5,16 @@
 }
 
 .botao-voltar {
-  display: flex;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
   align-items: center;
-  max-width: 1000px;
-  margin: 32px auto 16px;
+  justify-content: center;
   cursor: pointer;
   color: #7f7f7f;
+  border-radius: 50%;
+  transition: 0.2s ease;
 }
 
 .botao-voltar:hover {
@@ -41,6 +45,45 @@
   margin: 4px 0;
   color: #6f6487;
   font-size: 0.95rem;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-aprovado {
+  background: #e8f7ee;
+  color: #1f7a45;
+}
+
+.status-reprovado {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.status-pendente {
+  background: #fff4e5;
+  color: #b26b00;
+}
+
+.status-analise {
+  background: #e8f1ff;
+  color: #205493;
+
+}
+
+.status-default {
+  background: #f1f1f1;
+  color: #555555;
 }
 
 .card-doacao {

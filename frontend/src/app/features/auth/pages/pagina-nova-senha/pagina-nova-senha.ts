@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { SENHA_FORTE_REGEX } from '../../../../shared/utils/form-validations';
 
 @Component({
   selector: 'app-pagina-nova-senha',
@@ -16,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
     MatButtonModule
   ],
   templateUrl: './pagina-nova-senha.html',
@@ -26,9 +29,11 @@ export class PaginaNovaSenha {
   private router = inject(Router);
 
   carregando = false;
+  ocultarSenha = true;
+  ocultarConfirmarSenha = true;
 
   form = this.fb.group({
-    senha: ['', [Validators.required, Validators.minLength(6)]],
+    senha: ['', [Validators.required, Validators.pattern(SENHA_FORTE_REGEX)]],
     confirmarSenha: ['', [Validators.required]]
   });
 
