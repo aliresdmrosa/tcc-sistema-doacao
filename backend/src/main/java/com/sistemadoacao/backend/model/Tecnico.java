@@ -5,6 +5,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,9 +16,10 @@ import lombok.EqualsAndHashCode;
 @OnDelete(action = OnDeleteAction.CASCADE)
 public class Tecnico extends Pessoa {
 
-    @Schema(description = "Codido do aluno GRR", example = "GRR20201010")
+    @Schema(description = "Codigo do aluno GRR", example = "20221106")
     private String grr;
-    @Schema(description = "Nome do curso", example = "Análise e Desenvolvimento de Sistemas")
-    private String curso;
 
+    @Enumerated(EnumType.STRING)
+    @Schema(description = "Curso do aluno tecnico", example = "TADS")
+    private Curso curso;
 }

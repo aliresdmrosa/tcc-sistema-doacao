@@ -32,8 +32,9 @@ public class Solicitacao {
 
     private Long usuarioId;
 
-    @Schema(example = "Engenharia", description = "Curso do solicitante")
-    private String curso;
+    @Enumerated(EnumType.STRING)
+    @Schema(example = "TADS", description = "Curso do solicitante")
+    private Curso curso;
 
     @Schema(example = "20210001", description = "GRR do solicitante")
     private String grr;
@@ -63,7 +64,7 @@ public class Solicitacao {
     @JsonManagedReference
     private List<Doacao> doacoes = new ArrayList<>();
 
-    public Solicitacao(String curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
+    public Solicitacao(Curso curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
             boolean sem_computador, List<HistoricoSolicitacao> historico, List<Doacao> doacoes) {
         this.curso = curso;
         this.grr = grr;
@@ -76,7 +77,7 @@ public class Solicitacao {
         this.doacoes = doacoes;
     }
 
-    public Solicitacao(Long id, Long usuarioId, String curso, String grr, String motivo, LocalDate dataCadastro,
+    public Solicitacao(Long id, Long usuarioId, Curso curso, String grr, String motivo, LocalDate dataCadastro,
             Status status, boolean ativo, boolean sem_computador, List<HistoricoSolicitacao> historico,
             List<Doacao> doacoes) {
         this.id = id;
@@ -111,11 +112,11 @@ public class Solicitacao {
         this.usuarioId = usuarioId;
     }
 
-    public String getCurso() {
+    public Curso getCurso() {
         return curso;
     }
 
-    public void setCurso(String curso) {
+    public void setCurso(Curso curso) {
         this.curso = curso;
     }
 

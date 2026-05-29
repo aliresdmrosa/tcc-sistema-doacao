@@ -1,5 +1,7 @@
 package com.sistemadoacao.backend.dto;
 
-public record AdministradorDTO(UsuarioRequestDTO usuario) {
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
+public record AdministradorDTO(@Valid @NotNull UsuarioRequestDTO usuario) {
 }

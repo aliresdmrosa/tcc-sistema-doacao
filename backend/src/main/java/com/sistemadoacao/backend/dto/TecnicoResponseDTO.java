@@ -1,5 +1,6 @@
 package com.sistemadoacao.backend.dto;
 
-public record TecnicoResponseDTO(Long id, String nome, String email, String curso, String GRR, String dataCadastro ) {
+import com.sistemadoacao.backend.model.Curso;
 
+public record TecnicoResponseDTO(Long id, String nome, String email, Curso curso, String GRR, String dataCadastro) {
 }
