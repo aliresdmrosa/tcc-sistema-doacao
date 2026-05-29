@@ -1,0 +1,192 @@
+.pagina-solicitacao-admin {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #7f7f7f;
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.topo-pagina {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.topo-pagina p {
+  margin: 8px 0 0;
+  color: #6f6487;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.link-atribuir {
+  display: block;
+  width: fit-content;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4054b2;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-atribuir:hover {
+  text-decoration: underline;
+}
+
+.equipamento-atribuido {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: fit-content;
+  margin-top: 10px;
+  color: #5f5577;
+  font-size: 0.9rem;
+}
+
+.equipamento-atribuido strong {
+  color: #2f2347;
+  font-weight: 600;
+}
+
+.status-aprovado {
+  background: #e8f7ee;
+  color: #1f7a45;
+}
+
+.status-reprovado {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.status-pendente {
+  background: #fff4e5;
+  color: #b26b00;
+}
+
+.status-analise {
+  background: #e8f1ff;
+  color: #205493;
+
+}
+
+.status-entregue {
+  background: #e8f1ff;
+  color: #205493;
+}
+
+.status-default {
+  background: #f1f1f1;
+  color: #555555;
+}
+
+.card-solicitacao {
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+}
+
+.form-solicitacao {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bloco-formulario {
+  background: #faf8fd;
+  border: 1px solid #eee7f8;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.titulo-bloco {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.titulo-bloco h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #323232;
+  font-weight: 500;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.campo-justificativa {
+  width: 100%;
+}
+
+.grupo-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acao-perigo mat-icon,
+.acao-perigo span {
+  color: #b42318;
+}
+
+@media (max-width: 768px) {
+  .pagina-solicitacao-admin {
+    padding: 20px;
+  }
+
+  .topo-pagina {
+    flex-direction: column;
+  }
+
+  .linha-dupla {
+    grid-template-columns: 1fr;
+  }
+}

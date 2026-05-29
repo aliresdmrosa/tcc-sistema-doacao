@@ -171,12 +171,15 @@ mat-form-field {
 }
 
 .botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   cursor: pointer;
   color: #7f7f7f;
-  margin-bottom: 16px;
+  border-radius: 50%;
   transition: 0.2s ease;
 }
 

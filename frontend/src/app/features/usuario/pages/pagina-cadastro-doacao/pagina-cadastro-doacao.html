@@ -1,8 +1,8 @@
-<div class="botao-voltar" (click)="voltar()">
-  <mat-icon>arrow_back</mat-icon>
-</div>
-
 <div class="pagina-doacao">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
   <div class="topo-pagina">
     <div>
       <h1>Cadastro de Doação</h1>
@@ -24,7 +24,7 @@
             <h2>Informações do item</h2>
           </div>
 
-          <div class="linha linha-dupla">
+          <div class="linha">
             <mat-form-field appearance="outline">
               <mat-label>Tipo do item</mat-label>
               <mat-select formControlName="tipoItem">
@@ -35,19 +35,6 @@
 
               <mat-error *ngIf="tipoItem?.hasError('required') && tipoItem?.touched">
                 Selecione o tipo do item.
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Quantidade</mat-label>
-              <input matInput type="number" formControlName="quantidade" min="1" />
-
-              <mat-error *ngIf="quantidade?.hasError('required') && quantidade?.touched">
-                Informe a quantidade.
-              </mat-error>
-
-              <mat-error *ngIf="quantidade?.hasError('min') && quantidade?.touched">
-                A quantidade deve ser no mínimo 1.
               </mat-error>
             </mat-form-field>
           </div>
@@ -137,4 +124,3 @@
     </mat-card-content>
   </mat-card>
 </div>
-

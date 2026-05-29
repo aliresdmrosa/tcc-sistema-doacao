@@ -1,0 +1,17 @@
+<div class="mensagem-auth">
+  <p>
+    Se existir uma conta para <br>
+    {{ email }}, você receberá um <br>
+    e-mail com instruções para redefinir sua <br>
+    senha. Caso o e-mail não tenha chegado, <br>
+    verifique sua caixa de spam.
+  </p>
+
+  <button mat-button type="button" (click)="voltarLogin()">
+    Voltar ao login
+  </button>
+
+  <button mat-button type="button" class="link-secundario" (click)="abrirNovaSenha()">
+    link
+  </button>
+</div>

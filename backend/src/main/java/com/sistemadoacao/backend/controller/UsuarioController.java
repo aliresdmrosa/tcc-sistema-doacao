@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Administrador", description = "Cadastra um novo usuario no banco com permissao de administrador")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMINISTRADOR pode cadastrar um novo administrador.", content = @Content)
-    public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody AdministradorDTO admin) {
+    public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody @Valid AdministradorDTO admin) {
         Administrador novo;
         try {
             novo = usuarioService.saveAdmin(admin);
@@ -71,7 +72,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Tecnico", description = "Cadastra um novo usuario no banco com permissao de tecnico")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico.", content = @Content)
-    public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody TecnicoDTO tecnico) {
+    public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody @Valid TecnicoDTO tecnico) {
         Tecnico novo;
 
         try {
@@ -97,7 +98,7 @@ public class UsuarioController {
             """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@RequestBody UsuarioRequestDTO usuario) {
+    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@RequestBody @Valid UsuarioRequestDTO usuario) {
         UsuarioResponseDTO novoUsuario;
         try {
             log.info("iniciando cadastro" + usuario);

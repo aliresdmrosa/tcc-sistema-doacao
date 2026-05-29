@@ -1,0 +1,26 @@
+.mensagem-auth {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #333333;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  padding: 48px 16px;
+}
+
+.mensagem-auth p {
+  margin: 0 0 12px;
+}
+
+.mensagem-auth button {
+  color: #007be8;
+  font-weight: 700;
+}
+
+.link-secundario {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}

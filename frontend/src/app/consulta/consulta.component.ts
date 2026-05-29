@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { UsuarioService } from '../core/services/usuario.service';
 
@@ -22,6 +23,7 @@ import { UsuarioService } from '../core/services/usuario.service';
     MatTableModule,
     MatButtonModule,
     MatPaginatorModule,
+    MatTooltipModule,
     FlexLayoutModule,
     DatePipe
   ],

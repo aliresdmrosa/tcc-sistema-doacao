@@ -4,6 +4,16 @@
   padding: 48px 16px;
 }
 
+.titulo-subtitulo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
 .card {
   width: 100%;
   max-width: 500px;
@@ -19,4 +29,27 @@
 .acoes {
   display: flex;
   justify-content: flex-end;
+}
+
+.acoes button {
+  height: 56px;
+}
+
+.mensagens {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.link-auth {
+  color: #007be8;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link-auth:hover {
+  text-decoration: underline;
 }

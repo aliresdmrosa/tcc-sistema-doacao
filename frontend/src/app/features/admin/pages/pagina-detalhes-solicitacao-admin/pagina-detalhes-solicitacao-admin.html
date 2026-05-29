@@ -1,0 +1,149 @@
+<div class="pagina-solicitacao-admin">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
+  <div class="topo-pagina">
+    <div>
+      <h1>Detalhes da Solicitacao #{{ solicitacao.id }}</h1>
+      <p>Visualize os dados da solicitacao e realize a analise.</p>
+
+      <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
+        {{ obterTextoStatus(solicitacao.status) }}
+      </span>
+
+      <div class="equipamento-atribuido" *ngIf="equipamentoAtribuido">
+        <span>Equipamento atribuido</span>
+        <strong>{{ equipamentoAtribuido.nome }} - ID:{{ equipamentoAtribuido.id }}</strong>
+      </div>
+
+      <button
+        *ngIf="podeAtribuirEquipamento"
+        type="button"
+        class="link-atribuir"
+        (click)="atribuirEquipamento()">
+        Atribuir equipamento
+      </button>
+    </div>
+
+    <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
+      <mat-icon>more_vert</mat-icon>
+      Acoes
+    </button>
+
+    <mat-menu #menuAcoes="matMenu">
+      <button mat-menu-item *ngIf="!modoEdicao" (click)="editar()">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
+      </button>
+
+      <button mat-menu-item *ngIf="modoEdicao" (click)="salvarEdicao()">
+        <mat-icon>check</mat-icon>
+        <span>Salvar alteracoes</span>
+      </button>
+
+      <button mat-menu-item *ngIf="modoEdicao" (click)="cancelarEdicao()">
+        <mat-icon>close</mat-icon>
+        <span>Cancelar edicao</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmAnalise" (click)="marcarEmAnalise()">
+        <mat-icon>schedule</mat-icon>
+        <span>Analisar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
+        <mat-icon>check</mat-icon>
+        <span>Aprovar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="reprovar()">
+        <mat-icon>close</mat-icon>
+        <span>Reprovar</span>
+      </button>
+
+      <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Reabrir analise</span>
+      </button>
+
+      <button mat-menu-item class="acao-perigo" (click)="deletar()">
+        <mat-icon>delete</mat-icon>
+        <span>Deletar</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <mat-card class="card-solicitacao">
+    <mat-card-content>
+
+      <form [formGroup]="form" class="form-solicitacao">
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Dados do solicitante</h2>
+          </div>
+
+          <div class="linha-dupla">
+            <mat-form-field appearance="outline">
+              <mat-label>Nome</mat-label>
+              <input matInput formControlName="nome" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>GRR</mat-label>
+              <input matInput formControlName="grr" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Curso</mat-label>
+            <input matInput formControlName="curso" />
+          </mat-form-field>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Informacoes da solicitacao</h2>
+          </div>
+
+          <div class="linha-dupla">
+            <mat-form-field appearance="outline">
+              <mat-label>Data de cadastro</mat-label>
+              <input matInput formControlName="dataCadastro" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Equipamento solicitado</mat-label>
+              <input matInput formControlName="equipamentoSolicitado" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="campo-justificativa">
+            <mat-label>Justificativa</mat-label>
+            <textarea matInput rows="5" formControlName="justificativa"></textarea>
+          </mat-form-field>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Declaracoes</h2>
+          </div>
+
+          <div class="grupo-checkbox">
+            <mat-checkbox formControlName="declaracaoComputador">
+              Declaro que nao possuo computador para a realizacao das atividades curriculares do curso.
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="declaracaoMatricula">
+              Confirmo que minha matricula esta ativa no semestre atual.
+            </mat-checkbox>
+          </div>
+        </section>
+
+      </form>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

@@ -208,6 +208,7 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
       case 'REPROVADO':
         return 'status-reprovado';
       case 'EM_ANALISE':
+        return 'status-analise';
       case 'PENDENTE':
         return 'status-pendente';
       default:

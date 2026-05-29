@@ -1,0 +1,171 @@
+.pagina-listar-doacao-admin {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  min-height: 100vh;
+}
+
+.topo-pagina {
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.titulo-area h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.titulo-area p {
+  margin: 8px 0 0;
+  color: #6f6487;
+}
+
+.card-listagem {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.barra-filtros {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.campo-busca {
+  width: 100%;
+  max-width: 360px;
+}
+
+.tabela-container {
+  overflow-x: auto;
+}
+
+.tabela-doacoes {
+  width: 100%;
+  background: #ffffff;
+}
+
+.mat-mdc-header-row {
+  background: #f6f2fb;
+}
+
+.mat-mdc-header-cell {
+  color: #3b2f57;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.mat-mdc-cell {
+  color: #4c4560;
+  font-size: 0.92rem;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-aprovado {
+  background: #e8f7ee;
+  color: #1f7a45;
+}
+
+.status-reprovado {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.status-pendente {
+  background: #fff4e5;
+  color: #b26b00;
+}
+
+.status-analise {
+  background: #e8f1ff;
+  color: #205493;
+
+}
+
+.status-default {
+  background: #f1f1f1;
+  color: #555555;
+}
+
+.acoes-tabela {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.botao-excluir {
+  color: #6f6f6f;
+}
+
+.estado-tela {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6f6487;
+}
+
+.estado-tela mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.estado-tela.erro {
+  color: #b42318;
+}
+
+.sem-registros {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  color: #7a718f;
+}
+
+.sem-registros mat-icon {
+  font-size: 38px;
+  width: 38px;
+  height: 38px;
+}
+
+@media (max-width: 768px) {
+  .pagina-listar-doacao-admin {
+    padding: 20px;
+  }
+
+  .topo-pagina {
+    align-items: stretch;
+  }
+
+  .barra-filtros {
+    justify-content: stretch;
+  }
+
+  .campo-busca {
+    max-width: none;
+  }
+}

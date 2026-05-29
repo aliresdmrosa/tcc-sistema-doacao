@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
+import { SENHA_FORTE_REGEX, apenasNumeros, formatarCpf } from '../../../../shared/utils/form-validations';
 
 @Component({
   selector: 'app-pagina-cadastrar-usuario',
@@ -17,9 +20,11 @@ import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    RouterLink
   ],
   templateUrl: './pagina-cadastrar-usuario.html',
   styleUrl: './pagina-cadastrar-usuario.css'
@@ -30,12 +35,13 @@ export class PaginaCadastrarUsuario {
   private snackBar = inject(MatSnackBar);
 
   carregando = false;
+  ocultarSenha = true;
 
   cadastroForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+    cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
     email: ['', [Validators.required, Validators.email]],
-    senha: ['', [Validators.required, Validators.minLength(6)]]
+    senha: ['', [Validators.required, Validators.pattern(SENHA_FORTE_REGEX)]]
   });
 
   salvar(): void {
@@ -48,7 +54,7 @@ export class PaginaCadastrarUsuario {
 
     const dados: UsuarioCadastroRequest = {
       nome: this.cadastroForm.value.nome!,
-      cpf: this.cadastroForm.value.cpf!,
+      cpf: apenasNumeros(this.cadastroForm.value.cpf),
       email: this.cadastroForm.value.email!,
       senha: this.cadastroForm.value.senha!
     };
@@ -76,5 +82,11 @@ export class PaginaCadastrarUsuario {
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.cadastroForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
+  }
+
+  aplicarMascaraCpf(): void {
+    const campo = this.cadastroForm.get('cpf');
+    const valorFormatado = formatarCpf(campo?.value);
+    campo?.setValue(valorFormatado, { emitEvent: false });
   }
 }

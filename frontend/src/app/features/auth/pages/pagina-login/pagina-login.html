@@ -1,6 +1,6 @@
 <div class="container">
   <mat-card class="card">
-    <mat-card-header>
+    <mat-card-header class="titulo-subtitulo">
       <mat-card-title>Login</mat-card-title>
       <mat-card-subtitle>Acesse o sistema com seu e-mail e senha</mat-card-subtitle>
     </mat-card-header>
@@ -34,9 +34,19 @@
             mat-raised-button
             color="primary"
             type="submit"
-            [disabled]="loginForm.invalid || carregando">
+            [disabled]="loginForm.invalid || carregando"
+            style="width: 100%;">
             {{ carregando ? 'Entrando...' : 'Entrar' }}
           </button>
+        </div>
+
+        <div class="mensagens">
+          <a class="link-auth" routerLink="/redefinir-senha">
+            Redefinir senha
+          </a>
+          <a class="link-auth" routerLink="/cadastro">
+            Não tem conta? Crie uma
+          </a>
         </div>
       </form>
     </mat-card-content>

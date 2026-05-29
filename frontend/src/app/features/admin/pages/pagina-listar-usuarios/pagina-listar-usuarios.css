@@ -1,62 +1,134 @@
-.container {
-  padding: 32px 16px;
+.pagina-listar-usuarios {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  min-height: 100vh;
 }
 
-.card {
-  width: 100%;
-}
-
-.header {
+.topo-pagina {
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
-  padding: 16px 16px 0 16px;
+  flex-wrap: wrap;
 }
 
-.titulo-pesquisar-user {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.titulo-pesquisar-user h2,
-.titulo-pesquisar-user p {
+.titulo-area h1 {
   margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
 }
 
-.titulo-pesquisar-user p {
-  margin-top: 4px;
+.titulo-area p {
+  margin: 8px 0 0;
+  color: #6f6487;
 }
 
-.titulo-pesquisar-user h2 {
-  font-weight: 500; 
-  color: #333; 
-  font-size: 25px;
+.card-listagem {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.barra-filtros {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
 }
 
 .campo-busca {
   width: 100%;
-  margin: 20px 0 8px 0;
+  max-width: 360px;
 }
 
 .tabela-container {
   overflow-x: auto;
 }
 
-.full-width-table {
+.tabela-usuarios {
   width: 100%;
+  background: #ffffff;
 }
 
-.acoes {
+.mat-mdc-header-row {
+  background: #f6f2fb;
+}
+
+.mat-mdc-header-cell {
+  color: #3b2f57;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.mat-mdc-cell {
+  color: #4c4560;
+  font-size: 0.92rem;
+}
+
+.acoes-tabela {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 4px;
 }
 
-.sem-dados {
-  text-align: center;
-  padding: 16px;
+.botao-excluir {
+  color: #6f6f6f;
 }
 
+.estado-tela {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6f6487;
+}
 
+.estado-tela mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.sem-registros {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  color: #7a718f;
+}
+
+.sem-registros mat-icon {
+  font-size: 38px;
+  width: 38px;
+  height: 38px;
+}
+
+@media (max-width: 768px) {
+  .pagina-listar-usuarios {
+    padding: 20px;
+  }
+
+  .topo-pagina {
+    align-items: stretch;
+  }
+
+  .topo-pagina button {
+    width: 100%;
+  }
+
+  .barra-filtros {
+    justify-content: stretch;
+  }
+
+  .campo-busca {
+    max-width: none;
+  }
+}

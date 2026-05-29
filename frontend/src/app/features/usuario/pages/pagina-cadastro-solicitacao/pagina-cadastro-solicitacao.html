@@ -1,11 +1,11 @@
-<div class="botao-voltar" (click)="voltar()">
-  <mat-icon>arrow_back</mat-icon>
-</div>
-
 <div class="pagina-solicitacao">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
   <div class="topo-pagina">
     <div>
-      <h1>Cadastro de Solicitação</h1>
+      <h1>Cadastro de Solicitacao</h1>
       <p>Preencha os dados para solicitar um equipamento.</p>
     </div>
   </div>
@@ -18,21 +18,35 @@
         #formDirective="ngForm"
         class="form-solicitacao"
       >
-
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Informações da solicitação</h2>
+            <h2>Informacoes da solicitacao</h2>
+          </div>
+
+          <div class="linha">
+            <mat-form-field appearance="outline">
+              <mat-label>Equipamento</mat-label>
+              <mat-select formControlName="equipamento">
+                <mat-option *ngFor="let tipo of tiposEquipamento" [value]="tipo.valor">
+                  {{ tipo.label }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="equipamento?.hasError('required') && equipamento?.touched">
+                Selecione o equipamento desejado.
+              </mat-error>
+            </mat-form-field>
           </div>
 
           <div class="linha">
             <mat-form-field appearance="outline">
               <mat-label>Curso</mat-label>
-              <input
-                matInput
-                formControlName="curso"
-                placeholder="Digite seu curso" />
+              <mat-select formControlName="curso">
+                <mat-option *ngFor="let curso of cursos" [value]="curso.valor">
+                  {{ curso.label }}
+                </mat-option>
+              </mat-select>
               <mat-error *ngIf="curso?.hasError('required') && curso?.touched">
-                O curso é obrigatório.
+                O curso e obrigatorio.
               </mat-error>
             </mat-form-field>
           </div>
@@ -43,23 +57,28 @@
               <input
                 matInput
                 formControlName="grr"
-                placeholder="Digite seu GRR" />
+                maxlength="8"
+                placeholder="Digite seu GRR"
+                (input)="aplicarMascaraGrr()" />
               <mat-error *ngIf="grr?.hasError('required') && grr?.touched">
-                O GRR é obrigatório.
+                O GRR e obrigatorio.
+              </mat-error>
+              <mat-error *ngIf="grr?.hasError('pattern') && grr?.touched">
+                Insira um GRR valido.
               </mat-error>
             </mat-form-field>
           </div>
 
           <div class="linha">
             <mat-form-field appearance="outline" class="campo-motivo">
-              <mat-label>Motivo da solicitação</mat-label>
+              <mat-label>Motivo da solicitacao</mat-label>
               <textarea
                 matInput
                 rows="5"
                 formControlName="motivo"
-                placeholder="Descreva o motivo da solicitação"></textarea>
+                placeholder="Descreva o motivo da solicitacao"></textarea>
               <mat-error *ngIf="motivo?.hasError('required') && motivo?.touched">
-                O motivo é obrigatório.
+                O motivo e obrigatorio.
               </mat-error>
               <mat-error *ngIf="motivo?.hasError('minlength') && motivo?.touched">
                 Escreva um motivo mais detalhado.
@@ -70,24 +89,24 @@
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Declarações</h2>
+            <h2>Declaracoes</h2>
           </div>
 
           <div class="checkbox-group">
             <mat-checkbox formControlName="semComputador" color="primary">
-              Declaro que não possuo computador para a realização das atividades curriculares do curso.
+              Declaro que nao possuo computador para a realizacao das atividades curriculares do curso.
             </mat-checkbox>
 
             <div class="mensagem-erro" *ngIf="semComputador?.invalid && semComputador?.touched">
-              Você precisa confirmar esta declaração.
+              Voce precisa confirmar esta declaracao.
             </div>
 
             <mat-checkbox formControlName="matriculaAtiva" color="primary">
-              Confirmo que minha matrícula está ativa no semestre atual.
+              Confirmo que minha matricula esta ativa no semestre atual.
             </mat-checkbox>
 
             <div class="mensagem-erro" *ngIf="matriculaAtiva?.invalid && matriculaAtiva?.touched">
-              Você precisa confirmar esta declaração.
+              Voce precisa confirmar esta declaracao.
             </div>
           </div>
         </section>
@@ -108,7 +127,6 @@
             Cancelar
           </button>
         </section>
-
       </form>
     </mat-card-content>
   </mat-card>

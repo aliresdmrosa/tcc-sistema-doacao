@@ -1,0 +1,41 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-header class="titulo-subtitulo">
+      <mat-card-title>Insira seu e-mail para<br>redefinir a senha</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="redefinirSenhaForm" (ngSubmit)="redefinirSenha()" class="formulario">
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" />
+
+          <mat-error *ngIf="campoTemErro('email', 'required')">
+            O e-mail é obrigatório
+          </mat-error>
+
+          <mat-error *ngIf="campoTemErro('email', 'email')">
+            Informe um e-mail válido
+          </mat-error>
+        </mat-form-field>
+
+        <div class="acoes">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="redefinirSenhaForm.invalid || carregando"
+            style="width: 100%;">
+            {{ carregando ? 'Enviando...' : 'Redefinir Senha' }}
+          </button>
+        </div>
+
+        <div class="cancelar">
+          <button mat-button type="button" (click)="voltar()">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

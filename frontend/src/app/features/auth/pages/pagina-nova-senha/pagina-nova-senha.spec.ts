@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PaginaEditarUsuario } from './pagina-editar-usuario';
+import { PaginaNovaSenha } from './pagina-nova-senha';
 
-describe('PaginaEditarUsuario', () => {
-  let component: PaginaEditarUsuario;
-  let fixture: ComponentFixture<PaginaEditarUsuario>;
+describe('PaginaNovaSenha', () => {
+  let component: PaginaNovaSenha;
+  let fixture: ComponentFixture<PaginaNovaSenha>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PaginaEditarUsuario]
+      imports: [PaginaNovaSenha]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PaginaEditarUsuario);
+    fixture = TestBed.createComponent(PaginaNovaSenha);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,0 +1,139 @@
+<div class="pagina-doacao-admin">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
+  <div class="topo-pagina">
+    <div>
+      <h1>Detalhes da doacao #{{ doacao.id }}</h1>
+
+      <div class="datas">
+        <p>Data do cadastro: {{ doacao.dataCadastro }}</p>
+        <p>Ultima modificacao em: {{ doacao.dataUltimaModificacao }}</p>
+        <span class="badge-status" [ngClass]="obterClasseStatus(doacao.status)">
+          {{ obterTextoStatus(doacao.status) }}
+        </span>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
+      <mat-icon>more_vert</mat-icon>
+      Acoes
+    </button>
+
+    <mat-menu #menuAcoes="matMenu">
+      <button mat-menu-item *ngIf="!modoEdicao" (click)="editar()">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
+      </button>
+
+      <button mat-menu-item *ngIf="modoEdicao" (click)="salvarEdicao()">
+        <mat-icon>check</mat-icon>
+        <span>Salvar alteracoes</span>
+      </button>
+
+      <button mat-menu-item *ngIf="modoEdicao" (click)="cancelarEdicao()">
+        <mat-icon>close</mat-icon>
+        <span>Cancelar edicao</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmAnalise" (click)="marcarEmAnalise()">
+        <mat-icon>schedule</mat-icon>
+        <span>Analisar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
+        <mat-icon>check</mat-icon>
+        <span>Aprovar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="reprovar()">
+        <mat-icon>close</mat-icon>
+        <span>Reprovar</span>
+      </button>
+
+      <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Reabrir analise</span>
+      </button>
+
+      <button mat-menu-item class="acao-perigo" (click)="deletar()">
+        <mat-icon>delete</mat-icon>
+        <span>Deletar</span>
+      </button>
+    </mat-menu>
+  </div>
+
+  <mat-card class="card-doacao">
+    <mat-card-content>
+
+      <form [formGroup]="form" class="form-doacao">
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Informacoes do doador</h2>
+          </div>
+
+          <div class="linha-com-botao">
+            <mat-form-field appearance="outline">
+              <mat-label>Nome</mat-label>
+              <input matInput formControlName="nomeDoador" />
+            </mat-form-field>
+
+            <button mat-stroked-button type="button" class="botao-ver-perfil" (click)="verPerfil()">
+              Ver Perfil
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CPF</mat-label>
+            <input matInput formControlName="cpf" />
+          </mat-form-field>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Informacoes do item</h2>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo do item</mat-label>
+            <input matInput formControlName="tipoItem" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="campo-descricao">
+            <mat-label>Descricao</mat-label>
+            <textarea matInput rows="3" formControlName="descricao"></textarea>
+          </mat-form-field>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <mat-icon>image</mat-icon>
+            <h2>Imagem do item</h2>
+          </div>
+
+          <mat-form-field appearance="outline" class="campo-descricao">
+            <mat-label>Imagem enviada</mat-label>
+            <textarea matInput rows="2" formControlName="imagem"></textarea>
+          </mat-form-field>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Estado de conservacao</h2>
+          </div>
+
+          <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">
+            <mat-radio-button value="NOVO">Novo</mat-radio-button>
+            <mat-radio-button value="USADO">Usado</mat-radio-button>
+            <mat-radio-button value="PRECISA_REPARO">Precisa de Reparo</mat-radio-button>
+          </mat-radio-group>
+        </section>
+
+      </form>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

@@ -17,7 +17,7 @@ export class DoacaoService {
     cadastrarDoacao(dados: Doacao): Observable<FormData> {
         const formData = new FormData();
         formData.append('equipamento', dados.equipamento);
-        formData.append('quantidade', dados.quantidade.toString());
+        formData.append('quantidade', '1');
         formData.append('descricao', dados.descricao);
         formData.append('conservacao', dados.conservacao);
         formData.append('imagem', dados.imagem); 

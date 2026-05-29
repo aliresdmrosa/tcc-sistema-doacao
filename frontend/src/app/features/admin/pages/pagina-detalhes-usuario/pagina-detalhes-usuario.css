@@ -1,0 +1,215 @@
+.pagina-detalhes-usuario {
+  padding: 32px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+}
+
+.botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #7f7f7f;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.topo-pagina {
+  max-width: 1080px;
+  margin: 0 auto 24px;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.conteudo {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 520px 500px;
+  gap: 28px;
+  align-items: start;
+}
+
+.item-relacionado .destaque {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.card-credenciais,
+.card-relacionado {
+  border-radius: 16px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+}
+
+.card-credenciais mat-card-content {
+  padding: 24px;
+}
+
+.titulo-card h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #21143d;
+}
+
+.titulo-card p {
+  margin: 6px 0 22px;
+  color: #6f6487;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 0;
+}
+
+:host ::ng-deep .mdc-text-field--outlined {
+  background: #ffffff;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  min-height: 56px;
+}
+
+:host ::ng-deep input[disabled] {
+  color: #777777;
+  -webkit-text-fill-color: #777777;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.botao-editar,
+.botao-deletar {
+  min-width: 150px;
+  height: 46px;
+  border-radius: 8px;
+}
+
+.botao-deletar {
+  background: #ede4fb;
+}
+
+.coluna-relacionados {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card-relacionado mat-card-content {
+  padding: 20px;
+}
+
+.card-relacionado h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.item-relacionado {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #eee7f8;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.2s ease;
+}
+
+.item-relacionado:hover {
+  background: #faf8fd;
+  transform: translateY(-1px);
+}
+
+.icone-item {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ede4fb;
+  color: #5b3fa6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-relacionado strong {
+  font-size: 0.98rem;
+  color: #2f2347;
+}
+
+.item-relacionado p {
+  margin: 4px 0 0;
+  color: #6f6487;
+  font-size: 0.9rem;
+}
+
+.estado-vazio {
+  min-height: 50px;
+  padding: 16px;
+  border: 1px dashed #d8ccea;
+  border-radius: 10px;
+  color: #7a718f;
+  display: flex;
+  align-items: center;
+}
+
+.campo-data {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+  .conteudo {
+    grid-template-columns: 1fr;
+  }
+
+  .topo-pagina,
+  .conteudo {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pagina-detalhes-usuario {
+    padding: 20px;
+  }
+
+  .acoes {
+    flex-direction: column;
+  }
+
+  .botao-editar,
+  .botao-deletar {
+    width: 100%;
+  }
+}

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,20 +10,29 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { DialogSucessoDoacao } from './dialog-sucesso-doacao/dialog-sucesso-doacao';
-import { DoacaoService } from '../../../../core/services/doacao.service';
 import { Doacao } from '../../../../core/models/doacao.mode';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 @Component({
   selector: 'app-pagina-cadastro-doacao',
   standalone: true,
-  imports: [ CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule,
-            MatButtonModule, MatIconModule, MatDialogModule ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule
+  ],
   templateUrl: './pagina-cadastro-doacao.html',
   styleUrl: './pagina-cadastro-doacao.css'
 })
 export class PaginaCadastroDoacao {
-
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
@@ -34,7 +43,6 @@ export class PaginaCadastroDoacao {
 
   form = this.fb.group({
     tipoItem: ['', Validators.required],
-    quantidade: [null, [Validators.required, Validators.min(1)]],
     descricao: ['', [Validators.required, Validators.minLength(5)]],
     estadoConservacao: ['USADO', Validators.required],
     imagem: [null as File | null]
@@ -87,7 +95,6 @@ export class PaginaCadastroDoacao {
 
     const dadosDoacao: Doacao = {
       equipamento: this.form.value.tipoItem!,
-      quantidade: this.form.value.quantidade!,
       descricao: this.form.value.descricao!,
       conservacao: this.form.value.estadoConservacao!,
       imagem: this.form.value.imagem!
@@ -96,24 +103,36 @@ export class PaginaCadastroDoacao {
     this.doacaoService.cadastrarDoacao(dadosDoacao).subscribe({
       next: (doacao) => {
         console.log('Doação cadastrada com sucesso:', doacao);
-        this.dialog.open(DialogSucessoDoacao, {
+        this.dialog.open(DialogBaseComponent, {
           width: '420px',
-          disableClose: true
+          disableClose: true,
+          data: {
+            tipo: 'success',
+            titulo: 'Doação registrada com sucesso aguardando avaliação',
+            mensagem: '',
+            mostrarConfirmar: false
+          }
         });
         this.resetarFormulario();
       },
       error: (error) => {
         console.error('Erro ao cadastrar doação:', error);
-        // adicionar dialogo de erro aqui
+        this.dialog.open(DialogBaseComponent, {
+          width: '420px',
+          data: {
+            tipo: 'error',
+            titulo: 'Erro ao cadastrar doação',
+            mensagem: 'Não foi possível registrar sua doação. Tente novamente.',
+            textoConfirmar: 'OK'
+          }
+        });
       }
     });
-
   }
 
   private resetarFormulario(): void {
     this.form.reset({
       tipoItem: '',
-      quantidade: null,
       descricao: '',
       estadoConservacao: 'USADO',
       imagem: null
@@ -126,13 +145,8 @@ export class PaginaCadastroDoacao {
     this.resetarFormulario();
   }
 
-
   get tipoItem() {
     return this.form.get('tipoItem');
-  }
-
-  get quantidade() {
-    return this.form.get('quantidade');
   }
 
   get descricao() {
@@ -142,7 +156,4 @@ export class PaginaCadastroDoacao {
   get estadoConservacao() {
     return this.form.get('estadoConservacao');
   }
-
-  
-
 }

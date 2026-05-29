@@ -1,0 +1,55 @@
+<div class="modal-base">
+
+  <button
+    class="botao-fechar"
+    mat-icon-button
+    type="button"
+    aria-label="Fechar modal"
+    (click)="cancelar()">
+
+    <mat-icon>close</mat-icon>
+
+  </button>
+
+  <div class="conteudo-modal">
+
+    <div class="textos">
+
+      <h2>
+        {{ data.titulo }}
+      </h2>
+
+      <p>
+        {{ data.mensagem }}
+      </p>
+
+    </div>
+
+    <div class="acoes-modal">
+
+      <button
+        *ngIf="data.mostrarCancelar"
+        mat-stroked-button
+        type="button"
+        (click)="cancelar()">
+
+        {{ data.textoCancelar || 'Cancelar' }}
+
+      </button>
+
+      <button
+        *ngIf="data.mostrarConfirmar !== false"
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="confirmar()">
+
+        {{ data.textoConfirmar || 'OK' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

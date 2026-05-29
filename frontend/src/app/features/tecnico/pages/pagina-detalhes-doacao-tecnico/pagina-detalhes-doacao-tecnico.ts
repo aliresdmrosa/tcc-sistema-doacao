@@ -19,7 +19,6 @@ interface DetalhesDoacaoTecnico {
   nome: string;
   cpf: string;
   equipamento: string;
-  quantidade: number;
   descricao: string;
   imagem: string;
   estadoConservacao: string;

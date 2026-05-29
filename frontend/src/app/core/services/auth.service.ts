@@ -33,7 +33,7 @@ export class AuthService {
 
   getPerfil(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('perfil');
+    return this.normalizarPerfil(localStorage.getItem('perfil'));
   }
 
   isAutenticado(): boolean {
@@ -56,6 +56,8 @@ export class AuthService {
     if (!perfil) return '';
 
     return perfil
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase()
       .replace('ROLE_', '')
       .trim();

@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.titulo-subtitulo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.acoes button {
+  height: 56px;
+}
+
+.cancelar {
+  text-align: center;
+}
+
+.cancelar button {
+  color: #007be8;
+}

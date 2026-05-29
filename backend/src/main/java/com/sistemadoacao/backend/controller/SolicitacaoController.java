@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> cadastrarSolicitacao(@RequestBody SolicitacaoRequestDTO dto,
+    public ResponseEntity<Solicitacao> cadastrarSolicitacao(@RequestBody @Valid SolicitacaoRequestDTO dto,
             @AuthenticationPrincipal Pessoa principal) {
         return ResponseEntity.ok(service.save(dto, principal.getId()));
     }
@@ -84,7 +85,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "404", description = "Solicitação não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> atualizarSolicitacao(@PathVariable Long id, @RequestBody SolicitacaoRequestDTO dto) {
+    public ResponseEntity<Solicitacao> atualizarSolicitacao(@PathVariable Long id, @RequestBody @Valid SolicitacaoRequestDTO dto) {
         return ResponseEntity.ok(service.uptadeSolicitacao(id, dto));
     }
 

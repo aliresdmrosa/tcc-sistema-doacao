@@ -15,6 +15,7 @@ import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
 import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
+import com.sistemadoacao.backend.model.Perfil;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.repository.AdministradorRepository;
@@ -23,6 +24,7 @@ import com.sistemadoacao.backend.repository.TecnicoRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
 
 import org.springframework.lang.NonNull;
+import java.util.Set;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,6 +69,7 @@ public class UsuarioService {
             String senhaCript = passwordEncoder.encode(usuario.senha());
 
             novo.setSenha(senhaCript);
+            novo.setPerfis(Set.of(Perfil.USUARIO));
             usuarioRepository.save(novo);
           
             emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome(), "");
@@ -161,10 +164,11 @@ public class UsuarioService {
             novo.setEmail(tecnico.usuario().email());
             novo.setCurso(tecnico.curso());
             novo.setGrr(tecnico.GRR());
-            var novaSenha = gerarSenha(4);
+            var novaSenha = tecnico.usuario().senha();
             String senhaCript = passwordEncoder.encode(novaSenha);
 
             novo.setSenha(senhaCript);
+            novo.setPerfis(Set.of(Perfil.TECNICO));
             tecnicoRepository.save(novo);
           
             emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome(), novaSenha);
@@ -205,6 +209,7 @@ public class UsuarioService {
             novo.setEmail(adm.usuario().email());
             String senhaCript = passwordEncoder.encode(adm.usuario().senha());
             novo.setSenha(senhaCript);
+            novo.setPerfis(Set.of(Perfil.ADMINISTRADOR));
 
             admRepository.save(novo);
           
