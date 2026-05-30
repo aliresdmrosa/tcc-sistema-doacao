@@ -1,17 +1,60 @@
-version: '3.8'
-
 services:
   mysql:
-    image: mysql:8.0
+    build:
+      context: ./database
+    image: sistema-doacao-mysql
     container_name: mysql_sistema_doacao
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: '1234'      
-      MYSQL_DATABASE: 'sistema_doacao' 
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-1234}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sistema_doacao}
     ports:
-      - "3306:3306"                    
+      - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql      
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    image: sistema-doacao-backend
+    container_name: backend_sistema_doacao
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-sistema_doacao}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-1234}
+      JWT_SECRET: ${JWT_SECRET:-segredo-do-tcc-2026}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.gmail.com}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-teste@email.com}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-123456}
+      UPLOAD_PATH: /app/uploads/
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+    image: sistema-doacao-frontend
+    container_name: frontend_sistema_doacao
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      PORT: 4000
+    ports:
+      - "4200:4000"
 
 volumes:
   mysql_data:
+  uploads_data:
