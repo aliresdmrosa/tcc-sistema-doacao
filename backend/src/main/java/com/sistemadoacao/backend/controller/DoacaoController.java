@@ -130,7 +130,7 @@ public class DoacaoController {
 
             Doacao doacaoAtualizada = doacaoService.updateDoacao(id, doacaoRequest);
         
-            return ResponseEntity.ok(new DoacaoResponseDTO(doacaoAtualizada.getId(), doacaoAtualizada.getEquipamento(), doacaoAtualizada.getQuantidade(), doacaoAtualizada.getDescricao(), doacaoAtualizada.getStatus(), doacaoAtualizada.getStatusConservacao(), doacaoAtualizada.getDataCadastro()));
+            return ResponseEntity.ok(new DoacaoResponseDTO(doacaoAtualizada));
 
         
     }

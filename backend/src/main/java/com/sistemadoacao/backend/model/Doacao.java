@@ -80,9 +80,9 @@ public class Doacao {
     @Column
     private LocalDate dataEntrega;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "imagem_id")
-    private ImagemDoacao imagem;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "doacao_id")
+    private List<ImagemDoacao> imagens = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Schema(example = "PENDENTE", description = "Status da doação")

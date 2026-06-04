@@ -38,17 +38,17 @@ export class PaginaCadastroDoacao {
   private dialog = inject(MatDialog);
   private doacaoService = inject(DoacaoService);
 
-  imagemPreview: string | null = null;
-  nomeArquivo = 'Nenhum arquivo selecionado';
+  imagensPreview: string[] = [];
+  nomesArquivos: string[] = [];
   erroImagem = '';
-  private readonly tamanhoMaximoImagem = 10 * 1024 * 1024;
+  private readonly tamanhoMaximoImagem = 5 * 1024 * 1024;
   private readonly tiposImagemPermitidos = ['image/jpeg', 'image/png'];
 
   form = this.fb.group({
     tipoItem: ['', Validators.required],
     descricao: ['', [Validators.required, Validators.minLength(5)]],
     estadoConservacao: ['USADO', Validators.required],
-    imagem: [null as File | null, Validators.required]
+    imagens: [[] as File[], Validators.required]
   });
 
   tiposItens: string[] = [
@@ -70,35 +70,46 @@ export class PaginaCadastroDoacao {
       return;
     }
 
-    const arquivo = input.files[0];
+    const arquivosAtuais = this.form.value.imagens ?? [];
+    const novosArquivos = Array.from(input.files);
     this.erroImagem = '';
 
-    if (!this.tiposImagemPermitidos.includes(arquivo.type)) {
+    if (arquivosAtuais.length + novosArquivos.length > 3) {
+      input.value = '';
+      this.erroImagem = 'Selecione no máximo 3 imagens.';
+      return;
+    }
+
+    if (novosArquivos.some((arquivo) => !this.tiposImagemPermitidos.includes(arquivo.type))) {
       this.rejeitarImagem(input, 'Selecione uma imagem nos formatos JPG ou PNG.');
       return;
     }
 
-    if (arquivo.size > this.tamanhoMaximoImagem) {
-      this.rejeitarImagem(input, 'Selecione uma imagem de até 10 MB.');
+    if (novosArquivos.some((arquivo) => arquivo.size > this.tamanhoMaximoImagem)) {
+      this.rejeitarImagem(input, 'Selecione imagens de até 5 MB cada.');
       return;
     }
 
-    this.nomeArquivo = arquivo.name;
-    this.form.patchValue({ imagem: arquivo });
-    this.form.get('imagem')?.setErrors(null);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagemPreview = reader.result as string;
-    };
-    reader.readAsDataURL(arquivo);
+    const imagens = [...arquivosAtuais, ...novosArquivos];
+    this.form.patchValue({ imagens });
+    this.form.get('imagens')?.setErrors(null);
+    this.nomesArquivos = imagens.map((arquivo) => arquivo.name);
+    novosArquivos.forEach((arquivo) => {
+      const reader = new FileReader();
+      reader.onload = () => this.imagensPreview.push(reader.result as string);
+      reader.readAsDataURL(arquivo);
+    });
+    input.value = '';
   }
 
-  removerImagem(): void {
-    this.imagemPreview = null;
-    this.nomeArquivo = 'Nenhum arquivo selecionado';
+  removerImagem(indice: number): void {
+    const imagens = [...(this.form.value.imagens ?? [])];
+    imagens.splice(indice, 1);
+    this.imagensPreview.splice(indice, 1);
+    this.nomesArquivos.splice(indice, 1);
     this.erroImagem = '';
-    this.form.patchValue({ imagem: null });
+    this.form.patchValue({ imagens });
+    this.form.get('imagens')?.setErrors(imagens.length ? null : { required: true });
   }
 
   confirmar(): void {
@@ -114,7 +125,7 @@ export class PaginaCadastroDoacao {
       equipamento: this.form.value.tipoItem!,
       descricao: this.form.value.descricao!,
       conservacao: this.form.value.estadoConservacao!,
-      imagem: this.form.value.imagem!
+      imagens: this.form.value.imagens!
     };
 
     this.doacaoService.cadastrarDoacao(dadosDoacao).subscribe({
@@ -152,10 +163,10 @@ export class PaginaCadastroDoacao {
       tipoItem: '',
       descricao: '',
       estadoConservacao: 'USADO',
-      imagem: null
+      imagens: []
     });
-    this.imagemPreview = null;
-    this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.imagensPreview = [];
+    this.nomesArquivos = [];
     this.erroImagem = '';
   }
 
@@ -177,11 +188,11 @@ export class PaginaCadastroDoacao {
 
   private rejeitarImagem(input: HTMLInputElement, mensagem: string): void {
     input.value = '';
-    this.imagemPreview = null;
-    this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.imagensPreview = [];
+    this.nomesArquivos = [];
     this.erroImagem = mensagem;
-    this.form.patchValue({ imagem: null });
-    this.form.get('imagem')?.setErrors({ arquivoInvalido: true });
-    this.form.get('imagem')?.markAsTouched();
+    this.form.patchValue({ imagens: [] });
+    this.form.get('imagens')?.setErrors({ arquivoInvalido: true });
+    this.form.get('imagens')?.markAsTouched();
   }
 }

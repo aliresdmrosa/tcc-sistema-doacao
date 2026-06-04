@@ -41,7 +41,7 @@ export interface Doacao {
   statusConservacao: string;
   dataCadastro: string;
   dataEntrega: string;
-  imagem: ImagemDoacao;
+  imagens: ImagemDoacao[];
   status: string;
   historico?: HistoricoDoacao[];
   reparo?: ReparoDoacao;

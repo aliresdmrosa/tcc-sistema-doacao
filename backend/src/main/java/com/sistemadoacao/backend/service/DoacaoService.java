@@ -1,10 +1,12 @@
 package com.sistemadoacao.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sistemadoacao.backend.config.Utils;
 import com.sistemadoacao.backend.dto.AnaliseIAResponse;
@@ -20,6 +22,7 @@ import com.sistemadoacao.backend.exception.ErroCadastoException;
 import com.sistemadoacao.backend.exception.FileStorageException;
 import com.sistemadoacao.backend.exception.IdNullException;
 import com.sistemadoacao.backend.exception.ImageErroLerException;
+import com.sistemadoacao.backend.exception.ImageInvalidException;
 import com.sistemadoacao.backend.exception.ImageNullException;
 import com.sistemadoacao.backend.exception.NotFoundException;
 import com.sistemadoacao.backend.exception.ReprovarErroException;
@@ -199,9 +202,12 @@ public class DoacaoService {
     public boolean deleteDoacao(@NonNull Long id) {
         Doacao doacao = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Doacao não encontrado com ID: " + id));
-        if (doacao.getImagem() != null && doacao.getImagem().getUrl() != null) {
+        if (doacao.getImagens() != null) {
             try {
-                fileService.deletarArquivo(doacao.getImagem().getUrl());
+                doacao.getImagens().stream()
+                        .map(ImagemDoacao::getUrl)
+                        .filter(url -> url != null)
+                        .forEach(fileService::deletarArquivo);
 
             } catch (Exception e) {
                 log.error("Erro ao deletar arquivo da doação com ID {}: {}", id, e.getMessage());
@@ -221,14 +227,14 @@ public class DoacaoService {
             throw new NotFoundException("Doação não encontrado com ID: " + id);
         }
 
-        if ("string".equals(atualizado.imagem().getOriginalFilename())) {
+        validarImagens(atualizado.imagens());
+        if ("string".equals(atualizado.imagens().get(0).getOriginalFilename())) {
             log.error("Imagem nula ou inválida para doação com ID {}", id);
             throw new ImageNullException("Imagem nula ou inválida para doação com ID: " + id);
         }
 
         // validar imagem e salvar
-        String nomeArquivoAtualizado = fileService.salvarArquivo(atualizado.imagem());
-        ImagemDoacao nomeImagem = new ImagemDoacao(nomeArquivoAtualizado);
+        List<ImagemDoacao> novasImagens = salvarImagens(atualizado.imagens());
 
         // atualizar campos da doacao
         if (atualizado.equipamento() != null) {
@@ -253,7 +259,7 @@ public class DoacaoService {
         // analisar com ia
         AnaliseIAResponse analise = null;
         try {
-            analise = openAIService.analisarImagem(atualizado.imagem());
+            analise = openAIService.analisarImagens(atualizado.imagens());
             log.debug("Resposta da IA: {}", analise);
             switch (analise.status()) {
                 case APROVADO:
@@ -272,9 +278,8 @@ public class DoacaoService {
         }
 
         // atualizar imagem
-        if (atualizado.imagem() != null) {
-            existente.setImagem(nomeImagem);
-        }
+        existente.getImagens().clear();
+        existente.getImagens().addAll(novasImagens);
 
         // atualizar historico
         existente = atualizarHistoricoDoacao(existente, analise.descricao() + " - " + analise.recomendacao());
@@ -312,15 +317,11 @@ public class DoacaoService {
     }
 
     public DoacaoResponseDTO cadastrarDoacao(DoacaoRequestDTO doacaoRequest, Long id) throws RequestImageIaException {
-        ImagemDoacao novaImagem = null;
-        String nomeArquivo = null;
-        log.info("ID USUARIO: ", id);
+        log.info("ID USUARIO: {}", id);
         try {
-            log.debug("Dados recebidos da requisicao: {}", doacaoRequest.imagem().getOriginalFilename());
-            nomeArquivo = fileService.salvarArquivo(doacaoRequest.imagem());
-            // Imagem com a URL
-            novaImagem = new ImagemDoacao(nomeArquivo);
-            log.debug("Arquivo salvo com nome {}", nomeArquivo);
+            validarImagens(doacaoRequest.imagens());
+            List<ImagemDoacao> novasImagens = salvarImagens(doacaoRequest.imagens());
+            log.debug("{} arquivos salvos para a doacao", novasImagens.size());
             // Doacao e associar a Imagem
             Doacao novaDoacao = new Doacao();
             novaDoacao.setDoadorId(id);
@@ -330,40 +331,41 @@ public class DoacaoService {
             novaDoacao.setStatusConservacao(doacaoRequest.conservacao());
             // Chamar service IA para analisar a doação e definir o status inicial //
             // (APROVADO_IA ou REPARO ou REPROVADO)
-            AnaliseIAResponse analise = openAIService.analisarImagem(doacaoRequest.imagem());
-            log.debug("Resposta da IA: {}", analise);
-            if (analise.status().equals(Status.APROVADO)) {
-                novaDoacao.setStatus(Status.APROVADO_IA);
-            } else if (analise.status().equals(Status.REPARO)) {
-                novaDoacao.setStatus(Status.REPARO);
-
-            } else {
-                novaDoacao.setStatus(Status.REPROVADO);
+            AnaliseIAResponse analise = null;
+            String observacaoHistorico;
+            try {
+                analise = openAIService.analisarImagens(doacaoRequest.imagens());
+                log.debug("Resposta da IA: {}", analise);
+                if (analise.status().equals(Status.APROVADO)) {
+                    novaDoacao.setStatus(Status.APROVADO_IA);
+                } else if (analise.status().equals(Status.REPARO)) {
+                    novaDoacao.setStatus(Status.REPARO);
+                } else {
+                    novaDoacao.setStatus(Status.REPROVADO);
+                }
+                observacaoHistorico = analise.descricao() + " - " + analise.recomendacao();
+            } catch (RequestImageIaException e) {
+                log.error("Erro na analise da IA. Doacao sera cadastrada como PENDENTE: {}", e.getMessage());
+                novaDoacao.setStatus(Status.PENDENTE);
+                observacaoHistorico = "Analise da IA nao realizada: " + e.getMessage();
             }
-            novaDoacao.setImagem(novaImagem);
+            novaDoacao.setImagens(novasImagens);
 
             // O CascadeType.ALL salvará a imagem automaticamente
-            Doacao salva = atualizarHistoricoDoacao(novaDoacao, analise.descricao() + " - " + analise.recomendacao());
+            Doacao salva = atualizarHistoricoDoacao(novaDoacao, observacaoHistorico);
             log.debug("Doação cadastrada com ID {}", salva.getId());
 
-            if (analise.status().equals(Status.REPROVADO)) {
+            if (analise != null && analise.status().equals(Status.REPROVADO)) {
                 emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise
                         .descricao() + " - STATUS: " + analise.status()
                         + " -  \nInfelizmente sua doação foi avaliada pela IA como REPROVADA. \n Caso queira uma reavaliação, por favor, solicite uma revisao pelo tecnico");
-            } else {
+            } else if (analise != null) {
                 emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise
                         .descricao() + " - STATUS: " + analise.status()
                         + " - \nParabéns! Sua doação foi avaliada pela IA como APROVADA ou REPARO. \n Por favor, enviar sua doação para o endereço de coleta.");
             }
 
-            return new DoacaoResponseDTO(
-                    salva.getId(),
-                    salva.getEquipamento(),
-                    salva.getQuantidade(),
-                    salva.getDescricao(),
-                    salva.getStatus(),
-                    salva.getStatusConservacao(),
-                    salva.getDataCadastro());
+            return new DoacaoResponseDTO(salva);
         } catch (RequestImageIaException e4) {
             log.error("Erro ao analisar imagem da doação com IA: {}", e4.getMessage());
             throw new RequestImageIaException("Formato de imagem invalido");
@@ -377,6 +379,26 @@ public class DoacaoService {
         if (id == null)
             throw new IdNullException("ID não pode ser nulo");
         return repository.findByDoadorId(id).stream().map(DoacaoResponseDTO::new).toList();
+    }
+
+    private void validarImagens(List<MultipartFile> imagens) {
+        if (imagens == null || imagens.isEmpty()) {
+            throw new ImageNullException("Envie pelo menos uma imagem da doacao.");
+        }
+        if (imagens.size() > 3) {
+            throw new ImageInvalidException("A doacao pode ter no maximo tres imagens.");
+        }
+        if (imagens.stream().anyMatch(imagem -> imagem == null || imagem.isEmpty())) {
+            throw new ImageNullException("Uma das imagens enviadas esta vazia.");
+        }
+    }
+
+    private List<ImagemDoacao> salvarImagens(List<MultipartFile> imagens) {
+        List<ImagemDoacao> imagensSalvas = new ArrayList<>();
+        for (MultipartFile imagem : imagens) {
+            imagensSalvas.add(new ImagemDoacao(fileService.salvarArquivo(imagem)));
+        }
+        return imagensSalvas;
     }
 
     public Doacao reverDoacao(Long id) {

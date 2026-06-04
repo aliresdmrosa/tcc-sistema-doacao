@@ -21,5 +21,4 @@ public interface DoacaoReverDTO {
     java.sql.Timestamp getDataAlteracaoStatus();
     String getUrl();
     String getStatusConservacao();
-    Long getImagemId();
 }

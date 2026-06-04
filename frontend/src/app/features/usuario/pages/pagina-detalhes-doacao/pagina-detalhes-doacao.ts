@@ -45,7 +45,7 @@ export class PaginaDetalhesDoacao {
     status: (this.doacaoNavegacao?.status ?? 'PENDENTE') as StatusDoacao,
     dataCadastro: this.formatarData(this.doacaoNavegacao?.dataCadastro) ?? '01/05/2025',
     dataUltimaModificacao: this.formatarData(this.doacaoNavegacao?.ultimaAtualizacao ?? this.doacaoNavegacao?.dataUltimaAtualizacao) ?? '01/05/2025',
-    imagemUrl: this.montarImagemUrl(this.doacaoNavegacao?.url ?? this.doacaoNavegacao?.imagem)
+    imagensUrls: this.montarImagensUrls(this.doacaoNavegacao)
   };
 
   tiposItens: string[] = [
@@ -144,6 +144,17 @@ export class PaginaDetalhesDoacao {
     }
 
     return String(data);
+  }
+
+  private montarImagensUrls(doacao: any): string[] {
+    if (Array.isArray(doacao?.imagens)) {
+      return doacao.imagens
+        .map((imagem: any) => this.montarImagemUrl(imagem?.url))
+        .filter((url: string | null): url is string => url !== null);
+    }
+
+    const imagemLegada = this.montarImagemUrl(doacao?.url ?? doacao?.imagem);
+    return imagemLegada ? [imagemLegada] : [];
   }
 
   private montarImagemUrl(imagem: unknown): string | null {

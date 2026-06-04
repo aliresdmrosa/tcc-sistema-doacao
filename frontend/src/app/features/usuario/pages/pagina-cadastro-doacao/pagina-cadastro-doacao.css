@@ -129,8 +129,14 @@ mat-form-field {
   color: #b3261e;
 }
 
-.preview-container {
+.previews-container {
   margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.preview-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;

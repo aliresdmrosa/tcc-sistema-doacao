@@ -20,7 +20,7 @@ export class DoacaoService {
         formData.append('quantidade', '1');
         formData.append('descricao', dados.descricao);
         formData.append('conservacao', dados.conservacao);
-        formData.append('imagem', dados.imagem); 
+        dados.imagens.forEach((imagem) => formData.append('imagens', imagem));
     return this.http.post<FormData>(this.apiUrl, formData);
     }
 

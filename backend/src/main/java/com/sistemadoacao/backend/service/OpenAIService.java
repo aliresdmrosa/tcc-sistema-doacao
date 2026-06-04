@@ -28,12 +28,21 @@ public class OpenAIService {
     }
 
     public AnaliseIAResponse analisarImagem(MultipartFile imagem) {
+        return analisarImagens(List.of(imagem));
+    }
+
+    public AnaliseIAResponse analisarImagens(List<MultipartFile> imagens) {
 
     try {
 
-        String contentType = imagem.getContentType();
-        // Converter imagem para base64
-        String base64 = Base64.getEncoder().encodeToString(imagem.getBytes());
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new RequestImageIaException(
+                    "Chave da OpenAI nao configurada. Defina a variavel de ambiente API_KEY.");
+        }
+
+        if (imagens == null || imagens.isEmpty() || imagens.size() > 3) {
+            throw new RequestImageIaException("Envie de uma a tres imagens para analise.");
+        }
 
         // Criar JSON com Jackson
         ObjectMapper mapper = new ObjectMapper();
@@ -53,13 +62,21 @@ public class OpenAIService {
                 "}"
         );
 
-        Map<String, Object> imageContent = new HashMap<>();
-        imageContent.put("type", "input_image");
-        imageContent.put("image_url", "data:" + contentType + ";base64," + base64);
+        List<Map<String, Object>> contents = new ArrayList<>();
+        contents.add(textContent);
+        for (MultipartFile imagem : imagens) {
+            String contentType = imagem.getContentType();
+            String base64 = Base64.getEncoder().encodeToString(imagem.getBytes());
+
+            Map<String, Object> imageContent = new HashMap<>();
+            imageContent.put("type", "input_image");
+            imageContent.put("image_url", "data:" + contentType + ";base64," + base64);
+            contents.add(imageContent);
+        }
 
         Map<String, Object> message = new HashMap<>();
         message.put("role", "user");
-        message.put("content", List.of(textContent, imageContent));
+        message.put("content", contents);
 
         Map<String, Object> body = new HashMap<>();
         body.put("model", "gpt-4.1-mini");
@@ -82,12 +99,19 @@ public class OpenAIService {
             request,
             HttpResponse.BodyHandlers.ofString()
         );
-       
+
+        // Excecao explicita para chave ausente, invalida ou sem autorizacao
+        if (response.statusCode() == 401 || response.statusCode() == 403) {
+            JsonNode erro = mapper.readTree(response.body());
+            String mensagem = erro.path("error").path("message")
+                    .asText("Chave da OpenAI invalida ou sem permissao.");
+            throw new RequestImageIaException("Erro na chave da OpenAI: " + mensagem);
+        }
 
         //  Parse da resposta da OpenAI
         JsonNode root = mapper.readTree(response.body());
 
-        
+
         String respostaTexto = root
                 .path("output")
                 .get(0)
@@ -102,8 +126,10 @@ public class OpenAIService {
 
         return analise;
 
+    } catch (RequestImageIaException e) {
+        throw e;
     } catch (JsonProcessingException e) {
-        
+
         throw new RequestImageIaException("Erro ao processar análise da IA: " + e.getMessage());
 
     }

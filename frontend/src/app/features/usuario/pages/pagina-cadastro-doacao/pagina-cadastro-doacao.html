@@ -63,39 +63,38 @@
         <section class="bloco-formulario">
           <div class="titulo-bloco">
             <mat-icon>image</mat-icon>
-            <h2>Imagem do item</h2>
+            <h2>Imagens do item</h2>
           </div>
 
           <div class="upload-area">
             <label class="botao-upload">
-              <input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" (change)="selecionarImagem($event)" hidden />
+              <input type="file" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" (change)="selecionarImagem($event)" hidden />
               <mat-icon>upload</mat-icon>
-              Selecionar imagem
+              Selecionar imagens
             </label>
 
-            <span class="nome-arquivo">{{ nomeArquivo }}</span>
+            <span class="nome-arquivo">
+              {{ nomesArquivos.length ? nomesArquivos.length + ' imagem(ns) selecionada(s)' : 'Nenhuma imagem selecionada' }}
+            </span>
           </div>
 
           <p class="texto-ajuda-upload">
-            Apenas JPG ou PNG de até 10 MB.
+            Selecione de 1 a 3 imagens JPG ou PNG de até 5 MB cada.
           </p>
 
-          <div class="mensagem-erro" *ngIf="erroImagem || (form.get('imagem')?.hasError('required') && form.get('imagem')?.touched)">
-            {{ erroImagem || 'Selecione uma imagem do item.' }}
+          <div class="mensagem-erro" *ngIf="erroImagem || (form.get('imagens')?.hasError('required') && form.get('imagens')?.touched)">
+            {{ erroImagem || 'Selecione pelo menos uma imagem do item.' }}
           </div>
 
-          <div class="preview-container" *ngIf="imagemPreview">
-            <img [src]="imagemPreview" alt="Preview da imagem" class="preview-imagem" />
-
-            <button
-              type="button"
-              mat-stroked-button
-              color="warn"
-              (click)="removerImagem()"
-            >
-              <mat-icon>delete</mat-icon>
-              Remover imagem
-            </button>
+          <div class="previews-container" *ngIf="imagensPreview.length">
+            <div class="preview-container" *ngFor="let preview of imagensPreview; let indice = index">
+              <img [src]="preview" [alt]="'Preview da imagem ' + (indice + 1)" class="preview-imagem" />
+              <span class="nome-arquivo">{{ nomesArquivos[indice] }}</span>
+              <button type="button" mat-stroked-button color="warn" (click)="removerImagem(indice)">
+                <mat-icon>delete</mat-icon>
+                Remover
+              </button>
+            </div>
           </div>
         </section>
 

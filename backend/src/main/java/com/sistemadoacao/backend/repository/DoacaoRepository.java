@@ -50,7 +50,6 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
                                 d.status as status,
                                 d.equipamento as equipamento,
                                 d.status_conservacao,
-                                d.imagem_id,
                                 p.nome as nome,
                                 p.cpf as cpf,
                                 p.email as email,
@@ -58,7 +57,9 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
                                 i.url as url
                             FROM doacao d
                             JOIN pessoa p ON d.doador_id = p.id
-                            LEFT JOIN imagem_doacao i ON i.id = d.imagem_id
+                            LEFT JOIN imagem_doacao i ON i.id = (
+                                SELECT MIN(i2.id) FROM imagem_doacao i2 WHERE i2.doacao_id = d.id
+                            )
                             LEFT JOIN historico_status h ON h.id = (SELECT MAX(h2.id) FROM historico_status h2 WHERE h2.doacao_id = d.id)
                             WHERE d.status IN ('REVER', 'REPARO')
                         """, nativeQuery = true)

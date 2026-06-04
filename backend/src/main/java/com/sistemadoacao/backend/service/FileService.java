@@ -1,12 +1,12 @@
 package com.sistemadoacao.backend.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class FileService {
     public String salvarArquivo(MultipartFile arquivo) {
 
         // Validacao imagem
-        if (arquivo.isEmpty() || arquivo == null || arquivo.getOriginalFilename() == null) {
+        if (arquivo == null || arquivo.isEmpty() || arquivo.getOriginalFilename() == null) {
             throw new ImageNullException("Arquivo imagem vazio. Por favor, selecione um arquivo para upload.");
         }
 
@@ -57,16 +57,13 @@ public class FileService {
                 throw new MaxUploadSizeException("O arquivo excede o tamanho máximo permitido de 5MB.");
             }
 
-            String nomeArquivo = System.currentTimeMillis() + "_" + arquivo.getOriginalFilename();
+            String nomeOriginal = Paths.get(arquivo.getOriginalFilename()).getFileName().toString();
+            String nomeArquivo = UUID.randomUUID() + "_" + nomeOriginal;
 
             // Criar o diretório se não existir
-            File diretorio = new File(PASTA);
-
-            if (!diretorio.exists()) {
-                diretorio.mkdirs();
-            }
-
-            Path caminhoCompleto = Paths.get(PASTA + nomeArquivo);
+            Path diretorio = Paths.get(PASTA).toAbsolutePath().normalize();
+            Files.createDirectories(diretorio);
+            Path caminhoCompleto = diretorio.resolve(nomeArquivo);
             Files.write(caminhoCompleto, arquivo.getBytes());
 
             log.info("Tipo de arquivo detectado: " + tipoDetectado);
@@ -83,7 +80,8 @@ public class FileService {
 
     public void deletarArquivo(String nomeArquivo) {
         try {
-            Path caminhoImagem = Paths.get(PASTA + nomeArquivo);
+            String nome = Paths.get(nomeArquivo).getFileName().toString();
+            Path caminhoImagem = Paths.get(PASTA).toAbsolutePath().normalize().resolve(nome);
             Files.deleteIfExists(caminhoImagem);
         } catch (IOException e) {
             log.error("Erro ao deletar imagem: " + e.getMessage());

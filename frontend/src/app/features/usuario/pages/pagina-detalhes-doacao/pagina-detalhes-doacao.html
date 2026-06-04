@@ -53,14 +53,14 @@
         <section class="bloco-formulario">
           <div class="titulo-bloco">
             <mat-icon>image</mat-icon>
-            <h2>Imagem do item</h2>
+            <h2>Imagens do item</h2>
           </div>
 
-          <div class="imagem-card">
+          <div class="imagens-grid" *ngIf="doacao.imagensUrls.length">
             <img
-              *ngIf="doacao.imagemUrl; else imagemPlaceholderUsuario"
-              [src]="doacao.imagemUrl"
-              alt="Imagem do item doado"
+              *ngFor="let imagemUrl of doacao.imagensUrls; let indice = index"
+              [src]="imagemUrl"
+              [alt]="'Imagem ' + (indice + 1) + ' do item doado'"
               class="imagem-item"
             />
 
