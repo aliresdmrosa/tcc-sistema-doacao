@@ -11,6 +11,7 @@ import { DoacaoDTO } from "../dto/daocao.dto";
 })
 
 export class DoacaoService {
+  
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/doacao';
 
@@ -31,6 +32,10 @@ export class DoacaoService {
     listarDoacoesUsuario(): Observable<DoacaoDTO[]> {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario`);
     }
+
+    listarTodasDoacoes(): Observable<DoacaoDTO[]> {
+      return this.http.get<DoacaoDTO[]>(`${this.apiUrl}`);
+  }
 
       listarDoacoesReverReparo(): Observable<DoacaoDTO[]> {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/tecnico`);

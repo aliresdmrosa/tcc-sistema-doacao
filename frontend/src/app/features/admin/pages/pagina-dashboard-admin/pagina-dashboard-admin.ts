@@ -55,6 +55,10 @@ export class PaginaDashboardAdmin {
           console.log('Dados do dashboard:', dados);
           this.totalDoacoes = dados.totalDoacoes;
           this.totalAlunosBeneficiados = dados.totalDoacoesRealizadas;
+          this.totalAprovadas = dados.doacoesAprovadas;
+          this.totalReprovadas = dados.doacoesReprovadas;
+          this.totalEmReparo = dados.doacoesReparo;
+
           this.donutChartOptions.series = dados.doacoesPorEquipamento.map(item => item.total);
           this.donutChartOptions.labels = dados.doacoesPorEquipamento.map(item => item.equipamento);
 

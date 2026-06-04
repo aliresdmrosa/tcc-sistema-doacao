@@ -12,6 +12,8 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 
 interface DoacaoAdmin {
   id: string;
@@ -46,6 +48,8 @@ interface DoacaoAdmin {
 export class PaginaListarDoacaoAdmin implements AfterViewInit {
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private doacaoService = inject(DoacaoService);
+  doacoes : DoacaoDTO[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -64,76 +68,50 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     'acoes'
   ];
 
-  doacoes: DoacaoAdmin[] = [
-    {
-      id: '001',
-      cpf: '010.100.555-85',
-      nome: 'Maria',
-      equipamento: 'Computador',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'APROVADA'
-    },
-    {
-      id: '002',
-      cpf: 'XXX.XXX.XXX-XX',
-      nome: 'José',
-      equipamento: 'Notebook',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'REPROVADA'
-    },
-    {
-      id: '003',
-      cpf: 'XXX.XXX.XXX-XX',
-      nome: 'Ana',
-      equipamento: 'Monitor',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'EM ESTOQUE'
-    },
-    {
-      id: '004',
-      cpf: 'XXX.XXX.XXX-XX',
-      nome: 'Lucas',
-      equipamento: 'Teclado',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '005',
-      cpf: 'XXX.XXX.XXX-XX',
-      nome: 'Mariana',
-      equipamento: 'Mouse',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'APROVADA'
-    },
-    {
-      id: '006',
-      cpf: 'XXX.XXX.XXX-XX',
-      nome: 'Pedro',
-      equipamento: 'Impressora',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    }
-  ];
 
-  dataSource = new MatTableDataSource<DoacaoAdmin>(this.doacoes);
+  ngOnInit(): void {
+    this.carregarDoacoes();
+  }
+
+  carregarDoacoes(): void {
+    this.doacaoService.listarTodasDoacoes().subscribe({
+      next: (doacoes) => {
+        console.log('Doações carregadas:', doacoes);
+        this.doacoes = doacoes;
+        this.dataSource.data = this.doacoes;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar doações:', err);
+      }
+    });
+  }
+
+  
+  
+    // {
+    //   id: '006',
+    //   cpf: 'XXX.XXX.XXX-XX',
+    //   nome: 'Pedro',
+    //   equipamento: 'Impressora',
+    //   dataCadastro: new Date(2025, 4, 1),
+    //   dataUltimaAtualizacao: new Date(2025, 4, 1),
+    //   status: 'PENDENTE'
+    // }
+ 
+
+  dataSource = new MatTableDataSource<DoacaoDTO>(this.doacoes);
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
-    this.dataSource.filterPredicate = (doacao: DoacaoAdmin, filtro: string): boolean => {
+    this.dataSource.filterPredicate = (doacao: DoacaoDTO, filtro: string): boolean => {
       const termo = filtro.trim().toLowerCase();
       const texto = [
         doacao.id,
         doacao.cpf,
         doacao.nome,
         doacao.equipamento,
-        this.formatarData(doacao.dataCadastro),
-        this.formatarData(doacao.dataUltimaAtualizacao),
+        this.formatarData(new Date(doacao.dataCadastro)),
+        this.formatarData(new Date(doacao.dataAlteracaoStatus || doacao.dataCadastro)),
         doacao.status
       ].join(' ').toLowerCase();
 
@@ -164,15 +142,15 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     }, 800);
   }
 
-  verDetalhes(doacao: DoacaoAdmin): void {
+  verDetalhes(doacao: DoacaoDTO): void {
     this.router.navigate(['/admin/doacoes', doacao.id]);
   }
 
-  editar(doacao: DoacaoAdmin): void {
+  editar(doacao: DoacaoDTO): void {
     this.verDetalhes(doacao);
   }
 
-  excluir(doacao: DoacaoAdmin): void {
+  excluir(doacao: DoacaoDTO): void {
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
@@ -198,7 +176,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     });
   }
 
-  imprimirEtiqueta(doacao: DoacaoAdmin): void {
+  imprimirEtiqueta(doacao: DoacaoDTO): void {
     console.log('Imprimir etiqueta:', doacao);
   }
 
