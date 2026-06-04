@@ -55,6 +55,11 @@
             <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.equipamento }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="motivo">
+            <th mat-header-cell *matHeaderCellDef>Motivo</th>
+            <td mat-cell *matCellDef="let solicitacao">{{ solicitacao.motivo }}</td>
+          </ng-container>
+
           <ng-container matColumnDef="dataCadastro">
             <th mat-header-cell *matHeaderCellDef>Data de cadastro</th>
             <td mat-cell *matCellDef="let solicitacao">

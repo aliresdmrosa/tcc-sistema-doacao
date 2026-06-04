@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
@@ -64,5 +65,22 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
                             WHERE d.status IN ('REVER', 'REPARO')
                         """, nativeQuery = true)
         List<DoacaoReverDTO> buscarDoacoesComDoador(@Param("status") List<Status> status);
+
+        @Query(value = """
+                            SELECT
+                                d.id as id,
+                                d.descricao as descricao,
+                                d.data_cadastro as dataCadastro,
+                                d.quantidade as quantidade,
+                                d.status as status,
+                                d.equipamento as equipamento,
+                                d.status_conservacao,
+                                p.nome as nome,
+                                p.cpf as cpf
+                            FROM doacao d
+                            JOIN pessoa p ON d.doador_id = p.id
+                """
+                        , nativeQuery = true)
+        List<DoacaoResponseUserDTO> buscarTodasUser();
 
 }

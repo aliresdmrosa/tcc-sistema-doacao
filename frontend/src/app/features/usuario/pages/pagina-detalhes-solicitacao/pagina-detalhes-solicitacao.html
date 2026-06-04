@@ -10,7 +10,6 @@
 
       <div class="datas">
         <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
-        <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p>
       </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">

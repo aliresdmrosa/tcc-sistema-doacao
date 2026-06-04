@@ -41,8 +41,8 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
   displayedColumns: string[] = [
     'id',
     'equipamento',
+    'motivo',
     'dataCadastro',
-    'ultimaAtualizacao',
     'status',
     'acoes'
   ];
@@ -82,83 +82,7 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
     };
   }
 
-  carregarDadosMockados(): void {
-    this.carregando = false;
-    this.erroAoCarregar = false;
-
-    this.dataSource.data = [
-      {
-        id: '001',
-        equipamento: 'Computador',
-        dataCadastro: '2025-05-01',
-        ultimaAtualizacao: '2025-05-01',
-        status: 'APROVADA'
-      },
-      {
-        id: '002',
-        equipamento: 'Notebook',
-        dataCadastro: '2025-05-01',
-        ultimaAtualizacao: '2025-05-01',
-        status: 'REPROVADA'
-      },
-      {
-        id: '003',
-        equipamento: 'Monitor',
-        dataCadastro: '2025-05-01',
-        ultimaAtualizacao: '2025-05-01',
-        status: 'VINCULADA'
-      },
-      {
-        id: '004',
-        equipamento: 'Computador',
-        dataCadastro: '2025-05-02',
-        ultimaAtualizacao: '2025-05-02',
-        status: 'DOADO'
-      },
-      {
-        id: '005',
-        equipamento: 'Notebook',
-        dataCadastro: '2025-05-02',
-        ultimaAtualizacao: '2025-05-02',
-        status: 'DOADO'
-      },
-      {
-        id: '006',
-        equipamento: 'Monitor',
-        dataCadastro: '2025-05-03',
-        ultimaAtualizacao: '2025-05-03',
-        status: 'DOADO'
-      },
-      {
-        id: '007',
-        equipamento: 'Computador',
-        dataCadastro: '2025-05-03',
-        ultimaAtualizacao: '2025-05-03',
-        status: 'DOADO'
-      },
-      {
-        id: '008',
-        equipamento: 'Notebook',
-        dataCadastro: '2025-05-04',
-        ultimaAtualizacao: '2025-05-04',
-        status: 'DOADO'
-      },
-      {
-        id: '009',
-        equipamento: 'Monitor',
-        dataCadastro: '2025-05-04',
-        ultimaAtualizacao: '2025-05-04',
-        status: 'DOADO'
-      },
-      {
-        id: '010',
-        equipamento: 'Computador',
-        dataCadastro: '2025-05-05',
-        ultimaAtualizacao: '2025-05-05',
-        status: 'DOADO'
-      }
-    ];
-  }
+ 
 
   buscarSolicitacoes(): void {
     this.carregando = true;

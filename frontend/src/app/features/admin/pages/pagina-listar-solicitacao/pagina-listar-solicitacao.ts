@@ -1,5 +1,5 @@
 ﻿import { CommonModule, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,16 +12,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
+import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
 
-interface SolicitacaoAdmin {
-  id: string;
-  grr: string;
-  nome: string;
-  equipamento: string;
-  dataCadastro: Date;
-  dataUltimaAtualizacao: Date;
-  status: string;
-}
 
 @Component({
   selector: 'app-pagina-listar-solicitacao',
@@ -46,6 +39,9 @@ interface SolicitacaoAdmin {
 export class PaginaListarSolicitacao implements AfterViewInit {
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private solicitacaoService = inject(SolicitacaoService);
+  private cdf = inject(ChangeDetectorRef);
+  solicitacoes: SolicitacaoResponseDTO[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -57,119 +53,50 @@ export class PaginaListarSolicitacao implements AfterViewInit {
     'id',
     'grr',
     'nome',
+    'cpf',
     'equipamento',
     'dataCadastro',
-    'dataUltimaAtualizacao',
     'status',
     'acoes'
   ];
 
-  solicitacoes: SolicitacaoAdmin[] = [
-    {
-      id: '001',
-      grr: '2025000000',
-      nome: 'Maria',
-      equipamento: 'Computador',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '002',
-      grr: '2024000000',
-      nome: 'José',
-      equipamento: 'Notebook',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '003',
-      grr: '2023000000',
-      nome: 'Ana',
-      equipamento: 'Monitor',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '004',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'VINCULADA'
-    },
-    {
-      id: '005',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'APROVADA'
-    },
-    {
-      id: '006',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'REPROVADA'
-    },
-    {
-      id: '007',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '008',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '009',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    },
-    {
-      id: '010',
-      grr: 'XXXX',
-      nome: 'XXXX',
-      equipamento: 'XXXX',
-      dataCadastro: new Date(2025, 4, 1),
-      dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'PENDENTE'
-    }
-  ];
+  ngOnInit(): void {
+    this.carregarSolicitacoes();
+  }
 
-  dataSource = new MatTableDataSource<SolicitacaoAdmin>(this.solicitacoes);
+  carregarSolicitacoes(): void {
+    this.carregando = true;
+    this.erroAoCarregar = false;
+    this.solicitacaoService.listarTodasSolicitacao().subscribe({
+      next: (dados) => {
+        this.solicitacoes = dados;
+        this.dataSource.data = this.solicitacoes;
+        console.log('Solicitações carregadas:', this.solicitacoes);
+        this.carregando = false;
+        this.erroAoCarregar = false;
+        this.cdf.detectChanges();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar solicitações:', error);
+        this.erroAoCarregar = true;
+        this.carregando = false;
+        this.cdf.detectChanges();
+      }
+    });
+  }
+  dataSource = new MatTableDataSource<SolicitacaoResponseDTO>(this.solicitacoes);
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
-    this.dataSource.filterPredicate = (solicitacao: SolicitacaoAdmin, filtro: string): boolean => {
+    this.dataSource.filterPredicate = (solicitacao: SolicitacaoResponseDTO, filtro: string): boolean => {
       const termo = filtro.trim().toLowerCase();
       const texto = [
-        solicitacao.id,
+        solicitacao,
         solicitacao.grr,
         solicitacao.nome,
+        solicitacao.cpf,
         solicitacao.equipamento,
-        this.formatarData(solicitacao.dataCadastro),
-        this.formatarData(solicitacao.dataUltimaAtualizacao),
+        this.formatarData(new Date(solicitacao.dataCadastro)),
         solicitacao.status
       ].join(' ').toLowerCase();
 
@@ -200,15 +127,15 @@ export class PaginaListarSolicitacao implements AfterViewInit {
     }, 800);
   }
 
-  verDetalhes(solicitacao: SolicitacaoAdmin): void {
+  verDetalhes(solicitacao: SolicitacaoResponseDTO): void {
     this.router.navigate(['/admin/solicitacoes', solicitacao.id]);
   }
 
-  editar(solicitacao: SolicitacaoAdmin): void {
+  editar(solicitacao: SolicitacaoResponseDTO): void {
     this.verDetalhes(solicitacao);
   }
 
-  excluir(solicitacao: SolicitacaoAdmin): void {
+  excluir(solicitacao: SolicitacaoResponseDTO): void {
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
@@ -257,6 +184,10 @@ export class PaginaListarSolicitacao implements AfterViewInit {
     }
 
     return 'status-default';
+  }
+
+  obterDataUltimaAtualizacao(solicitacao: SolicitacaoResponseDTO): string {
+    return solicitacao.historico.at(-1)?.dataAlteracao ?? solicitacao.dataCadastro;
   }
 
   private formatarData(data: Date): string {

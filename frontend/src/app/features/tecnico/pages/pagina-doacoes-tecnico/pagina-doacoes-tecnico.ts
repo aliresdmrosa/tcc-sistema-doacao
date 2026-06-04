@@ -95,7 +95,7 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     this.erroAoCarregar = false;
     this.iniciarTimeoutCarregamento();
 
-    this.doacaoService.listarDoacoesReverReparo().pipe(timeout(5000)).subscribe({
+    this.doacaoService.listarDoacoesTecnico().pipe(timeout(5000)).subscribe({
       next: (doacoes) => {
         this.limparTimeoutCarregamento();
         console.log('Doacoes recebidas da API:', doacoes);

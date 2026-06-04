@@ -21,4 +21,8 @@ export class SolicitacaoService {
     listarSolicitacaoUsuario(): Observable<SolicitacaoResponseDTO[]> {
         return this.http.get<SolicitacaoResponseDTO[]>(`${this.apiUrl}/usuario`);
     }
+
+    listarTodasSolicitacao(): Observable<SolicitacaoResponseDTO[]> {
+        return this.http.get<SolicitacaoResponseDTO[]>(this.apiUrl);
+    }
 }

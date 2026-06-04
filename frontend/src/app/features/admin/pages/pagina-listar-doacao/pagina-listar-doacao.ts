@@ -63,7 +63,6 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     'nome',
     'equipamento',
     'dataCadastro',
-    'dataUltimaAtualizacao',
     'status',
     'acoes'
   ];
@@ -86,19 +85,6 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     });
   }
 
-  
-  
-    // {
-    //   id: '006',
-    //   cpf: 'XXX.XXX.XXX-XX',
-    //   nome: 'Pedro',
-    //   equipamento: 'Impressora',
-    //   dataCadastro: new Date(2025, 4, 1),
-    //   dataUltimaAtualizacao: new Date(2025, 4, 1),
-    //   status: 'PENDENTE'
-    // }
- 
-
   dataSource = new MatTableDataSource<DoacaoDTO>(this.doacoes);
 
   ngAfterViewInit(): void {
@@ -111,7 +97,6 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
         doacao.nome,
         doacao.equipamento,
         this.formatarData(new Date(doacao.dataCadastro)),
-        this.formatarData(new Date(doacao.dataAlteracaoStatus || doacao.dataCadastro)),
         doacao.status
       ].join(' ').toLowerCase();
 

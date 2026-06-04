@@ -30,6 +30,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16) !important;
 }
 
+mat-card-content > card-listagem mat-elevation-z8 {
+  min-height: 500px;
+}
+
+
+.card-listagem mat-card-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+}
+
+.tabela-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.tabela-usuarios {
+  min-width: 1000px;
+}
+
+mat-paginator {
+  margin-top: auto;
+}
+
 mat-form-field {
   --mat-form-field-container-shape: 0;
   --mdc-filled-text-field-container-shape: 0;

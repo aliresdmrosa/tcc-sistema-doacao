@@ -15,7 +15,7 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
 
         // Consulta personalizada para retornar as solicitações com nome e cpf do usuário
         @org.springframework.data.jpa.repository.Query("""
-            SELECT new com.sistemadoacao.backend.dto.SolicitacaoDTO(s, p.nome, p.cpf)
+            SELECT new com.sistemadoacao.backend.dto.SolicitacaoDTO(s.id, s.grr, s.equipamento, s.status, s.motivo, s.sem_computador, s.ativo, s.dataCadastro, p.nome, p.cpf)
             FROM Solicitacao s
             JOIN Pessoa p ON s.usuarioId = p.id
         """)

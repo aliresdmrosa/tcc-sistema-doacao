@@ -13,6 +13,7 @@ import com.sistemadoacao.backend.dto.AnaliseIAResponse;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
+import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 import com.sistemadoacao.backend.dto.GraficoDTO;
 import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
@@ -419,5 +420,10 @@ public class DoacaoService {
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    }
+
+    public List<DoacaoResponseUserDTO> listarDoacoesUser() {
+        return repository.buscarTodasUser();
+        
     }
 }

@@ -28,7 +28,8 @@ import com.sistemadoacao.backend.dto.AlterStatusDTO;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
-import com.sistemadoacao.backend.dto.DoacaoReverDTO;
+import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -61,11 +62,8 @@ public class DoacaoController {
     @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")
     @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoes() {
-        return ResponseEntity.ok(doacaoService.listarDoacoes()
-                .stream()
-                .map(DoacaoResponseDTO::new)
-                .toList());
+    public ResponseEntity<List<DoacaoResponseUserDTO>> listarDoacoes() {
+        return ResponseEntity.ok(doacaoService.listarDoacoesUser());
     }
 
     @GetMapping("usuario")

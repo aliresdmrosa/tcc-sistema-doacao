@@ -37,7 +37,7 @@ export class DoacaoService {
       return this.http.get<DoacaoDTO[]>(`${this.apiUrl}`);
   }
 
-      listarDoacoesReverReparo(): Observable<DoacaoDTO[]> {
+      listarDoacoesTecnico(): Observable<DoacaoDTO[]> {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/tecnico`);
     }
 
