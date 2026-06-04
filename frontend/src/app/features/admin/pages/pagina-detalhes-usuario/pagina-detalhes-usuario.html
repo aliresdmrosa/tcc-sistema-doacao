@@ -14,6 +14,9 @@
 
         <div class="titulo-card">
           <h2>Dados do usuário</h2>
+          <span class="status-perfil" [class.desativado]="usuario.ativo === false">
+            {{ usuario.ativo === false ? 'Desativado' : 'Ativo' }}
+          </span>
           <p>
             {{ modoEdicao ? 'Edite as informações cadastradas.' : 'Visualize as informações cadastradas.' }}
           </p>
@@ -21,7 +24,7 @@
 
         <form [formGroup]="usuarioForm" (ngSubmit)="salvar()" class="formulario">
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>Nome</mat-label>
             <input matInput formControlName="nome" type="text" />
 
@@ -34,7 +37,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>CPF</mat-label>
             <input matInput formControlName="cpf" type="text" maxlength="14" (input)="aplicarMascaraCpf()" />
 
@@ -43,7 +46,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>E-mail</mat-label>
             <input matInput formControlName="email" type="email" />
 
@@ -56,12 +59,12 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>GRR</mat-label>
             <input matInput formControlName="grr" type="text" maxlength="8" (input)="aplicarMascaraGrr()" />
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>Curso</mat-label>
             <mat-select formControlName="curso">
               <mat-option *ngFor="let curso of cursos" [value]="curso.valor">
@@ -76,19 +79,32 @@
               color="primary"
               type="button"
               class="botao-editar"
+              [disabled]="acaoPerfilEmAndamento"
               (click)="ativarEdicao()">
               <mat-icon>edit</mat-icon>
               Editar
             </button>
 
             <button
+              *ngIf="usuario.ativo !== false"
               mat-stroked-button
               type="button"
-              class="botao-deletar"
-              (click)="deletar()">
-              <mat-icon>delete</mat-icon>
-              Deletar
+              class="botao-desativar"
+              [disabled]="acaoPerfilEmAndamento"
+              (click)="desativarPerfil()">
+              Desativar perfil
             </button>
+
+            <button
+              *ngIf="usuario.ativo === false"
+              mat-stroked-button
+              type="button"
+              class="botao-reativar"
+              [disabled]="acaoPerfilEmAndamento"
+              (click)="reativarPerfil()">
+              Reativar perfil
+            </button>
+
           </div>
 
           <div class="acoes" *ngIf="modoEdicao">
@@ -98,7 +114,6 @@
               type="submit"
               class="botao-editar"
               [disabled]="usuarioForm.invalid || carregando">
-              <mat-icon>check</mat-icon>
               {{ carregando ? 'Salvando...' : 'Salvar' }}
             </button>
 
@@ -107,7 +122,6 @@
               type="button"
               class="botao-deletar"
               (click)="cancelarEdicao()">
-              <mat-icon>close</mat-icon>
               Cancelar
             </button>
           </div>
@@ -132,10 +146,6 @@
             class="item-relacionado"
             (click)="abrirDoacao(doacao.id)">
 
-            <div class="icone-item">
-              <mat-icon>inventory_2</mat-icon>
-            </div>
-
             <div>
               <p class="destaque">Doação #{{ doacao.id }}</p>
               <p>{{ doacao.equipamento }} • {{ doacao.status }} • {{ doacao.data }}</p>
@@ -157,10 +167,6 @@
             class="item-relacionado"
             (click)="abrirSolicitacao(solicitacao.id)">
 
-            <div class="icone-item">
-              <mat-icon>assignment</mat-icon>
-            </div>
-
             <div>
               <p class="destaque">Solicitação #{{ solicitacao.id }}</p>
               <p>{{ solicitacao.equipamento }} • {{ solicitacao.status }} • {{ solicitacao.data }}</p>
@@ -173,7 +179,7 @@
         <mat-card-content>
           <h2>Data do cadastramento</h2>
 
-          <mat-form-field appearance="outline" class="campo-data">
+          <mat-form-field class="campo-data">
             <mat-label>Data</mat-label>
             <input matInput [value]="usuario.dataCadastro" disabled />
           </mat-form-field>

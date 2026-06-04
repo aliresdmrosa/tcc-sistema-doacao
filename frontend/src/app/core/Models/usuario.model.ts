@@ -5,6 +5,9 @@ export interface Usuario {
   email: string;
   perfil?: string;
   dataCadastro?: string;
+  ativo?: boolean;
+  grr?: string;
+  curso?: string;
   senha?: string;
 }
 
@@ -35,5 +38,7 @@ export interface UsuarioAtualizacaoRequest {
   nome: string;
   cpf: string;
   email: string;
+  grr?: string;
+  curso?: string;
   senha?: string;
 }

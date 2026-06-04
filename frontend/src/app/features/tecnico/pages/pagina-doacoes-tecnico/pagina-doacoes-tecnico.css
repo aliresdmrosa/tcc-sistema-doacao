@@ -1,6 +1,6 @@
 .pagina-doacoes-tecnico {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -24,26 +24,18 @@
 .card-listagem {
   max-width: 1200px;
   margin: 0 auto;
-  border-radius: 16px;
-  border: 1px solid #ece3f8;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
 .barra-filtros {
   display: flex;
-  flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
+  justify-content: flex-end;
   margin-bottom: 36px;
 }
 
-.campo-pesquisa {
+.campo-busca {
   width: 100%;
   max-width: 360px;
-}
-
-.campo-data {
-  width: 180px;
 }
 
 .tabela-container {
@@ -76,6 +68,26 @@
   padding: 0;
 }
 
+.acoes-tabela {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.estado-tela {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6f6487;
+}
+
+.estado-tela.erro {
+  color: #b42318;
+}
+
 mat-paginator {
   border-top: 1px solid #eeeeee;
 }
@@ -89,8 +101,7 @@ mat-paginator {
     align-items: stretch;
   }
 
-  .campo-pesquisa,
-  .campo-data {
+  .campo-busca {
     max-width: none;
     width: 100%;
   }

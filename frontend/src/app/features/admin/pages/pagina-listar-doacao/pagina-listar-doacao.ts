@@ -1,7 +1,7 @@
-import { CommonModule, DatePipe } from '@angular/common';
+﻿import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +29,7 @@ interface DoacaoAdmin {
   imports: [
     CommonModule,
     DatePipe,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -50,6 +51,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
 
   carregando = false;
   erroAoCarregar = false;
+  termoPesquisa = '';
 
   displayedColumns: string[] = [
     'id',
@@ -88,7 +90,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
       equipamento: 'Monitor',
       dataCadastro: new Date(2025, 4, 1),
       dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'EM ANÁLISE'
+      status: 'EM ESTOQUE'
     },
     {
       id: '004',
@@ -123,15 +125,33 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.filterPredicate = (doacao: DoacaoAdmin, filtro: string): boolean => {
+      const termo = filtro.trim().toLowerCase();
+      const texto = [
+        doacao.id,
+        doacao.cpf,
+        doacao.nome,
+        doacao.equipamento,
+        this.formatarData(doacao.dataCadastro),
+        this.formatarData(doacao.dataUltimaAtualizacao),
+        doacao.status
+      ].join(' ').toLowerCase();
+
+      return texto.includes(termo);
+    };
   }
 
-  aplicarFiltro(event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valor.trim().toLowerCase();
+  aplicarFiltroPesquisa(): void {
+    this.dataSource.filter = this.termoPesquisa.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  limparPesquisa(): void {
+    this.termoPesquisa = '';
+    this.dataSource.filter = '';
   }
 
   tentarNovamente(): void {
@@ -178,6 +198,10 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     });
   }
 
+  imprimirEtiqueta(doacao: DoacaoAdmin): void {
+    console.log('Imprimir etiqueta:', doacao);
+  }
+
   obterClasseStatus(status: string): string {
     const statusNormalizado = status
       .toLowerCase()
@@ -192,7 +216,11 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
       return 'status-reprovado';
     }
 
-    if (statusNormalizado.includes('analise')) {
+    if (statusNormalizado.includes('estoque') || statusNormalizado.includes('vinculada') || statusNormalizado.includes('doado')) {
+      return 'status-entregue';
+    }
+
+    if (statusNormalizado.includes('reparo')) {
       return 'status-analise';
     }
 
@@ -201,5 +229,9 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     }
 
     return 'status-default';
+  }
+
+  private formatarData(data: Date): string {
+    return data.toLocaleDateString('pt-BR');
   }
 }

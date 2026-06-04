@@ -44,6 +44,9 @@ public class Pessoa implements UserDetails {
     private String email;
     @Schema(description = "Senha do usuário", example = "senhaSegura123")
     private String senha;
+    @Schema(description = "Indica se o perfil pode acessar o sistema", example = "true")
+    @Column(nullable = false)
+    private boolean ativo = true;
     @Schema(description = "Papel do usuário no sistema", example = "TECNICO")
 
     @Enumerated(EnumType.STRING)
@@ -79,6 +82,11 @@ public class Pessoa implements UserDetails {
 
     public Long getId() {
         return this.id;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.ativo;
     }
 
 }

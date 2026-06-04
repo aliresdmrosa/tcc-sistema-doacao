@@ -1,6 +1,6 @@
 .pagina-listar-doacao-admin {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -29,29 +29,42 @@
 .card-listagem {
   max-width: 1200px;
   margin: 0 auto;
-  border-radius: 16px;
-  border: 1px solid #ece3f8;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border: 0;
+  border-radius: 0;
+  --mdc-elevated-card-container-shape: 0;
 }
 
 .barra-filtros {
   display: flex;
+  align-items: flex-end;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin-bottom: 36px;
 }
 
 .campo-busca {
   width: 100%;
   max-width: 360px;
+  --mat-form-field-container-shape: 0;
 }
 
 .tabela-container {
   overflow-x: auto;
+  border-radius: 0;
 }
 
 .tabela-doacoes {
   width: 100%;
   background: #ffffff;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+:host ::ng-deep .pagina-listar-doacao-admin .mat-mdc-card {
+  border-radius: 0;
+}
+
+:host ::ng-deep .pagina-listar-doacao-admin .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0;
 }
 
 .mat-mdc-header-row {
@@ -101,6 +114,11 @@
 
 }
 
+.status-entregue {
+  background: #e8f1ff;
+  color: #205493;
+}
+
 .status-default {
   background: #f1f1f1;
   color: #555555;
@@ -126,12 +144,6 @@
   color: #6f6487;
 }
 
-.estado-tela mat-icon {
-  font-size: 36px;
-  width: 36px;
-  height: 36px;
-}
-
 .estado-tela.erro {
   color: #b42318;
 }
@@ -144,12 +156,6 @@
   align-items: center;
   justify-content: center;
   color: #7a718f;
-}
-
-.sem-registros mat-icon {
-  font-size: 38px;
-  width: 38px;
-  height: 38px;
 }
 
 @media (max-width: 768px) {

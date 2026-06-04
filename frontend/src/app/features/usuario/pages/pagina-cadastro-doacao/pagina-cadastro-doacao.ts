@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -40,12 +40,15 @@ export class PaginaCadastroDoacao {
 
   imagemPreview: string | null = null;
   nomeArquivo = 'Nenhum arquivo selecionado';
+  erroImagem = '';
+  private readonly tamanhoMaximoImagem = 10 * 1024 * 1024;
+  private readonly tiposImagemPermitidos = ['image/jpeg', 'image/png'];
 
   form = this.fb.group({
     tipoItem: ['', Validators.required],
     descricao: ['', [Validators.required, Validators.minLength(5)]],
     estadoConservacao: ['USADO', Validators.required],
-    imagem: [null as File | null]
+    imagem: [null as File | null, Validators.required]
   });
 
   tiposItens: string[] = [
@@ -68,8 +71,21 @@ export class PaginaCadastroDoacao {
     }
 
     const arquivo = input.files[0];
+    this.erroImagem = '';
+
+    if (!this.tiposImagemPermitidos.includes(arquivo.type)) {
+      this.rejeitarImagem(input, 'Selecione uma imagem nos formatos JPG ou PNG.');
+      return;
+    }
+
+    if (arquivo.size > this.tamanhoMaximoImagem) {
+      this.rejeitarImagem(input, 'Selecione uma imagem de até 10 MB.');
+      return;
+    }
+
     this.nomeArquivo = arquivo.name;
     this.form.patchValue({ imagem: arquivo });
+    this.form.get('imagem')?.setErrors(null);
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -81,6 +97,7 @@ export class PaginaCadastroDoacao {
   removerImagem(): void {
     this.imagemPreview = null;
     this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.erroImagem = '';
     this.form.patchValue({ imagem: null });
   }
 
@@ -139,6 +156,7 @@ export class PaginaCadastroDoacao {
     });
     this.imagemPreview = null;
     this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.erroImagem = '';
   }
 
   cancelar(): void {
@@ -155,5 +173,15 @@ export class PaginaCadastroDoacao {
 
   get estadoConservacao() {
     return this.form.get('estadoConservacao');
+  }
+
+  private rejeitarImagem(input: HTMLInputElement, mensagem: string): void {
+    input.value = '';
+    this.imagemPreview = null;
+    this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.erroImagem = mensagem;
+    this.form.patchValue({ imagem: null });
+    this.form.get('imagem')?.setErrors({ arquivoInvalido: true });
+    this.form.get('imagem')?.markAsTouched();
   }
 }

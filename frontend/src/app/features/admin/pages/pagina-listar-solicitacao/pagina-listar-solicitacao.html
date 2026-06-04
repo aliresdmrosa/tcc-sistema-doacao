@@ -1,4 +1,4 @@
-<div class="pagina-listar-solicitacao">
+﻿<div class="pagina-listar-solicitacao">
 
   <div class="topo-pagina">
     <div class="titulo-area">
@@ -7,31 +7,37 @@
     </div>
   </div>
 
-  <mat-card class="card-listagem">
+  <mat-card class="card-listagem mat-elevation-z8">
     <mat-card-content>
 
       <div class="barra-filtros">
-        <mat-form-field appearance="outline" class="campo-busca">
-          <mat-label>Pesquisar</mat-label>
+        <mat-form-field class="campo-busca">
+          <mat-label>Pesquisar por ID, GRR, nome, equipamento, status ou data</mat-label>
 
           <input
             matInput
             type="text"
-            placeholder="Buscar por GRR, nome, equipamento ou status"
-            (keyup)="aplicarFiltro($event)"
-          />
+            [(ngModel)]="termoPesquisa"
+            (keyup)="aplicarFiltroPesquisa()" />
+
+          <button
+            *ngIf="termoPesquisa"
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="limparPesquisa()">
+            <mat-icon>close</mat-icon>
+          </button>
 
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
 
       <div *ngIf="carregando" class="estado-tela">
-        <mat-icon>hourglass_top</mat-icon>
         <p>Carregando solicitações...</p>
       </div>
 
       <div *ngIf="erroAoCarregar" class="estado-tela erro">
-        <mat-icon>error</mat-icon>
         <p>Não foi possível carregar as solicitações.</p>
 
         <button mat-stroked-button type="button" (click)="tentarNovamente()">
@@ -119,7 +125,6 @@
         </table>
 
         <div class="sem-registros" *ngIf="dataSource.filteredData.length === 0">
-          <mat-icon>assignment</mat-icon>
           <p>Nenhuma solicitação encontrada.</p>
         </div>
 

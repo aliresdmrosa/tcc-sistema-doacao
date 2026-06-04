@@ -44,13 +44,13 @@ public class UsuarioService {
     private static final String DATA_FOR_RANDOM = "abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz".toUpperCase() + "0123456789";
     
    
-    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder, TecnicoRepository tecnicoRepository, PessoaRepository pessoaRepository , AdministradorRepository admRepositor) {
+    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder, TecnicoRepository tecnicoRepository, PessoaRepository pessoaRepository, AdministradorRepository admRepository) {
         this.usuarioRepository = usuarioRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.tecnicoRepository = tecnicoRepository;
         this.pessoaRepository = pessoaRepository;
-        this.admRepository = admRepositor;
+        this.admRepository = admRepository;
     }
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
@@ -78,11 +78,12 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", usuario.email());
-        return new UsuarioResponseDTO(novo.getId(), novo.getNome(), novo.getCpf(), novo.getEmail(), novo.getClass().getSimpleName(), novo.getDataCadastro().toString());
+        return new UsuarioResponseDTO(novo.getId(), novo.getNome(), novo.getCpf(), novo.getEmail(), novo.getClass().getSimpleName(), novo.getDataCadastro().toString(), novo.isAtivo(), "", "");
     }
 
     public List<Pessoa> getAllUsuarios() {
         return pessoaRepository.findAll().stream()
+        .filter(pessoa -> !(pessoa instanceof Administrador))
         .toList();
     }
 
@@ -90,6 +91,11 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
         return usuario;
+    }
+
+    public Pessoa getPessoaById(@NonNull Long id) {
+        return pessoaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Perfil nao encontrado com ID: " + id));
     }
 
    
@@ -121,11 +127,11 @@ public class UsuarioService {
         Pessoa pessoa = pessoaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
         
-        if(pessoa.getClass().getSimpleName().equals("Administrador")) {
-            admRepository.deleteById(id);
-            log.info("Administrador deletado com sucesso: ID {}", id);  
-            return true;  
-        }else if(pessoa.getClass().getSimpleName().equals("Tecnico")) {
+        if (pessoa instanceof Administrador) {
+            throw new RuntimeException("Administrador nao pode ser excluido por este fluxo.");
+        }
+
+        if(pessoa.getClass().getSimpleName().equals("Tecnico")) {
             tecnicoRepository.deleteById(id);
             log.info("Técnico deletado com sucesso: ID {}", id);
             return true;
@@ -134,6 +140,23 @@ public class UsuarioService {
              log.info("Usuário deletado com sucesso: ID {}", id);
             return true;
         }
+    }
+
+    @Transactional
+    public Pessoa desativarPerfil(@NonNull Long id) {
+        Pessoa pessoa = getPessoaById(id);
+        if (pessoa instanceof Administrador) {
+            throw new RuntimeException("Administrador nao pode ser desativado por este fluxo.");
+        }
+        pessoa.setAtivo(false);
+        return pessoaRepository.save(pessoa);
+    }
+
+    @Transactional
+    public Pessoa reativarPerfil(@NonNull Long id) {
+        Pessoa pessoa = getPessoaById(id);
+        pessoa.setAtivo(true);
+        return pessoaRepository.save(pessoa);
     }
 
     @Transactional

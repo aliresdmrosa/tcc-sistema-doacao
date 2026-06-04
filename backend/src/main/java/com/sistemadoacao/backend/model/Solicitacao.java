@@ -33,6 +33,10 @@ public class Solicitacao {
     private Long usuarioId;
 
     @Enumerated(EnumType.STRING)
+    @Schema(example = "NOTEBOOK", description = "Equipamento solicitado")
+    private Equipamento equipamento;
+
+    @Enumerated(EnumType.STRING)
     @Schema(example = "TADS", description = "Curso do solicitante")
     private Curso curso;
 
@@ -64,8 +68,9 @@ public class Solicitacao {
     @JsonManagedReference
     private List<Doacao> doacoes = new ArrayList<>();
 
-    public Solicitacao(Curso curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
+    public Solicitacao(Equipamento equipamento, Curso curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
             boolean sem_computador, List<HistoricoSolicitacao> historico, List<Doacao> doacoes) {
+        this.equipamento = equipamento;
         this.curso = curso;
         this.grr = grr;
         this.motivo = motivo;
@@ -77,11 +82,12 @@ public class Solicitacao {
         this.doacoes = doacoes;
     }
 
-    public Solicitacao(Long id, Long usuarioId, Curso curso, String grr, String motivo, LocalDate dataCadastro,
+    public Solicitacao(Long id, Long usuarioId, Equipamento equipamento, Curso curso, String grr, String motivo, LocalDate dataCadastro,
             Status status, boolean ativo, boolean sem_computador, List<HistoricoSolicitacao> historico,
             List<Doacao> doacoes) {
         this.id = id;
         this.usuarioId = usuarioId;
+        this.equipamento = equipamento;
         this.curso = curso;
         this.grr = grr;
         this.motivo = motivo;
@@ -110,6 +116,14 @@ public class Solicitacao {
 
     public void setUsuarioId(Long usuarioId) {
         this.usuarioId = usuarioId;
+    }
+
+    public Equipamento getEquipamento() {
+        return equipamento;
+    }
+
+    public void setEquipamento(Equipamento equipamento) {
+        this.equipamento = equipamento;
     }
 
     public Curso getCurso() {

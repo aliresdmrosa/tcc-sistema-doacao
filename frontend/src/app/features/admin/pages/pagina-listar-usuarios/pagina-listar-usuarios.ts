@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild, AfterViewInit, inject } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, OnInit, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -20,6 +21,7 @@ import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dial
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     MatCardModule,
     MatTableModule,
@@ -42,9 +44,12 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  displayedColumns: string[] = ['id', 'nome', 'cpf', 'email', 'perfil', 'acoes'];
+  displayedColumns: string[] = ['id', 'nome', 'cpf', 'email', 'grr', 'curso', 'perfil', 'status', 'acoes'];
   dataSource = new MatTableDataSource<Usuario>([]);
   carregando = false;
+  erroAoCarregar = false;
+  termoPesquisa = '';
+  private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatTable) table?: MatTable<Usuario>;
@@ -54,10 +59,14 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
       const texto = filtro.trim().toLowerCase();
 
       return (
+        usuario.id.toString().includes(texto) ||
         (usuario.nome ?? '').toLowerCase().includes(texto) ||
         (usuario.email ?? '').toLowerCase().includes(texto) ||
         (usuario.cpf ?? '').toLowerCase().includes(texto) ||
-        (usuario.perfil ?? '').toLowerCase().includes(texto)
+        (usuario.grr ?? '').toLowerCase().includes(texto) ||
+        (usuario.curso ?? '').toLowerCase().includes(texto) ||
+        (usuario.perfil ?? '').toLowerCase().includes(texto) ||
+        this.textoStatus(usuario).toLowerCase().includes(texto)
       );
     };
 
@@ -70,22 +79,50 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
 
   carregarUsuarios(): void {
     this.carregando = true;
+    this.erroAoCarregar = false;
+    this.iniciarTimeoutCarregamento();
 
     this.usuarioService.listarUsuarios().subscribe({
       next: (usuarios) => {
+        this.limparTimeoutCarregamento();
         this.dataSource.data = [...usuarios];
         this.carregando = false;
+        this.erroAoCarregar = false;
         this.atualizarTabela();
       },
       error: (erro) => {
+        this.limparTimeoutCarregamento();
         console.error('Erro ao listar usuários:', erro);
-        this.snackBar.open('Erro ao carregar usuários.', 'Fechar', {
-          duration: 3000
-        });
         this.carregando = false;
+        this.erroAoCarregar = true;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  tentarNovamente(): void {
+    this.carregarUsuarios();
+  }
+
+  private iniciarTimeoutCarregamento(): void {
+    this.limparTimeoutCarregamento();
+
+    this.timeoutCarregamento = setTimeout(() => {
+      if (!this.carregando) {
+        return;
+      }
+
+      this.carregando = false;
+      this.erroAoCarregar = true;
+      this.cdr.detectChanges();
+    }, 5000);
+  }
+
+  private limparTimeoutCarregamento(): void {
+    if (this.timeoutCarregamento) {
+      clearTimeout(this.timeoutCarregamento);
+      this.timeoutCarregamento = undefined;
+    }
   }
 
   private atualizarTabela(): void {
@@ -99,14 +136,19 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
     });
   }
 
-  aplicarFiltro(event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valor.trim().toLowerCase();
+  aplicarFiltroPesquisa(): void {
+    this.dataSource.filter = this.termoPesquisa.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
 
+    this.atualizarTabela();
+  }
+
+  limparPesquisa(): void {
+    this.termoPesquisa = '';
+    this.dataSource.filter = '';
     this.atualizarTabela();
   }
 
@@ -128,15 +170,23 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
       .toUpperCase();
   }
 
-  excluirUsuario(id: number): void {
+  textoStatus(usuario: Usuario): string {
+    return usuario.ativo === false ? 'Desativado' : 'Ativo';
+  }
+
+  desativarUsuario(usuario: Usuario): void {
+    if (usuario.ativo === false) {
+      return;
+    }
+
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Deseja excluir este usuário?',
-        mensagem: 'Essa ação será permanente.',
-        textoConfirmar: 'Confirmar',
+        titulo: 'Deseja desativar este perfil?',
+        mensagem: 'O usuário não poderá mais acessar a conta, mas seus registros serão preservados.',
+        textoConfirmar: 'Desativar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
       }
@@ -147,16 +197,19 @@ export class PaginaListarUsuarios implements OnInit, AfterViewInit {
         return;
       }
 
-      this.usuarioService.deletarUsuario(id).subscribe({
+      this.usuarioService.desativarPerfil(usuario.id).subscribe({
         next: () => {
-          this.snackBar.open('Usuário excluído com sucesso!', 'Fechar', {
+          this.dataSource.data = this.dataSource.data.map((item) =>
+            item.id === usuario.id ? { ...item, ativo: false } : item
+          );
+          this.aplicarFiltroPesquisa();
+          this.snackBar.open('Perfil desativado com sucesso!', 'Fechar', {
             duration: 3000
           });
-          this.carregarUsuarios();
         },
         error: (erro) => {
-          console.error('Erro ao excluir usuário:', erro);
-          this.snackBar.open('Erro ao excluir usuário.', 'Fechar', {
+          console.error('Erro ao desativar perfil:', erro);
+          this.snackBar.open('Erro ao desativar perfil.', 'Fechar', {
             duration: 3000
           });
         }

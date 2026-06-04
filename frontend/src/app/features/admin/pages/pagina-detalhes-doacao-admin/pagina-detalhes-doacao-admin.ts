@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -11,10 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
-type StatusAnalise = 'PENDENTE' | 'EM_ANALISE' | 'APROVADA' | 'REPROVADA';
+type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADA' | 'REPROVADA' | 'EM_ESTOQUE' | 'VINCULADA' | 'DOADO';
 
 interface DetalhesDoacaoAdmin {
   id: string;
@@ -39,6 +39,7 @@ interface DetalhesDoacaoAdmin {
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
@@ -58,13 +59,20 @@ export class PaginaDetalhesDoacaoAdmin {
   idDoacao = this.route.snapshot.paramMap.get('id');
   modoEdicao = false;
   private dadosAntesDaEdicao?: DetalhesDoacaoAdmin;
+  tiposItens: string[] = [
+    'COMPUTADOR',
+    'NOTEBOOK',
+    'MONITOR',
+    'TECLADO',
+    'MOUSE'
+  ];
 
   // mock
   doacao: DetalhesDoacaoAdmin = {
     id: this.idDoacao ?? '1',
     nomeDoador: 'Vitoria Lais Souza',
     cpf: '000.000.000-00',
-    tipoItem: 'Computador',
+    tipoItem: 'COMPUTADOR',
     descricao: 'Ex tela quebrada',
     imagem: 'Aqui ficam as imagens a serem analisadas',
     estadoConservacao: 'USADO',
@@ -82,16 +90,30 @@ export class PaginaDetalhesDoacaoAdmin {
     estadoConservacao: [{ value: this.doacao.estadoConservacao, disabled: true }]
   });
 
-  get podeMarcarEmAnalise(): boolean {
+  get podeMarcarReparo(): boolean {
     return this.doacao.status === 'PENDENTE';
   }
 
   get podeConcluirAnalise(): boolean {
-    return this.doacao.status === 'PENDENTE' || this.doacao.status === 'EM_ANALISE';
+    return this.doacao.status === 'PENDENTE' || this.doacao.status === 'REPARO';
   }
 
   get podeReabrirAnalise(): boolean {
-    return this.doacao.status === 'APROVADA' || this.doacao.status === 'REPROVADA';
+    return this.doacao.status !== 'PENDENTE';
+  }
+
+  get podeMarcarEmEstoque(): boolean {
+    return this.doacao.status === 'APROVADA';
+  }
+
+  get imagemUrl(): string | null {
+    const imagem = this.doacao.imagem?.trim();
+
+    if (!imagem || !/^https?:\/\//.test(imagem) && !imagem.startsWith('/')) {
+      return null;
+    }
+
+    return imagem.startsWith('/') ? `http://localhost:8080${imagem}` : imagem;
   }
 
   // depois, chamada api
@@ -135,7 +157,7 @@ export class PaginaDetalhesDoacaoAdmin {
 
     this.modoEdicao = false;
     this.form.disable();
-    this.snackBar.open('Doacao atualizada com sucesso!', 'Fechar', { duration: 3000 });
+    this.snackBar.open('Doação atualizada com sucesso!', 'Fechar', { duration: 3000 });
   }
 
   cancelarEdicao(): void {
@@ -148,38 +170,20 @@ export class PaginaDetalhesDoacaoAdmin {
     this.form.disable();
   }
 
-  marcarEmAnalise(): void {
-    if (!this.podeMarcarEmAnalise) {
-      this.snackBar.open('A doacao so pode ser marcada em analise quando esta pendente.', 'Fechar', {
+  marcarReparo(): void {
+    if (!this.podeMarcarReparo) {
+      this.snackBar.open('A doação só pode ser marcada como reparo quando está pendente.', 'Fechar', {
         duration: 3500
       });
       return;
     }
 
-    this.alterarStatus('EM_ANALISE', 'Doacao marcada como em analise.');
+    this.alterarStatus('REPARO', 'Doação marcada como reparo.');
   }
 
-  aprovar(): void {
-    this.confirmarAlteracaoStatus(
-      'Aprovar doacao?',
-      'Confirme para alterar o status desta doacao para aprovada.',
-      'APROVADA',
-      'Doacao aprovada com sucesso!'
-    );
-  }
-
-  reprovar(): void {
-    this.confirmarAlteracaoStatus(
-      'Reprovar doacao?',
-      'Confirme para alterar o status desta doacao para reprovada.',
-      'REPROVADA',
-      'Doacao reprovada com sucesso!'
-    );
-  }
-
-  reabrirAnalise(): void {
-    if (!this.podeReabrirAnalise) {
-      this.snackBar.open('A analise so pode ser reaberta quando a doacao esta aprovada ou reprovada.', 'Fechar', {
+  marcarEmEstoque(): void {
+    if (!this.podeMarcarEmEstoque) {
+      this.snackBar.open('A doação só pode ir para estoque depois de aprovada.', 'Fechar', {
         duration: 3500
       });
       return;
@@ -190,8 +194,8 @@ export class PaginaDetalhesDoacaoAdmin {
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Reabrir analise?',
-        mensagem: 'Confirme para voltar esta doacao para em analise.',
+        titulo: 'Mover para estoque?',
+        mensagem: 'Confirme que o equipamento foi recebido e está disponível em estoque.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -205,23 +209,57 @@ export class PaginaDetalhesDoacaoAdmin {
 
       this.doacao = {
         ...this.doacao,
-        status: 'EM_ANALISE',
+        status: 'EM_ESTOQUE',
         dataUltimaModificacao: this.obterDataAtual()
       };
 
       this.preencherFormulario();
-      this.snackBar.open('Analise reaberta com sucesso!', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Doação marcada como em estoque!', 'Fechar', { duration: 3000 });
+      this.router.navigate(['/admin/atribuir-equipamento'], {
+        queryParams: {
+          doacaoId: this.doacao.id,
+          tipo: this.doacao.tipoItem
+        },
+        state: {
+          doacao: this.doacao
+        }
+      });
     });
   }
 
-  deletar(): void {
+  aprovar(): void {
+    this.confirmarAlteracaoStatus(
+      'Aprovar doação?',
+      'Confirme para alterar o status desta doação para aprovada.',
+      'APROVADA',
+      'Doação aprovada com sucesso!'
+    );
+  }
+
+  reprovar(): void {
+    this.confirmarAlteracaoStatus(
+      'Reprovar doação?',
+      'Confirme para alterar o status desta doação para reprovada.',
+      'REPROVADA',
+      'Doação reprovada com sucesso!'
+    );
+  }
+
+  reabrirAnalise(): void {
+    if (!this.podeReabrirAnalise) {
+      this.snackBar.open('A análise só pode ser reaberta quando a doação não está pendente.', 'Fechar', {
+        duration: 3500
+      });
+      return;
+    }
+
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Deseja excluir esta doacao?',
-        mensagem: 'Essa acao sera permanente.',
+        titulo: 'Reabrir análise?',
+        mensagem: 'Confirme para voltar esta doação para pendente.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -233,7 +271,37 @@ export class PaginaDetalhesDoacaoAdmin {
         return;
       }
 
-      this.snackBar.open('Doacao excluida com sucesso!', 'Fechar', { duration: 3000 });
+      this.doacao = {
+        ...this.doacao,
+        status: 'PENDENTE',
+        dataUltimaModificacao: this.obterDataAtual()
+      };
+
+      this.preencherFormulario();
+      this.snackBar.open('Análise reaberta com sucesso!', 'Fechar', { duration: 3000 });
+    });
+  }
+
+  deletar(): void {
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir esta doação?',
+        mensagem: 'Essa ação será permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      this.snackBar.open('Doação excluída com sucesso!', 'Fechar', { duration: 3000 });
       this.voltar();
     });
   }
@@ -246,8 +314,12 @@ export class PaginaDetalhesDoacaoAdmin {
       case 'REPROVADA':
       case 'REPROVADO':
         return 'status-reprovado';
-      case 'EM_ANALISE':
+      case 'REPARO':
         return 'status-analise';
+      case 'EM_ESTOQUE':
+      case 'VINCULADA':
+      case 'DOADO':
+        return 'status-entregue';
       case 'PENDENTE':
         return 'status-pendente';
       default:
@@ -261,8 +333,14 @@ export class PaginaDetalhesDoacaoAdmin {
         return 'Aprovada';
       case 'REPROVADA':
         return 'Reprovada';
-      case 'EM_ANALISE':
-        return 'Em analise';
+      case 'REPARO':
+        return 'Reparo';
+      case 'EM_ESTOQUE':
+        return 'Em estoque';
+      case 'VINCULADA':
+        return 'Vinculada';
+      case 'DOADO':
+        return 'Doado';
       case 'PENDENTE':
         return 'Pendente';
       default:
@@ -272,7 +350,7 @@ export class PaginaDetalhesDoacaoAdmin {
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
     if (!this.podeConcluirAnalise) {
-      this.snackBar.open('Esta acao so pode ser feita quando a doacao esta pendente ou em analise.', 'Fechar', {
+      this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
         duration: 3500
       });
       return;
@@ -295,7 +373,7 @@ export class PaginaDetalhesDoacaoAdmin {
     mensagemSucesso: string
   ): void {
     if (!this.podeConcluirAnalise) {
-      this.snackBar.open('Esta acao so pode ser feita quando a doacao esta pendente ou em analise.', 'Fechar', {
+      this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
         duration: 3500
       });
       return;

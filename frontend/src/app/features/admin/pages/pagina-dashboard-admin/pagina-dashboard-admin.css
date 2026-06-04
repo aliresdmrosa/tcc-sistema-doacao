@@ -19,10 +19,6 @@
   margin-bottom: 24px;
 }
 
-.card-resumo {
-  border-radius: 12px;
-}
-
 .card-resumo h3 {
   margin: 0 0 8px 0;
   font-size: 1rem;
@@ -39,10 +35,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-}
-
-.chart-card {
-  border-radius: 12px;
 }
 
 @media (max-width: 992px) {

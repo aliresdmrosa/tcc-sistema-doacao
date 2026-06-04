@@ -1,0 +1,157 @@
+.pagina-solicitacao {
+  padding: 32px;
+  background: transparent;
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #7f7f7f;
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.topo-pagina,
+.mensagem-reprovacao,
+.card-solicitacao {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.topo-pagina {
+  margin-bottom: 24px;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.topo-pagina p,
+.datas p {
+  margin: 8px 0 0;
+  color: #6f6487;
+  font-size: 1rem;
+}
+
+.datas {
+  margin-top: 12px;
+}
+
+.badge-status {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-aprovado {
+  background: #e8f7ee;
+  color: #1f7a45;
+}
+
+.status-reprovado {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.status-pendente {
+  background: #fff4e5;
+  color: #b26b00;
+}
+
+.status-entregue {
+  background: #e8f1ff;
+  color: #205493;
+}
+
+.status-default {
+  background: #f1f1f1;
+  color: #555555;
+}
+
+.mensagem-reprovacao {
+  margin-bottom: 16px;
+  padding: 16px;
+  color: #7a1f16;
+  background: #fff4f2;
+  border-left: 4px solid #b42318;
+}
+
+.card-solicitacao {
+  border-radius: 4px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form-solicitacao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bloco-formulario {
+  background: #ffffff;
+  border: 1px solid #ece3f8;
+  border-radius: 4px;
+  padding: 24px;
+}
+
+.titulo-bloco {
+  margin-bottom: 12px;
+}
+
+.titulo-bloco h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #34264f;
+  font-weight: 500;
+}
+
+.linha {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+  --mat-form-field-container-shape: 0;
+}
+
+:host ::ng-deep .pagina-solicitacao .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0;
+}
+
+.campo-motivo {
+  width: 100%;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .pagina-solicitacao {
+    padding: 20px;
+  }
+}

@@ -5,8 +5,12 @@
 
   <div class="topo-pagina">
     <div>
-      <h1>Detalhes da Solicitacao #{{ solicitacao.id }}</h1>
-      <p>Visualize os dados da solicitacao e realize a analise.</p>
+      <h1>Detalhes da Solicitação #{{ solicitacao.id }}</h1>
+
+      <div class="datas">
+        <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
+        <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p>
+      </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
         {{ obterTextoStatus(solicitacao.status) }}
@@ -17,18 +21,11 @@
         <strong>{{ equipamentoAtribuido.nome }} - ID:{{ equipamentoAtribuido.id }}</strong>
       </div>
 
-      <button
-        *ngIf="podeAtribuirEquipamento"
-        type="button"
-        class="link-atribuir"
-        (click)="atribuirEquipamento()">
-        Atribuir equipamento
-      </button>
     </div>
 
     <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
       <mat-icon>more_vert</mat-icon>
-      Acoes
+      Ações
     </button>
 
     <mat-menu #menuAcoes="matMenu">
@@ -47,11 +44,6 @@
         <span>Cancelar edicao</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmAnalise" (click)="marcarEmAnalise()">
-        <mat-icon>schedule</mat-icon>
-        <span>Analisar</span>
-      </button>
-
       <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
@@ -64,7 +56,7 @@
 
       <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
-        <span>Reabrir analise</span>
+        <span>Reabrir análise</span>
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
@@ -81,45 +73,38 @@
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Dados do solicitante</h2>
+            <h2>Informações da solicitação</h2>
           </div>
 
-          <div class="linha-dupla">
-            <mat-form-field appearance="outline">
-              <mat-label>Nome</mat-label>
-              <input matInput formControlName="nome" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>GRR</mat-label>
-              <input matInput formControlName="grr" />
-            </mat-form-field>
-          </div>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Curso</mat-label>
-            <input matInput formControlName="curso" />
+          <mat-form-field>
+            <mat-label>Nome do solicitante</mat-label>
+            <input matInput formControlName="nome" />
           </mat-form-field>
-        </section>
 
-        <section class="bloco-formulario">
-          <div class="titulo-bloco">
-            <h2>Informacoes da solicitacao</h2>
-          </div>
+          <mat-form-field>
+            <mat-label>Equipamento solicitado</mat-label>
+            <mat-select formControlName="equipamentoSolicitado">
+              <mat-option *ngFor="let tipo of tiposEquipamento" [value]="tipo.valor">
+                {{ tipo.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-          <div class="linha-dupla">
-            <mat-form-field appearance="outline">
-              <mat-label>Data de cadastro</mat-label>
-              <input matInput formControlName="dataCadastro" />
-            </mat-form-field>
+          <mat-form-field>
+            <mat-label>Curso</mat-label>
+            <mat-select formControlName="curso">
+              <mat-option *ngFor="let curso of cursos" [value]="curso.valor">
+                {{ curso.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Equipamento solicitado</mat-label>
-              <input matInput formControlName="equipamentoSolicitado" />
-            </mat-form-field>
-          </div>
+          <mat-form-field>
+            <mat-label>GRR</mat-label>
+            <input matInput formControlName="grr" />
+          </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-justificativa">
+          <mat-form-field class="campo-justificativa">
             <mat-label>Justificativa</mat-label>
             <textarea matInput rows="5" formControlName="justificativa"></textarea>
           </mat-form-field>
@@ -131,12 +116,12 @@
           </div>
 
           <div class="grupo-checkbox">
-            <mat-checkbox formControlName="declaracaoComputador">
-              Declaro que nao possuo computador para a realizacao das atividades curriculares do curso.
+            <mat-checkbox formControlName="declaracaoComputador" color="primary">
+              Declaro que não possuo computador para a realização das atividades curriculares do curso.
             </mat-checkbox>
 
-            <mat-checkbox formControlName="declaracaoMatricula">
-              Confirmo que minha matricula esta ativa no semestre atual.
+            <mat-checkbox formControlName="declaracaoMatricula" color="primary">
+              Confirmo que minha matrícula está ativa no semestre atual.
             </mat-checkbox>
           </div>
         </section>

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -73,7 +73,7 @@ export class PaginaLogin {
       error: (erro) => {
         console.error('Erro ao fazer login:', erro);
 
-        this.snackBar.open('E-mail ou senha inválidos.', 'Fechar', {
+        this.snackBar.open('Login ou senha incorretos.', 'Fechar', {
           duration: 3000
         });
 

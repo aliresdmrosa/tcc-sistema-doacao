@@ -1,0 +1,89 @@
+<div class="pagina-solicitacao">
+  <div class="botao-voltar" (click)="voltar()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
+  <div class="topo-pagina">
+    <div>
+      <h1>Detalhes da Solicitação #{{ solicitacao.id }}</h1>
+      <p>Visualize os dados da sua solicitação de doação.</p>
+
+      <div class="datas">
+        <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
+        <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p>
+      </div>
+
+      <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
+        {{ obterTextoStatus(solicitacao.status) }}
+      </span>
+    </div>
+  </div>
+
+  <div class="mensagem-reprovacao" *ngIf="solicitacaoReprovada">
+    {{ mensagemReprovacao }}
+  </div>
+
+  <mat-card class="card-solicitacao">
+    <mat-card-content>
+      <form [formGroup]="form" class="form-solicitacao">
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Informações da solicitação</h2>
+          </div>
+
+          <div class="linha">
+            <mat-form-field>
+              <mat-label>Equipamento</mat-label>
+              <mat-select formControlName="equipamento">
+                <mat-option *ngFor="let tipo of tiposEquipamento" [value]="tipo.valor">
+                  {{ tipo.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="linha">
+            <mat-form-field>
+              <mat-label>Curso</mat-label>
+              <mat-select formControlName="curso">
+                <mat-option *ngFor="let curso of cursos" [value]="curso.valor">
+                  {{ curso.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="linha">
+            <mat-form-field>
+              <mat-label>GRR</mat-label>
+              <input matInput formControlName="grr" />
+            </mat-form-field>
+          </div>
+
+          <div class="linha">
+            <mat-form-field class="campo-motivo">
+              <mat-label>Motivo da solicitação</mat-label>
+              <textarea matInput rows="5" formControlName="motivo"></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Declarações</h2>
+          </div>
+
+          <div class="checkbox-group">
+            <mat-checkbox formControlName="semComputador" color="primary">
+              Declaro que não possuo computador para a realização das atividades curriculares do curso.
+            </mat-checkbox>
+
+            <mat-checkbox formControlName="matriculaAtiva" color="primary">
+              Confirmo que minha matrícula está ativa no semestre atual.
+            </mat-checkbox>
+          </div>
+        </section>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

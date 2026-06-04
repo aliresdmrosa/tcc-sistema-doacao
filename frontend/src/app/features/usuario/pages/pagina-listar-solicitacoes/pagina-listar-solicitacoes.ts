@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
+﻿import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
+import { timeout } from 'rxjs';
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 
 @Component({
@@ -18,6 +19,7 @@ import { SolicitacaoService } from '../../../../core/services/solicitacao.servic
   imports: [
     CommonModule,
     DatePipe,
+    FormsModule,
     MatCardModule,
     MatTableModule,
     MatPaginatorModule,
@@ -25,16 +27,15 @@ import { SolicitacaoService } from '../../../../core/services/solicitacao.servic
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
-    MatMenuModule
+    MatTooltipModule
   ],
   templateUrl: './pagina-listar-solicitacoes.html',
   styleUrl: './pagina-listar-solicitacoes.css'
 })
 export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
-  private router = inject(Router);
   private solicitacaoService = inject(SolicitacaoService);
   private cdf = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
 
   displayedColumns: string[] = [
@@ -50,6 +51,8 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
 
   carregando = false;
   erroAoCarregar = false;
+  termoPesquisa = '';
+  private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -103,56 +106,56 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
         equipamento: 'Monitor',
         dataCadastro: '2025-05-01',
         ultimaAtualizacao: '2025-05-01',
-        status: 'EM_ANALISE'
+        status: 'VINCULADA'
       },
       {
         id: '004',
         equipamento: 'Computador',
         dataCadastro: '2025-05-02',
         ultimaAtualizacao: '2025-05-02',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '005',
         equipamento: 'Notebook',
         dataCadastro: '2025-05-02',
         ultimaAtualizacao: '2025-05-02',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '006',
         equipamento: 'Monitor',
         dataCadastro: '2025-05-03',
         ultimaAtualizacao: '2025-05-03',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '007',
         equipamento: 'Computador',
         dataCadastro: '2025-05-03',
         ultimaAtualizacao: '2025-05-03',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '008',
         equipamento: 'Notebook',
         dataCadastro: '2025-05-04',
         ultimaAtualizacao: '2025-05-04',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '009',
         equipamento: 'Monitor',
         dataCadastro: '2025-05-04',
         ultimaAtualizacao: '2025-05-04',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       },
       {
         id: '010',
         equipamento: 'Computador',
         dataCadastro: '2025-05-05',
         ultimaAtualizacao: '2025-05-05',
-        status: 'ENTREGUE_DOADO'
+        status: 'DOADO'
       }
     ];
   }
@@ -160,9 +163,11 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
   buscarSolicitacoes(): void {
     this.carregando = true;
     this.erroAoCarregar = false;
+    this.iniciarTimeoutCarregamento();
 
-    this.solicitacaoService.listarSolicitacaoUsuario().subscribe({
+    this.solicitacaoService.listarSolicitacaoUsuario().pipe(timeout(5000)).subscribe({
       next: (solicitacoes) => {
+        this.limparTimeoutCarregamento();
         this.dataSource.data = solicitacoes;
         console.log(solicitacoes);
 
@@ -172,31 +177,33 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
         this.cdf.detectChanges();
       },
       error: () => {
+        this.limparTimeoutCarregamento();
         this.carregando = false;
         this.erroAoCarregar = true;
+        this.cdf.detectChanges();
       }
     });
 
     
   }
 
-  aplicarFiltro(event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valor.trim().toLowerCase();
+  aplicarFiltroPesquisa(): void {
+    this.dataSource.filter = this.termoPesquisa.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  cadastrarSolicitacao(): void {
-    this.router.navigate(['/usuario/solicitacao-doacao']);
+  limparPesquisa(): void {
+    this.termoPesquisa = '';
+    this.dataSource.filter = '';
   }
 
   verDetalhes(solicitacao: any): void {
-    console.log('Ver detalhes da solicitação:', solicitacao);
-
-    // chamada de api 
+    this.router.navigate(['/usuario/solicitacoes', solicitacao.id], {
+      state: { solicitacao }
+    });
   }
 
   obterClasseStatus(status: string): string {
@@ -207,11 +214,9 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
       case 'REPROVADA':
       case 'REPROVADO':
         return 'status-reprovado';
-      case 'EM_ANALISE':
-        return 'status-analise';
       case 'PENDENTE':
         return 'status-pendente';
-      case 'ENTREGUE_DOADO':
+      case 'VINCULADA':
       case 'DOADO':
         return 'status-entregue';
       default:
@@ -225,12 +230,12 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
         return 'Aprovada';
       case 'REPROVADA':
         return 'Reprovada';
-      case 'EM_ANALISE':
-        return 'Em_Análise';
-      case 'ENTREGUE_DOADO':
-        return 'Entregue/Doado';
+      case 'VINCULADA':
+        return 'Vinculada';
+      case 'DOADO':
+        return 'Doado';
       case 'PENDENTE':
-        return 'PENDENTE';
+        return 'Pendente';
       default:
         return status;
     }
@@ -239,7 +244,26 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
   tentarNovamente(): void {
     // chamda de api 
     this.buscarSolicitacoes();
+  }
 
-    this.carregarDadosMockados();
+  private iniciarTimeoutCarregamento(): void {
+    this.limparTimeoutCarregamento();
+
+    this.timeoutCarregamento = setTimeout(() => {
+      if (!this.carregando) {
+        return;
+      }
+
+      this.carregando = false;
+      this.erroAoCarregar = true;
+      this.cdf.detectChanges();
+    }, 5000);
+  }
+
+  private limparTimeoutCarregamento(): void {
+    if (this.timeoutCarregamento) {
+      clearTimeout(this.timeoutCarregamento);
+      this.timeoutCarregamento = undefined;
+    }
   }
 }

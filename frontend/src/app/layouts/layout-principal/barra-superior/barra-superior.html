@@ -1,4 +1,4 @@
-<header class="topbar">
+﻿<header class="topbar">
   <div class="lado-esquerdo">
     <button mat-icon-button (click)="abrirFecharMenu()" aria-label="Abrir ou fechar menu">
       <mat-icon>menu</mat-icon>
@@ -10,10 +10,10 @@
   </div>
 
   <div class="lado-direito">
-    <div class="avatar">
-      {{ nomeUsuario.charAt(0) }}
-    </div>
-    <button class="button" (click)="logout()">Sair</button>
+    <button class="botao-sair" (click)="logout()" aria-label="Sair">
+      <mat-icon>logout</mat-icon>
+      Sair
+    </button>
   </div>
 
 

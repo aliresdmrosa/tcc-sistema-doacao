@@ -55,6 +55,14 @@ export class UsuarioService {
     return this.http.patch<Usuario>(`${this.apiUrl}/${id}`, dados);
   }
 
+  desativarPerfil(id: number): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.apiUrl}/${id}/desativar`, {});
+  }
+
+  reativarPerfil(id: number): Observable<Usuario> {
+    return this.http.patch<Usuario>(`${this.apiUrl}/${id}/reativar`, {});
+  }
+
   deletarUsuario(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

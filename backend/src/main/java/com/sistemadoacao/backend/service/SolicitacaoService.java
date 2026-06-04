@@ -44,6 +44,7 @@ public class SolicitacaoService {
         // Lógica de negócio: Solicitação sempre inicia com status PENDENTE
         Solicitacao solicitacaoEntity = new Solicitacao();
         solicitacaoEntity.setUsuarioId(usuarioId);
+        solicitacaoEntity.setEquipamento(solicitacao.equipamento());
         solicitacaoEntity.setCurso(solicitacao.curso());
         solicitacaoEntity.setGrr(solicitacao.grr());
         solicitacaoEntity.setMotivo(solicitacao.motivo());
@@ -133,6 +134,9 @@ public class SolicitacaoService {
 
             if (existente != null) {
 
+                if (dto.equipamento() != null) {
+                    existente.setEquipamento(dto.equipamento());
+                }
                 if (dto.curso() != null) {
                     existente.setCurso(dto.curso());
                 }

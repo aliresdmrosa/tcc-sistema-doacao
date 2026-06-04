@@ -6,7 +6,7 @@
 
     <mat-card-content>
       <form [formGroup]="form" (ngSubmit)="enviar()" class="formulario">
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Senha</mat-label>
           <input matInput [type]="ocultarSenha ? 'password' : 'text'" formControlName="senha" />
           <button mat-icon-button matSuffix type="button" (click)="ocultarSenha = !ocultarSenha">
@@ -20,7 +20,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Confirmar senha</mat-label>
           <input matInput [type]="ocultarConfirmarSenha ? 'password' : 'text'" formControlName="confirmarSenha" />
           <button mat-icon-button matSuffix type="button" (click)="ocultarConfirmarSenha = !ocultarConfirmarSenha">

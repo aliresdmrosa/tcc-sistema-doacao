@@ -1,5 +1,6 @@
-import { CommonModule, DatePipe } from '@angular/common';
+﻿import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +29,7 @@ interface SolicitacaoAdmin {
   imports: [
     CommonModule,
     DatePipe,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
@@ -49,6 +51,7 @@ export class PaginaListarSolicitacao implements AfterViewInit {
 
   carregando = false;
   erroAoCarregar = false;
+  termoPesquisa = '';
 
   displayedColumns: string[] = [
     'id',
@@ -96,7 +99,7 @@ export class PaginaListarSolicitacao implements AfterViewInit {
       equipamento: 'XXXX',
       dataCadastro: new Date(2025, 4, 1),
       dataUltimaAtualizacao: new Date(2025, 4, 1),
-      status: 'EM ANÁLISE'
+      status: 'VINCULADA'
     },
     {
       id: '005',
@@ -158,15 +161,33 @@ export class PaginaListarSolicitacao implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.filterPredicate = (solicitacao: SolicitacaoAdmin, filtro: string): boolean => {
+      const termo = filtro.trim().toLowerCase();
+      const texto = [
+        solicitacao.id,
+        solicitacao.grr,
+        solicitacao.nome,
+        solicitacao.equipamento,
+        this.formatarData(solicitacao.dataCadastro),
+        this.formatarData(solicitacao.dataUltimaAtualizacao),
+        solicitacao.status
+      ].join(' ').toLowerCase();
+
+      return texto.includes(termo);
+    };
   }
 
-  aplicarFiltro(event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valor.trim().toLowerCase();
+  aplicarFiltroPesquisa(): void {
+    this.dataSource.filter = this.termoPesquisa.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  limparPesquisa(): void {
+    this.termoPesquisa = '';
+    this.dataSource.filter = '';
   }
 
   tentarNovamente(): void {
@@ -227,14 +248,18 @@ export class PaginaListarSolicitacao implements AfterViewInit {
       return 'status-reprovado';
     }
 
-    if (statusNormalizado.includes('analise')) {
-      return 'status-analise';
-    }
-
     if (statusNormalizado.includes('pendente')) {
       return 'status-pendente';
     }
 
+    if (statusNormalizado.includes('vinculada') || statusNormalizado.includes('doado')) {
+      return 'status-entregue';
+    }
+
     return 'status-default';
+  }
+
+  private formatarData(data: Date): string {
+    return data.toLocaleDateString('pt-BR');
   }
 }

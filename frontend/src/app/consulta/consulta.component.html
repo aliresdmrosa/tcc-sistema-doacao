@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="center">
+﻿<div fxLayout="row" fxLayoutAlign="center">
   <div fxLayout="column" fxFlex="1000px">
     <form class="mt-60" #buscaForm="ngForm">
 
@@ -9,9 +9,14 @@
 
         <!-- Barra de pesquisa -->
         <div class="pesquisa-container">
-          <mat-form-field appearance="outline" class="campo-pesquisa">
+          <mat-form-field class="campo-pesquisa">
             <mat-label>Pesquisar</mat-label>
-            <input matInput [(ngModel)]="filtro" name="filtroBusca"  placeholder="Digite um nome...">
+            <input
+              matInput
+              [(ngModel)]="filtro"
+              name="filtroBusca"
+              placeholder="Digite ID, nome, CPF, GRR ou curso..."
+              (keyup)="aplicarFiltroPesquisa()">
             <button mat-icon-button matSuffix>
               <mat-icon>search</mat-icon>
             </button>

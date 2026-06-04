@@ -1,4 +1,5 @@
 import { HttpClient } from "@angular/common/http";
+import { HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 
@@ -15,6 +16,13 @@ export class ReparoService {
     return this.http.get<any[]>(`${this.apiUrl}/tecnico`);
   }
 
+  salvarReparo(idDoacao: number, descricao: string): Observable<any> {
+    const params = new HttpParams()
+      .set('id_doacao', idDoacao)
+      .set('descricao', descricao);
+
+    return this.http.post<any>(this.apiUrl, null, { params });
+  }
 
 
 }

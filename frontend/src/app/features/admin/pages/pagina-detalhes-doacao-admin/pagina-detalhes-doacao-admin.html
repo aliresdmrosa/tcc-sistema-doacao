@@ -5,11 +5,11 @@
 
   <div class="topo-pagina">
     <div>
-      <h1>Detalhes da doacao #{{ doacao.id }}</h1>
+      <h1>Detalhes da doação #{{ doacao.id }}</h1>
 
       <div class="datas">
         <p>Data do cadastro: {{ doacao.dataCadastro }}</p>
-        <p>Ultima modificacao em: {{ doacao.dataUltimaModificacao }}</p>
+        <p>Última modificação em: {{ doacao.dataUltimaModificacao }}</p>
         <span class="badge-status" [ngClass]="obterClasseStatus(doacao.status)">
           {{ obterTextoStatus(doacao.status) }}
         </span>
@@ -18,7 +18,7 @@
 
     <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
       <mat-icon>more_vert</mat-icon>
-      Acoes
+      Ações
     </button>
 
     <mat-menu #menuAcoes="matMenu">
@@ -37,9 +37,9 @@
         <span>Cancelar edicao</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmAnalise" (click)="marcarEmAnalise()">
-        <mat-icon>schedule</mat-icon>
-        <span>Analisar</span>
+      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarReparo" (click)="marcarReparo()">
+        <mat-icon>build</mat-icon>
+        <span>Reparo</span>
       </button>
 
       <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
@@ -52,9 +52,14 @@
         <span>Reprovar</span>
       </button>
 
+      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmEstoque" (click)="marcarEmEstoque()">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Em estoque</span>
+      </button>
+
       <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
-        <span>Reabrir analise</span>
+        <span>Reabrir análise</span>
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
@@ -71,38 +76,42 @@
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Informacoes do doador</h2>
+            <h2>Informações do doador</h2>
           </div>
 
-          <div class="linha-com-botao">
-            <mat-form-field appearance="outline">
-              <mat-label>Nome</mat-label>
-              <input matInput formControlName="nomeDoador" />
-            </mat-form-field>
+          <mat-form-field>
+            <mat-label>Nome</mat-label>
+            <input matInput formControlName="nomeDoador" />
+          </mat-form-field>
 
+          <mat-form-field>
+            <mat-label>CPF</mat-label>
+            <input matInput formControlName="cpf" />
+          </mat-form-field>
+
+          <div class="acoes-doador">
             <button mat-stroked-button type="button" class="botao-ver-perfil" (click)="verPerfil()">
               Ver Perfil
             </button>
           </div>
-
-          <mat-form-field appearance="outline">
-            <mat-label>CPF</mat-label>
-            <input matInput formControlName="cpf" />
-          </mat-form-field>
         </section>
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Informacoes do item</h2>
+            <h2>Informações do item</h2>
           </div>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field>
             <mat-label>Tipo do item</mat-label>
-            <input matInput formControlName="tipoItem" />
+            <mat-select formControlName="tipoItem">
+              <mat-option *ngFor="let tipo of tiposItens" [value]="tipo">
+                {{ tipo }}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="campo-descricao">
-            <mat-label>Descricao</mat-label>
+          <mat-form-field class="campo-descricao">
+            <mat-label>Descrição</mat-label>
             <textarea matInput rows="3" formControlName="descricao"></textarea>
           </mat-form-field>
         </section>
@@ -113,15 +122,26 @@
             <h2>Imagem do item</h2>
           </div>
 
-          <mat-form-field appearance="outline" class="campo-descricao">
-            <mat-label>Imagem enviada</mat-label>
-            <textarea matInput rows="2" formControlName="imagem"></textarea>
-          </mat-form-field>
+          <div class="imagem-card">
+            <img
+              *ngIf="imagemUrl; else imagemPlaceholderAdmin"
+              [src]="imagemUrl"
+              alt="Imagem do item doado"
+              class="imagem-item"
+            />
+
+            <ng-template #imagemPlaceholderAdmin>
+              <div class="imagem-preview">
+                <mat-icon>image</mat-icon>
+                <span>Imagem não informada</span>
+              </div>
+            </ng-template>
+            </div>
         </section>
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
-            <h2>Estado de conservacao</h2>
+            <h2>Estado de conservação</h2>
           </div>
 
           <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">

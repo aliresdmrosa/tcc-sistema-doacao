@@ -29,3 +29,59 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   overflow: hidden;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16) !important;
 }
+
+mat-form-field {
+  --mat-form-field-container-shape: 0;
+  --mdc-filled-text-field-container-shape: 0;
+}
+
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0 !important;
+}
+
+.mat-mdc-button-base:not(.mat-mdc-icon-button) {
+  border-radius: 4px !important;
+}
+
+button:not(.mat-mdc-icon-button),
+.botao-upload {
+  border-radius: 4px !important;
+}
+
+.card-listagem {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+  --mdc-elevated-card-container-shape: 0;
+}
+
+.card-resumo,
+.chart-card {
+  border-radius: 0 !important;
+  --mdc-elevated-card-container-shape: 0;
+}
+
+.tabela-container,
+table.mat-mdc-table {
+  border-radius: 0 !important;
+}
+
+.card-doacao,
+.card-solicitacao,
+.card-credenciais,
+.card-dados,
+.card-relacionado {
+  border: 1px solid #ece3f8 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.bloco-formulario {
+  border: 1px solid #ece3f8 !important;
+}
+
+table.mat-mdc-table button.mat-mdc-icon-button,
+table.mat-mdc-table button.mat-mdc-icon-button mat-icon,
+table.mat-mdc-table .acoes-tabela button.mat-mdc-icon-button,
+table.mat-mdc-table .acoes-tabela button.mat-mdc-icon-button mat-icon {
+  color: #6f6f6f !important;
+}

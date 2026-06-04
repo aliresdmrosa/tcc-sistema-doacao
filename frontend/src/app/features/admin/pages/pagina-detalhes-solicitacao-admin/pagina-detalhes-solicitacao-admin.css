@@ -1,6 +1,6 @@
 .pagina-solicitacao-admin {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .topo-pagina {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto 24px;
   display: flex;
   justify-content: space-between;
@@ -32,14 +32,10 @@
 
 .topo-pagina h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 500;
   color: #2f2347;
-}
-
-.topo-pagina p {
-  margin: 8px 0 0;
-  color: #6f6487;
 }
 
 .badge-status {
@@ -53,6 +49,16 @@
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.datas {
+  margin-top: 16px;
+}
+
+.datas p {
+  margin: 4px 0;
+  color: #6f6487;
+  font-size: 0.95rem;
 }
 
 .link-atribuir {
@@ -119,30 +125,36 @@
 }
 
 .card-solicitacao {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto;
-  border-radius: 12px;
   border: 1px solid #ece3f8;
+  border-radius: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  --mdc-elevated-card-container-shape: 0;
 }
 
 .form-solicitacao {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .bloco-formulario {
-  background: #faf8fd;
-  border: 1px solid #eee7f8;
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #ece3f8;
+  border-radius: 0;
   padding: 24px;
+}
+
+:host ::ng-deep .card-solicitacao.mat-mdc-card {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .titulo-bloco {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .titulo-bloco h2 {
@@ -156,12 +168,6 @@ mat-form-field {
   width: 100%;
 }
 
-.linha-dupla {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
 .campo-justificativa {
   width: 100%;
 }
@@ -170,6 +176,16 @@ mat-form-field {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+:host ::ng-deep .pagina-solicitacao-admin .mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #ffffff;
+  --mdc-checkbox-selected-focus-icon-color: #4054b2;
+  --mdc-checkbox-selected-hover-icon-color: #4054b2;
+  --mdc-checkbox-selected-icon-color: #4054b2;
+  --mdc-checkbox-selected-pressed-icon-color: #4054b2;
+  --mdc-checkbox-selected-disabled-icon-color: #4054b2;
+  --mdc-checkbox-disabled-selected-checkmark-color: #ffffff;
 }
 
 .acao-perigo mat-icon,
@@ -184,9 +200,5 @@ mat-form-field {
 
   .topo-pagina {
     flex-direction: column;
-  }
-
-  .linha-dupla {
-    grid-template-columns: 1fr;
   }
 }

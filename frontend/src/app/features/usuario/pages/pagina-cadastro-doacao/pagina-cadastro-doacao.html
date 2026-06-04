@@ -1,4 +1,4 @@
-<div class="pagina-doacao">
+﻿<div class="pagina-doacao">
   <div class="botao-voltar" (click)="voltar()">
     <mat-icon>arrow_back</mat-icon>
   </div>
@@ -25,7 +25,7 @@
           </div>
 
           <div class="linha">
-            <mat-form-field appearance="outline">
+            <mat-form-field>
               <mat-label>Tipo do item</mat-label>
               <mat-select formControlName="tipoItem">
                 <mat-option *ngFor="let tipo of tiposItens" [value]="tipo">
@@ -40,7 +40,7 @@
           </div>
 
           <div class="linha">
-            <mat-form-field appearance="outline" class="campo-descricao">
+            <mat-form-field class="campo-descricao">
               <mat-label>Descrição</mat-label>
               <textarea
                 matInput
@@ -68,12 +68,20 @@
 
           <div class="upload-area">
             <label class="botao-upload">
-              <input type="file" accept="image/*" (change)="selecionarImagem($event)" hidden />
+              <input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" (change)="selecionarImagem($event)" hidden />
               <mat-icon>upload</mat-icon>
               Selecionar imagem
             </label>
 
             <span class="nome-arquivo">{{ nomeArquivo }}</span>
+          </div>
+
+          <p class="texto-ajuda-upload">
+            Apenas JPG ou PNG de até 10 MB.
+          </p>
+
+          <div class="mensagem-erro" *ngIf="erroImagem || (form.get('imagem')?.hasError('required') && form.get('imagem')?.touched)">
+            {{ erroImagem || 'Selecione uma imagem do item.' }}
           </div>
 
           <div class="preview-container" *ngIf="imagemPreview">
@@ -104,7 +112,12 @@
         </section>
 
         <section class="acoes-formulario">
-          <button type="submit" mat-raised-button color="primary" class="botao-confirmar">
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            class="botao-confirmar"
+            [disabled]="form.invalid">
             <mat-icon>check</mat-icon>
             Confirmar doação
           </button>

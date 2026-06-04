@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexResponsive, ApexStroke,
 ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 
 
@@ -31,7 +32,7 @@ export type BarChartOptions = {
 @Component({
   selector: 'app-pagina-dashboard-usuario',
   standalone: true,
-  imports: [CommonModule, MatCardModule, NgApexchartsModule],
+  imports: [CommonModule, MatCardModule, MatIconModule, NgApexchartsModule],
   templateUrl: './pagina-dashboard-usuario.html',
   styleUrl: './pagina-dashboard-usuario.css'
 })
