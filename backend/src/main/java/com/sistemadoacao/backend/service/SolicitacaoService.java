@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.sistemadoacao.backend.dto.SolicitacaoDTO;
 import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.HistoricoDoacao;
@@ -91,8 +92,8 @@ public class SolicitacaoService {
                 .orElseThrow(() -> new NotFoundException("Solicitação não encontrada com ID: " + id));
     }
 
-    public List<Solicitacao> findAll() {
-        List<Solicitacao> solicitacoes = solicitacaoRepository.findAll();
+    public List<SolicitacaoDTO> findAll() {
+        List<SolicitacaoDTO> solicitacoes = solicitacaoRepository.findAllUser();
         if (solicitacoes.isEmpty()) {
             throw new NotFoundException("Nenhuma solicitacao cadastrada");
 

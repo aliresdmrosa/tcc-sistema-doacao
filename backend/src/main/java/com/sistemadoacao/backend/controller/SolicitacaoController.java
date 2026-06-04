@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sistemadoacao.backend.dto.SolicitacaoDTO;
 import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
 import com.sistemadoacao.backend.model.Solicitacao;
 import com.sistemadoacao.backend.service.SolicitacaoService;
@@ -65,7 +66,7 @@ public class SolicitacaoController {
     @Operation(summary = "Lista todas as solicitações", description = "Retorna todas as solicitações no sistema.")
     @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<List<Solicitacao>> listarTodos() {
+    public ResponseEntity<List<SolicitacaoDTO>> listarTodos() {
         return ResponseEntity.ok(service.findAll());
     }
 
