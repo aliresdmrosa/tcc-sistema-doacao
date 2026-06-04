@@ -263,7 +263,7 @@ public class DoacaoService {
             log.debug("Resposta da IA: {}", analise);
             switch (analise.status()) {
                 case APROVADO:
-                    existente.setStatus(Status.APROVADO_IA);
+                    existente.setStatus(Status.APROVADO);
                     break;
                 case REPARO:
                     existente.setStatus(Status.REPARO);
@@ -309,7 +309,7 @@ public class DoacaoService {
                 repository.count(),
                 repository.countByStatus(Status.DOADO),
                 repository.countByStatus(Status.APROVADO),
-                repository.countByStatus(Status.APROVADO_IA),
+                repository.countByStatus(Status.APROVADO_REPARO),
                 repository.countByStatus(Status.REPROVADO),
                 repository.countByStatus(Status.REPARO),
                 grafico,
@@ -337,7 +337,7 @@ public class DoacaoService {
                 analise = openAIService.analisarImagens(doacaoRequest.imagens());
                 log.debug("Resposta da IA: {}", analise);
                 if (analise.status().equals(Status.APROVADO)) {
-                    novaDoacao.setStatus(Status.APROVADO_IA);
+                    novaDoacao.setStatus(Status.APROVADO_REPARO);
                 } else if (analise.status().equals(Status.REPARO)) {
                     novaDoacao.setStatus(Status.REPARO);
                 } else {
@@ -401,19 +401,21 @@ public class DoacaoService {
         return imagensSalvas;
     }
 
-    public Doacao reverDoacao(Long id) {
-        return repository.findById(id).map(doacao -> {
-            doacao.setStatus(Status.REVER);
-            return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
-        }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
-    }
+    // TODO: Melhorias futuras - usuario poderia pedir para revisar analise de ia
 
-    public List<DoacaoReverDTO> listarDoacoesReverReparo() {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO));
+    // public Doacao reverDoacao(Long id) {
+    //     return repository.findById(id).map(doacao -> {
+    //         doacao.setStatus(Status.REVER);
+    //         return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
+    //     }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    // }
+
+    public List<DoacaoReverDTO> listarDoacoesTecnico() {
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO));
     }
 
     public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.REVER, Status.REPARO)).stream()
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO)).stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));

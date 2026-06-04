@@ -1,14 +1,14 @@
 package com.sistemadoacao.backend.model;
 
 public enum Status {
-    APROVADO_IA,
+    APROVADO_REPARO,
     APROVADO,
     REPROVADO,
     REPARO,
     DOADO,
     DESCARTE,
     PENDENTE,
-    AGUARDANDO_ENTREGA,
+    ESTOQUE,
     VINCULADO,
-    REVER
+    
 }

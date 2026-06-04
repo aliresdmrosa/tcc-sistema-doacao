@@ -130,7 +130,10 @@ export class PaginaDashboardUsuario implements OnInit {
     ],
     chart: {
       type: 'bar',
-      height: 280
+      height: 280,
+      toolbar: {
+        show: false
+      }
     },
     xaxis: {
       categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
@@ -145,11 +148,13 @@ export class PaginaDashboardUsuario implements OnInit {
     },
     plotOptions: {
       bar: {
-        borderRadius: 6
+        borderRadius: 6,
+        columnWidth: '50%'
       }
     },
     title: {
       text: 'Beneficiados'
+      
     }
   };
 

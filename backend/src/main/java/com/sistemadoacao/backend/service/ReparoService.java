@@ -88,6 +88,7 @@ public class ReparoService {
             throw new RuntimeException("Erro: Reparo nao encontrado.");
         }
 
+        @SuppressWarnings("null")
         Doacao doacao = doacaoRepository.findById(reparoConcluir.getDoacao().getId()).orElseThrow();
 
         if (doacao == null) {
@@ -126,6 +127,7 @@ public class ReparoService {
             throw new RuntimeException("Erro: Reparo nao encontrado.");
         }
 
+        @SuppressWarnings("null")
         Doacao doacao = doacaoRepository.findById(reparoConcluir.getDoacao().getId()).orElseThrow();
 
         if(doacao == null){

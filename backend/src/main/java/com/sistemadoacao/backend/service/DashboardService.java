@@ -26,7 +26,7 @@ public class DashboardService {
                 doacaoRepository.count(),
                 doacaoRepository.countByStatus(Status.DOADO),
                 doacaoRepository.countByStatus(Status.APROVADO),
-                doacaoRepository.countByStatus(Status.APROVADO_IA),
+                doacaoRepository.countByStatus(Status.APROVADO_REPARO),
                 doacaoRepository.countByStatus(Status.REPROVADO),
                 doacaoRepository.countByStatus(Status.REPARO),
                 doacaoRepository.findDoacoesMensais().stream()

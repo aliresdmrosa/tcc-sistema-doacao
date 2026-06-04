@@ -21,7 +21,6 @@ import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
-import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
 
 
@@ -31,7 +30,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 

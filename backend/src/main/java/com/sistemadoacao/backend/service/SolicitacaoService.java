@@ -241,7 +241,7 @@ public class SolicitacaoService {
             throw new IdNullException("Doação não encontrada com ID: " + doacaoId);
         }
 
-        List<Status> statusPermitidos = List.of(Status.APROVADO, Status.APROVADO_IA);
+        List<Status> statusPermitidos = List.of(Status.APROVADO);
         // Verifica se a doação está disponível para seleção
         if (!statusPermitidos.contains(doacaoEscolhida.getStatus())) {
             log.error("Doação com ID: {} não está disponível para seleção. Status atual: {}", doacaoId,
