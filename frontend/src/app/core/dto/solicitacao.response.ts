@@ -1,5 +1,6 @@
 export interface SolicitacaoResponseDTO{
     id : number;
+    equipamento : string;
     curso : string;
     grr : string;
     motivo : string;

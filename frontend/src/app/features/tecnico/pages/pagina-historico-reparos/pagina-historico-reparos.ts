@@ -1,25 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, AfterViewInit, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatCardModule } from '@angular/material/card';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { timeout } from 'rxjs';
 import { ReparoService } from '../../../../core/services/reparo.service';
-
-// depois, importar service
 
 interface HistoricoReparo {
   id: string;
   equipamentoDoacao: string;
   dataInicio: string;
   dataFim: string;
-  estado: string;
   descricao: string;
   conclusao: string;
 }
@@ -37,59 +35,65 @@ interface HistoricoReparo {
     MatFormFieldModule,
     MatInputModule,
     MatMenuModule,
-    MatCardModule,
+    MatCardModule
   ],
   templateUrl: './pagina-historico-reparos.html',
   styleUrls: ['./pagina-historico-reparos.css']
 })
 export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
-
   private router = inject(Router);
   private reparoService = inject(ReparoService);
+  private cdr = inject(ChangeDetectorRef);
 
   displayedColumns: string[] = [
     'id',
     'equipamento',
     'dataInicio',
     'dataFinalizacao',
-    'descrição',
+    'descricao',
     'acoes'
   ];
 
-  
-
   dataSource = new MatTableDataSource<HistoricoReparo>();
-
   termoPesquisa = '';
+  carregando = false;
+  erroAoCarregar = false;
+  private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // injetar service aqui
-
   ngOnInit(): void {
-
-    this.reparoService.listarReparoTecnico().subscribe({
-      next: (dados) => {
-        console.log('Dados do histórico de reparos:', dados);
-        this.dataSource.data = dados;
-      },
-      error: (erro) => {
-        console.error('Erro ao buscar histórico de reparos:', erro);
-      }
-    });
+    this.carregarHistorico();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
 
-  // // mock
-  // carregarDadosMock(): void {
-  //   this.dataSource.data = this.historicoMock;
-  // }
+  carregarHistorico(): void {
+    this.carregando = true;
+    this.erroAoCarregar = false;
+    this.iniciarTimeoutCarregamento();
 
-  // chamada api
-  buscarHistoricoDaApi(): void {
+    this.reparoService.listarReparoTecnico().pipe(timeout(5000)).subscribe({
+      next: (dados) => {
+        this.limparTimeoutCarregamento();
+        console.log('Dados do historico de reparos:', dados);
+        this.dataSource.data = dados;
+        this.carregando = false;
+      },
+      error: (erro) => {
+        this.limparTimeoutCarregamento();
+        console.error('Erro ao buscar historico de reparos:', erro);
+        this.carregando = false;
+        this.erroAoCarregar = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  tentarNovamente(): void {
+    this.carregarHistorico();
   }
 
   pesquisar(): void {
@@ -99,7 +103,7 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
       return (
         historico.id.toLowerCase().includes(filtro) ||
         historico.equipamentoDoacao.toLowerCase().includes(filtro) ||
-        historico.estado.toLowerCase().includes(filtro)
+        historico.descricao.toLowerCase().includes(filtro)
       );
     };
 
@@ -113,8 +117,28 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
   verDetalhes(historico: HistoricoReparo): void {
     console.log('Ver detalhes do reparo:', historico);
-
-    // depois, rota para detalhes do histórico/reparo
+    // depois, rota para detalhes do historico/reparo
     // this.router.navigate(['/tecnico/historico', historico.id]);
+  }
+
+  private iniciarTimeoutCarregamento(): void {
+    this.limparTimeoutCarregamento();
+
+    this.timeoutCarregamento = setTimeout(() => {
+      if (!this.carregando) {
+        return;
+      }
+
+      this.carregando = false;
+      this.erroAoCarregar = true;
+      this.cdr.detectChanges();
+    }, 5000);
+  }
+
+  private limparTimeoutCarregamento(): void {
+    if (this.timeoutCarregamento) {
+      clearTimeout(this.timeoutCarregamento);
+      this.timeoutCarregamento = undefined;
+    }
   }
 }

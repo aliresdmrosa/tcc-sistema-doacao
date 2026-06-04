@@ -1,7 +1,7 @@
 .pagina-detalhes-usuario {
   padding: 32px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  background: transparent;
 }
 
 .botao-voltar {
@@ -51,10 +51,11 @@
 
 .card-credenciais,
 .card-relacionado {
-  border-radius: 16px;
   border: 1px solid #ece3f8;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  border-radius: 0;
   background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --mdc-elevated-card-container-shape: 0;
 }
 
 .card-credenciais mat-card-content {
@@ -66,6 +67,24 @@
   font-size: 1.4rem;
   font-weight: 500;
   color: #21143d;
+}
+
+.status-perfil {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  margin-top: 8px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.status-perfil.desativado {
+  background: #eeeeee;
+  color: #616161;
 }
 
 .titulo-card p {
@@ -103,19 +122,35 @@ mat-form-field {
 .acoes {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 14px;
   margin-top: 8px;
 }
 
 .botao-editar,
-.botao-deletar {
+.botao-deletar,
+.botao-desativar,
+.botao-reativar {
   min-width: 150px;
   height: 46px;
   border-radius: 8px;
 }
 
+.botao-deletar,
+.botao-desativar {
+  background: #f1f1f1;
+  border-color: #d7d7d7;
+  color: #2f2f2f;
+}
+
+.botao-reativar {
+  background: #f1f1f1;
+  border-color: #d7d7d7;
+  color: #2f2f2f;
+}
+
 .botao-deletar {
-  background: #ede4fb;
+  min-width: 190px;
 }
 
 .coluna-relacionados {
@@ -138,10 +173,9 @@ mat-form-field {
 .item-relacionado {
   display: flex;
   align-items: center;
-  gap: 14px;
   padding: 14px;
   border: 1px solid #eee7f8;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
   margin-bottom: 10px;
   transition: 0.2s ease;
@@ -150,17 +184,6 @@ mat-form-field {
 .item-relacionado:hover {
   background: #faf8fd;
   transform: translateY(-1px);
-}
-
-.icone-item {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #ede4fb;
-  color: #5b3fa6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .item-relacionado strong {
@@ -209,7 +232,9 @@ mat-form-field {
   }
 
   .botao-editar,
-  .botao-deletar {
+  .botao-deletar,
+  .botao-desativar,
+  .botao-reativar {
     width: 100%;
   }
 }

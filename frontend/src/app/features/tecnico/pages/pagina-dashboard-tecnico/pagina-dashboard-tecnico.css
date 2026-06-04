@@ -14,28 +14,43 @@
 
 .cards-resumo {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 }
 
 .card-resumo h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
   font-weight: 500;
 }
 
 .card-resumo p {
+  margin: 0;
   font-size: 1.6rem;
   font-weight: 500;
-}
-
-.chart-card {
-  border-radius: 12px;
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .cards-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .cards-resumo {
+    grid-template-columns: 1fr;
+  }
 }
 
 

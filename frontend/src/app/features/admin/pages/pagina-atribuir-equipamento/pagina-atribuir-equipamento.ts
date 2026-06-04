@@ -12,15 +12,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 type TipoEquipamento = 'COMPUTADOR' | 'NOTEBOOK' | 'MONITOR' | 'TECLADO' | 'MOUSE';
-type EstadoConservacao = 'NOVO' | 'USADO' | 'REPARO';
 
 interface EquipamentoDisponivel {
   id: string;
   nome: string;
   descricao: string;
-  estado: EstadoConservacao;
   tipo: TipoEquipamento;
   imagem: string;
+  status: 'EM_ESTOQUE' | 'VINCULADO';
 }
 
 @Component({
@@ -51,18 +50,16 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
     private route: ActivatedRoute
   ) {
     this.solicitacaoId = this.route.snapshot.queryParamMap.get('solicitacaoId');
+    const tipo = this.route.snapshot.queryParamMap.get('tipo');
+
+    if (this.ehTipoEquipamento(tipo)) {
+      this.tipoSelecionado = tipo;
+    }
   }
 
   solicitacaoId: string | null = null;
-  estadoSelecionado: EstadoConservacao = 'USADO';
   tipoSelecionado: TipoEquipamento = 'COMPUTADOR';
   equipamentoSelecionadoId: string | null = null;
-
-  estadosConservacao: { valor: EstadoConservacao; label: string }[] = [
-    { valor: 'NOVO', label: 'Novo' },
-    { valor: 'USADO', label: 'Usado' },
-    { valor: 'REPARO', label: 'Precisa de reparo' }
-  ];
 
   tiposEquipamento: { valor: TipoEquipamento; label: string }[] = [
     { valor: 'COMPUTADOR', label: 'Computador' },
@@ -75,58 +72,57 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
   equipamentos: EquipamentoDisponivel[] = [
     {
       id: '001',
-      nome: 'Computador HP',
+      nome: 'Computador',
       descricao: 'Computador completo em bom estado',
-      estado: 'USADO',
       tipo: 'COMPUTADOR',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
     },
     {
       id: '002',
-      nome: 'Computador HP',
+      nome: 'Computador',
       descricao: 'Computador completo em bom estado',
-      estado: 'USADO',
       tipo: 'COMPUTADOR',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
     },
     {
       id: '003',
       nome: 'Notebook Dell',
-      descricao: 'Notebook em bom estado para atividades academicas',
-      estado: 'USADO',
+      descricao: 'Notebook em bom estado para atividades acadêmicas',
       tipo: 'NOTEBOOK',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
     },
     {
       id: '004',
       nome: 'Monitor LG',
-      descricao: 'Monitor novo disponivel para atribuicao',
-      estado: 'NOVO',
+      descricao: 'Monitor novo disponível para atribuição',
       tipo: 'MONITOR',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
     },
     {
       id: '005',
       nome: 'Teclado Logitech',
       descricao: 'Teclado precisa de reparo antes da entrega',
-      estado: 'REPARO',
       tipo: 'TECLADO',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'VINCULADO'
     },
     {
       id: '006',
       nome: 'Mouse USB',
       descricao: 'Mouse usado em bom estado',
-      estado: 'USADO',
       tipo: 'MOUSE',
-      imagem: 'https://placehold.co/160x100'
+      imagem: 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
     }
   ];
 
   get equipamentosFiltrados(): EquipamentoDisponivel[] {
-    return this.equipamentos.filter((equipamento) =>
-      equipamento.estado === this.estadoSelecionado &&
-      equipamento.tipo === this.tipoSelecionado
+    return this.equipamentos.filter(
+      (equipamento) => equipamento.tipo === this.tipoSelecionado && equipamento.status === 'EM_ESTOQUE'
     );
   }
 
@@ -139,7 +135,7 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
 
   selecionarEquipamento(equipamento: EquipamentoDisponivel): void {
     if (this.temEquipamentoSelecionado) {
-      this.snackBar.open('Cancele a selecao atual antes de escolher outro equipamento.', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Cancele a seleção atual antes de escolher outro equipamento.', 'Fechar', { duration: 3000 });
       return;
     }
 
@@ -162,6 +158,7 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
       }
 
       this.equipamentoSelecionadoId = equipamento.id;
+      equipamento.status = 'VINCULADO';
       this.salvarEquipamentoAtribuido(equipamento);
       this.cdr.detectChanges();
       console.log('Equipamento selecionado:', equipamento);
@@ -181,8 +178,8 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Cancelar selecao?',
-        mensagem: `Deseja cancelar a selecao do equipamento ${equipamento.nome}?`,
+        titulo: 'Cancelar seleção?',
+        mensagem: `Deseja cancelar a seleção do equipamento ${equipamento.nome}?`,
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Voltar',
         mostrarCancelar: true
@@ -195,9 +192,10 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
       }
 
       this.equipamentoSelecionadoId = null;
+      equipamento.status = 'EM_ESTOQUE';
       this.limparEquipamentoAtribuido();
       this.cdr.detectChanges();
-      this.snackBar.open('Selecao cancelada com sucesso!', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Seleção cancelada com sucesso!', 'Fechar', { duration: 3000 });
     });
   }
 
@@ -205,9 +203,8 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
     return this.equipamentoSelecionadoId === equipamento.id;
   }
 
-  obterTextoEstado(estado: EstadoConservacao): string {
-    const item = this.estadosConservacao.find((opcao) => opcao.valor === estado);
-    return item?.label ?? estado;
+  private ehTipoEquipamento(tipo: string | null): tipo is TipoEquipamento {
+    return this.tiposEquipamento.some((equipamento) => equipamento.valor === tipo);
   }
 
   private salvarEquipamentoAtribuido(equipamento: EquipamentoDisponivel): void {
@@ -219,9 +216,12 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
       `solicitacao:${this.solicitacaoId}:equipamentoAtribuido`,
       JSON.stringify({
         id: equipamento.id,
-        nome: equipamento.nome
+        nome: equipamento.nome,
+        status: 'VINCULADA'
       })
     );
+
+    localStorage.setItem(`solicitacao:${this.solicitacaoId}:status`, 'VINCULADA');
   }
 
   private limparEquipamentoAtribuido(): void {
@@ -230,6 +230,7 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
     }
 
     localStorage.removeItem(`solicitacao:${this.solicitacaoId}:equipamentoAtribuido`);
+    localStorage.removeItem(`solicitacao:${this.solicitacaoId}:status`);
   }
 
   voltar(): void {

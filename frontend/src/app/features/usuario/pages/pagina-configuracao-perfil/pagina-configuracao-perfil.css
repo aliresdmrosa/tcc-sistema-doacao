@@ -1,0 +1,117 @@
+.pagina-configuracao-perfil {
+  padding: 32px;
+  background: transparent;
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #7f7f7f;
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.botao-voltar mat-icon {
+  font-size: 25px;
+}
+
+.titulo-subtitulo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  margin: 56px auto 0;
+  border-radius: 0;
+  --mdc-elevated-card-container-shape: 0;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.acoes button {
+  width: 100%;
+  height: 56px;
+  border-radius: 0;
+}
+
+.acoes .botao-cancelar {
+  width: auto;
+  align-self: center;
+  color: #007be8;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+:host ::ng-deep .acoes .botao-cancelar .mdc-button__label {
+  color: #007be8;
+}
+
+mat-form-field {
+  --mat-form-field-container-shape: 0;
+}
+
+:host ::ng-deep .pagina-configuracao-perfil .mat-mdc-card,
+:host ::ng-deep .pagina-configuracao-perfil .mat-mdc-button-base,
+:host ::ng-deep .pagina-configuracao-perfil .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0;
+}
+
+.mensagens {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.redefinir-senha button {
+  color: #007be8;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.excluir-perfil {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 8px auto 0;
+}
+
+.excluir-perfil button {
+  color: #c62828;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+:host ::ng-deep .excluir-perfil .mdc-button__label {
+  color: #c62828;
+}

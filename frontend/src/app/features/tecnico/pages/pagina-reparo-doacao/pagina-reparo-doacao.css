@@ -1,6 +1,6 @@
 .pagina-reparo-doacao {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -21,41 +21,45 @@
   color: #2e2e2e;
 }
 
-.card-identificacao {
-  max-width: 1000px;
+.identificacao-doacao {
+  max-width: 700px;
   margin: 0 auto 40px;
-  border-radius: 12px;
-  border: 1px solid #ece3f8;
-  background: #fff8ff;
 }
 
-.card-identificacao mat-card-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 16px;
-}
-
-.dados-identificacao h2 {
+.identificacao-doacao h2 {
   margin: 0 0 6px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   color: #2f2347;
 }
 
-.dados-identificacao p,
-.status-identificacao p {
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e8f0fe;
+  color: #2456a6;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.badge-status.status-reparo {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.identificacao-doacao p {
   margin: 4px 0;
   color: #4c4560;
   font-size: 0.92rem;
 }
 
-.status-identificacao {
-  justify-self: center;
-}
-
 .card-listagem {
-  max-width: 1000px;
+  max-width: 700px;
   margin: 0 auto 40px;
   border-radius: 12px;
   border: 1px solid #ece3f8;
@@ -86,12 +90,25 @@
   font-size: 0.92rem;
 }
 
+.mat-column-acoes {
+  width: 84px;
+  text-align: center;
+}
+
+.celula-acoes {
+  text-align: center;
+}
+
+.celula-acoes button {
+  color: #6f6f6f;
+}
+
 mat-paginator {
   border-top: 1px solid #eeeeee;
 }
 
 .novo-reparo-titulo {
-  max-width: 1000px;
+  max-width: 700px;
   margin: 0 auto 20px;
   display: flex;
   align-items: center;
@@ -105,15 +122,8 @@ mat-paginator {
 }
 
 .form-reparo {
-  max-width: 1000px;
+  max-width: 700px;
   margin: 0 auto;
-}
-
-.linha-dupla {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 18px;
 }
 
 mat-form-field {
@@ -126,7 +136,7 @@ mat-form-field {
 
 .acoes-formulario {
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 12px;
   margin-top: 18px;
 }
@@ -147,18 +157,6 @@ mat-form-field {
 @media (max-width: 768px) {
   .pagina-reparo-doacao {
     padding: 20px;
-  }
-
-  .card-identificacao mat-card-content {
-    grid-template-columns: 1fr;
-  }
-
-  .status-identificacao {
-    justify-self: start;
-  }
-
-  .linha-dupla {
-    grid-template-columns: 1fr;
   }
 
   .acoes-formulario {

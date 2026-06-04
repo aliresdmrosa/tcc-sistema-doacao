@@ -1,6 +1,6 @@
 .pagina-doacao-admin {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .topo-pagina {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto 24px;
   display: flex;
   justify-content: space-between;
@@ -32,7 +32,8 @@
 
 .topo-pagina h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 500;
   color: #2f2347;
 }
@@ -81,28 +82,35 @@
 
 }
 
+.status-entregue {
+  background: #e8f1ff;
+  color: #205493;
+}
+
 .status-default {
   background: #f1f1f1;
   color: #555555;
 }
 
 .card-doacao {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto;
-  border-radius: 12px;
   border: 1px solid #ece3f8;
+  border-radius: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  --mdc-elevated-card-container-shape: 0;
 }
 
 .form-doacao {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .bloco-formulario {
-  background: #faf8fd;
-  border: 1px solid #eee7f8;
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #ece3f8;
+  border-radius: 0;
   padding: 24px;
 }
 
@@ -110,7 +118,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .titulo-bloco mat-icon {
@@ -128,16 +136,15 @@ mat-form-field {
   width: 100%;
 }
 
-.linha-com-botao {
-  display: grid;
-  grid-template-columns: 1fr 140px;
-  gap: 16px;
-  align-items: start;
+.acoes-doador {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 4px;
 }
 
 .botao-ver-perfil {
-  height: 56px;
-  border-radius: 10px;
+  min-width: 140px;
+  height: 42px;
   background: #ede4fb;
 }
 
@@ -149,6 +156,36 @@ mat-form-field {
 
 .campo-descricao {
   width: 100%;
+}
+
+.imagem-card {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.imagem-item {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 420px;
+  height: auto;
+  border: 1px solid #d6d6d6;
+  background: #f7f7f7;
+}
+
+.imagem-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  background: #f1f1f1;
+  color: #7a7a7a;
+  font-size: 0.95rem;
 }
 
 .grupo-radio {
@@ -171,12 +208,21 @@ mat-form-field {
     flex-direction: column;
   }
 
-  .linha-com-botao,
   .linha-dupla {
     grid-template-columns: 1fr;
   }
 
   .botao-ver-perfil {
+    width: 100%;
+  }
+
+  .imagem-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .imagem-item,
+  .imagem-preview {
     width: 100%;
   }
 }

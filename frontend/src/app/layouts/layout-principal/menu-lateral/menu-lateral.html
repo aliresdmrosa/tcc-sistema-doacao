@@ -1,33 +1,43 @@
-<aside class="sidebar">
+﻿<aside class="sidebar">
   <nav class="nav-menu">
 
     <!-- USUÁRIO -->
     <ng-container *ngIf="perfil === 'USUARIO'">
+      <div class="grupo-menu">
 
-      <a routerLink="/usuario" class="menu-item">
-        <mat-icon>dashboard</mat-icon>
-        Dashboard
-      </a>
+        <a routerLink="/usuario" class="menu-item">
+          <mat-icon>dashboard</mat-icon>
+          Dashboard
+        </a>
 
-      <a routerLink="/usuario/cadastro-doacao" class="menu-item">
-        <mat-icon>add_box</mat-icon>
-        Cadastro de Doação
-      </a>
+        <a routerLink="/usuario/cadastro-doacao" class="menu-item">
+          <mat-icon>add_box</mat-icon>
+          Cadastro de Doação
+        </a>
 
-      <a routerLink="/usuario/solicitacao-doacao" class="menu-item">
-        <mat-icon>assignment</mat-icon>
-        Solicitação de Doação
-      </a>
+        <a routerLink="/usuario/solicitacao-doacao" class="menu-item">
+          <mat-icon>assignment</mat-icon>
+          Solicitação de Doação
+        </a>
 
-      <a routerLink="/usuario/listar-doacoes" class="menu-item">
-        <mat-icon>list</mat-icon>
-        Listar Doações
-      </a>
+        <a routerLink="/usuario/listar-doacoes" class="menu-item">
+          <mat-icon>search</mat-icon>
+          Listar Doações
+        </a>
 
-      <a routerLink="/usuario/listar-solicitacoes" class="menu-item">
-        <mat-icon>list_alt</mat-icon>
-        Listar Solicitações
-      </a>
+        <a routerLink="/usuario/listar-solicitacoes" class="menu-item">
+          <mat-icon>search</mat-icon>
+          Listar Solicitações
+        </a>
+
+      </div>
+
+      <div class="menu-footer">
+        <a routerLink="/usuario/configuracao-perfil" class="menu-item">
+          <mat-icon>settings</mat-icon>
+          Configuração de Perfil
+        </a>
+      </div>
 
     </ng-container>
 
@@ -40,8 +50,8 @@
       </a>
 
       <a routerLink="/tecnico/doacoes" class="menu-item">
-        <mat-icon>inventory_2</mat-icon>
-        Doação
+        <mat-icon>search</mat-icon>
+        Listar Doações
       </a>
 
       <a routerLink="/tecnico/historico" class="menu-item">

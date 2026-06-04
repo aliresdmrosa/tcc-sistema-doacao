@@ -1,0 +1,79 @@
+<div class="pagina-configuracao-perfil">
+
+  <mat-card class="card">
+    <mat-card-header class="titulo-subtitulo">
+      <mat-card-title>Configurar Perfil</mat-card-title>
+      <mat-card-subtitle>Visualize e edite seus dados cadastrais</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="perfilForm" (ngSubmit)="salvar()" class="formulario">
+        <mat-form-field>
+          <mat-label>Nome</mat-label>
+          <input matInput formControlName="nome" type="text" />
+          <mat-error *ngIf="campoTemErro('nome', 'required')">
+            O nome é obrigatório
+          </mat-error>
+          <mat-error *ngIf="campoTemErro('nome', 'minlength')">
+            O nome deve ter pelo menos 3 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="cpf" type="text" maxlength="14" (input)="aplicarMascaraCpf()" />
+          <mat-error *ngIf="campoTemErro('cpf', 'required')">
+            O CPF é obrigatório
+          </mat-error>
+          <mat-error *ngIf="campoTemErro('cpf', 'pattern')">
+            Informe um CPF válido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>E-mail</mat-label>
+          <input matInput formControlName="email" type="email" />
+          <mat-error *ngIf="campoTemErro('email', 'required')">
+            O e-mail é obrigatório
+          </mat-error>
+          <mat-error *ngIf="campoTemErro('email', 'email')">
+            Informe um e-mail válido
+          </mat-error>
+        </mat-form-field>
+
+        <div class="acoes">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="enviar()"
+            [disabled]="botaoPrincipalDesabilitado()">
+            <mat-icon *ngIf="!editando">edit</mat-icon>
+            {{ textoBotaoPrincipal() }}
+          </button>
+
+          <button
+            *ngIf="editando"
+            mat-button
+            class="botao-cancelar"
+            type="button"
+            (click)="cancelarEdicao()">
+            Cancelar
+          </button>
+        </div>
+
+        <div class="mensagens redefinir-senha">
+          <button mat-button type="button" (click)="redefinirSenha()">
+            Redefinir senha
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="excluir-perfil">
+    <button mat-button type="button" (click)="excluirPerfil()">
+      Excluir perfil
+    </button>
+  </div>
+</div>

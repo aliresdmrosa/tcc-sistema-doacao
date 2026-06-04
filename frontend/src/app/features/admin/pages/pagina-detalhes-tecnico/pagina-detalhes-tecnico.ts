@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { UsuarioService } from '../../../../core/services/usuario.service';
 import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 interface ReparoResumo {
@@ -28,6 +29,7 @@ interface TecnicoDetalhes {
   grr: string;
   curso: string;
   dataCadastro: string;
+  ativo: boolean;
   reparosConcluidos: ReparoResumo[];
   reparosEmAndamento: ReparoResumo[];
 }
@@ -56,11 +58,13 @@ export class PaginaDetalhesTecnico implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private usuarioService = inject(UsuarioService);
 
   idTecnico = Number(this.route.snapshot.paramMap.get('id'));
 
   modoEdicao = false;
   carregando = false;
+  acaoPerfilEmAndamento = false;
   cursos = CURSOS;
 
   tecnico: TecnicoDetalhes = {
@@ -71,6 +75,7 @@ export class PaginaDetalhesTecnico implements OnInit {
     grr: '--',
     curso: '--',
     dataCadastro: '09/07/2025',
+    ativo: true,
     reparosConcluidos: [
       {
         id: 1,
@@ -99,9 +104,7 @@ export class PaginaDetalhesTecnico implements OnInit {
 
   ngOnInit(): void {
     this.carregarDadosMock();
-
-    // chamada api
-    // this.buscarTecnicoDaApi();
+    this.buscarTecnicoDaApi();
   }
 
   carregarDadosMock(): void {
@@ -112,7 +115,26 @@ export class PaginaDetalhesTecnico implements OnInit {
   }
 
   buscarTecnicoDaApi(): void {
-    // chamada api para buscar técnico por id
+    this.usuarioService.buscarPorId(this.idTecnico).subscribe({
+      next: (tecnico) => {
+        this.tecnico = {
+          ...this.tecnico,
+          id: tecnico.id,
+          nome: tecnico.nome,
+          cpf: tecnico.cpf,
+          email: tecnico.email,
+          dataCadastro: tecnico.dataCadastro ?? this.tecnico.dataCadastro,
+          ativo: tecnico.ativo ?? this.tecnico.ativo,
+          grr: tecnico.grr ?? this.tecnico.grr,
+          curso: tecnico.curso ?? this.tecnico.curso
+        };
+        this.preencherFormulario();
+        this.tecnicoForm.disable();
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar técnico:', erro);
+      }
+    });
   }
 
   preencherFormulario(): void {
@@ -176,15 +198,21 @@ export class PaginaDetalhesTecnico implements OnInit {
     // this.usuarioService.atualizarUsuario(this.tecnico.id, dadosAtualizados).subscribe(...)
   }
 
-  deletar(): void {
+  desativarPerfil(): void {
+    if (this.acaoPerfilEmAndamento) {
+      return;
+    }
+
+    this.acaoPerfilEmAndamento = true;
+
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Deseja excluir este perfil?',
-        mensagem: 'Essa ação será permanente.',
-        textoConfirmar: 'Confirmar',
+        titulo: 'Deseja desativar este perfil?',
+        mensagem: 'O técnico não poderá mais acessar a conta, mas seus registros serão preservados.',
+        textoConfirmar: 'Desativar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
       }
@@ -192,18 +220,91 @@ export class PaginaDetalhesTecnico implements OnInit {
 
     dialogRef.afterClosed().subscribe((confirmou) => {
       if (!confirmou) {
+        this.acaoPerfilEmAndamento = false;
         return;
       }
 
-      console.log('Deletar técnico:', this.tecnico.id);
-
-      // chamada api para deletar técnico
-
-      this.snackBar.open('Perfil excluído com sucesso!', 'Fechar', {
-        duration: 3000
+      this.usuarioService.desativarPerfil(this.tecnico.id).subscribe({
+        next: () => {
+          this.tecnico.ativo = false;
+          this.buscarTecnicoDaApi();
+          this.snackBar.open('Perfil desativado com sucesso!', 'Fechar', { duration: 3000 });
+          this.acaoPerfilEmAndamento = false;
+        },
+        error: (erro) => {
+          console.error('Erro ao desativar perfil:', erro);
+          this.snackBar.open('Erro ao desativar perfil.', 'Fechar', { duration: 3000 });
+          this.acaoPerfilEmAndamento = false;
+        }
       });
+    });
+  }
 
-      this.router.navigate(['/admin/usuarios']);
+  reativarPerfil(): void {
+    if (this.acaoPerfilEmAndamento) {
+      return;
+    }
+
+    this.acaoPerfilEmAndamento = true;
+
+    this.usuarioService.reativarPerfil(this.tecnico.id).subscribe({
+      next: () => {
+        this.tecnico.ativo = true;
+        this.buscarTecnicoDaApi();
+        this.snackBar.open('Perfil reativado com sucesso!', 'Fechar', { duration: 3000 });
+        this.acaoPerfilEmAndamento = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao reativar perfil:', erro);
+        this.snackBar.open('Erro ao reativar perfil.', 'Fechar', { duration: 3000 });
+        this.acaoPerfilEmAndamento = false;
+      }
+    });
+  }
+
+  deletar(): void {
+    if (this.acaoPerfilEmAndamento) {
+      return;
+    }
+
+    this.acaoPerfilEmAndamento = true;
+
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja desativar este perfil?',
+        mensagem: 'Essa ação será permanente e deve ser usada apenas para perfis desativados.',
+        textoConfirmar: 'Desativar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        this.acaoPerfilEmAndamento = false;
+        return;
+      }
+
+      this.usuarioService.desativarPerfil(this.tecnico.id).subscribe({
+        next: () => {
+          this.snackBar.open('Perfil excluído permanentemente!', 'Fechar', {
+            duration: 3000
+          });
+
+          this.tecnico.ativo = false;
+          this.acaoPerfilEmAndamento = false;
+        },
+        error: (erro) => {
+          console.error('Erro ao excluir perfil:', erro);
+          this.snackBar.open('Erro ao excluir perfil.', 'Fechar', {
+            duration: 3000
+          });
+          this.acaoPerfilEmAndamento = false;
+        }
+      });
     });
   }
 

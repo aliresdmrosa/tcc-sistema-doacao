@@ -1,5 +1,6 @@
 package com.sistemadoacao.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.sistemadoacao.backend.model.Curso;
 
 import jakarta.validation.Valid;
@@ -9,5 +10,6 @@ import jakarta.validation.constraints.Pattern;
 public record TecnicoDTO(
         @Valid @NotNull UsuarioRequestDTO usuario,
         @NotNull Curso curso,
+        @JsonAlias("grr")
         @Pattern(regexp = "\\d{8}", message = "GRR deve conter 8 numeros") String GRR) {
 }

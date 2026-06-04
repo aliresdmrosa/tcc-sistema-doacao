@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -101,6 +101,13 @@ export class PaginaCadastrarTecnico {
         this.definirCarregando(false);
       }
     });
+  }
+
+  cancelar(): void {
+    this.tecnicoForm.reset();
+    this.tecnicoForm.markAsPristine();
+    this.tecnicoForm.markAsUntouched();
+    this.ocultarSenha = true;
   }
 
   private definirCarregando(valor: boolean): void {

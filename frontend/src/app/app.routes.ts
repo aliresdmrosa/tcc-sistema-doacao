@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
 // Layouts
 import { LayoutAutenticacao } from './layouts/layout-autenticacao/layout-autenticacao';
@@ -38,6 +38,9 @@ import { PaginaCadastroDoacao } from './features/usuario/pages/pagina-cadastro-d
 import { PaginaListarDoacoes } from './features/usuario/pages/pagina-listar-doacoes/pagina-listar-doacoes';
 import { PaginaCadastroSolicitacao } from './features/usuario/pages/pagina-cadastro-solicitacao/pagina-cadastro-solicitacao';
 import { PaginaListarSolicitacoes } from './features/usuario/pages/pagina-listar-solicitacoes/pagina-listar-solicitacoes';
+import { PaginaDetalhesDoacao } from './features/usuario/pages/pagina-detalhes-doacao/pagina-detalhes-doacao';
+import { PaginaDetalhesSolicitacao } from './features/usuario/pages/pagina-detalhes-solicitacao/pagina-detalhes-solicitacao';
+import { PaginaConfiguracaoPerfil } from './features/usuario/pages/pagina-configuracao-perfil/pagina-configuracao-perfil';
 
 
 // Guards
@@ -125,7 +128,6 @@ export const routes: Routes = [
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
-
       {
         path: 'tecnico',
         component: PaginaDashboardTecnico,
@@ -163,6 +165,12 @@ export const routes: Routes = [
         data: { perfisPermitidos: ['USUARIO'] }
       },
       {
+        path: 'usuario/configuracao-perfil',
+        component: PaginaConfiguracaoPerfil,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['USUARIO'] }
+      },
+      {
         path: 'usuario/cadastro-doacao',
         component: PaginaCadastroDoacao,
         //canActivate: [perfilGuard],
@@ -178,6 +186,13 @@ export const routes: Routes = [
       },
 
       {
+      path: 'usuario/doacoes/:id',
+      component: PaginaDetalhesDoacao,
+      //canActivate: [perfilGuard],
+      data: { perfisPermitidos: ['USUARIO'] }
+      },
+
+      {
       path: 'usuario/solicitacao-doacao',
       component: PaginaCadastroSolicitacao,
       // canActivate: [perfilGuard],
@@ -187,6 +202,13 @@ export const routes: Routes = [
       {
       path: 'usuario/listar-solicitacoes',
       component: PaginaListarSolicitacoes,
+      // canActivate: [perfilGuard],
+      data: { perfisPermitidos: ['USUARIO'] }
+      },
+
+      {
+      path: 'usuario/solicitacoes/:id',
+      component: PaginaDetalhesSolicitacao,
       // canActivate: [perfilGuard],
       data: { perfisPermitidos: ['USUARIO'] }
       },

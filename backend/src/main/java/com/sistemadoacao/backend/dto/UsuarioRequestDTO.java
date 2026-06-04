@@ -31,6 +31,9 @@ public record UsuarioRequestDTO(
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     LocalDate dataCadastro,
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    Boolean ativo,
+
     @NotBlank
     @Pattern(
         regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
@@ -46,6 +49,7 @@ public record UsuarioRequestDTO(
             pessoa.getEmail(),
             pessoa.getClass().getSimpleName(),
             pessoa.getDataCadastro(),
+            pessoa.isAtivo(),
             pessoa.getSenha()
         );
     }

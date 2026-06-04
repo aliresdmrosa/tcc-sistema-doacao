@@ -1,7 +1,7 @@
 .pagina-atribuir {
   padding: 32px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #faf8fd 0%, #f5f1fb 100%);
+  background: transparent;
 }
 
 .topo-pagina {
@@ -63,13 +63,14 @@
 .card-equipamento {
   width: 100%;
   max-width: 820px;
-  border-radius: 18px;
+  border-radius: 0;
   border: 1px solid #ece3f8;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   padding: 22px 24px;
   box-sizing: border-box;
   background: #ffffff;
+  --mdc-elevated-card-container-shape: 0;
 }
 
 .card-selecionado {
@@ -100,7 +101,7 @@
   width: 190px;
   height: 130px;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 0;
   border: 1px solid #ece3f8;
 }
 
@@ -129,15 +130,6 @@
   color: #7a6f92;
   font-size: 0.95rem;
   font-weight: 500;
-}
-
-.badge-estado {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #f1edf8;
-  color: #4f3f6f !important;
-  font-size: 0.8rem !important;
-  font-weight: 600 !important;
 }
 
 .informacoes p {
@@ -170,7 +162,7 @@
   max-width: 820px;
   padding: 28px;
   border: 1px dashed #d8cdea;
-  border-radius: 16px;
+  border-radius: 0;
   color: #6f6487;
   text-align: center;
   background: #ffffff;
@@ -181,7 +173,7 @@ mat-paginator {
   max-width: 950px;
   margin: 32px auto 0;
   background: transparent;
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 ::ng-deep .mat-mdc-paginator-container {

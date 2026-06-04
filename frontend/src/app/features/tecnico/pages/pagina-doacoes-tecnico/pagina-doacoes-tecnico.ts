@@ -1,20 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, AfterViewInit, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatCardModule } from '@angular/material/card';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { timeout } from 'rxjs';
 import { DoacaoService } from '../../../../core/services/doacao.service';
- 
 
 interface DoacaoTecnico {
   id?: number;
@@ -24,6 +22,7 @@ interface DoacaoTecnico {
   dataCadastro?: string;
   dataUltimaAtualizacao?: string;
   estado?: string;
+  status?: string;
 }
 
 @Component({
@@ -39,17 +38,16 @@ interface DoacaoTecnico {
     MatFormFieldModule,
     MatInputModule,
     MatMenuModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCardModule,
+    MatTooltipModule,
+    MatCardModule
   ],
   templateUrl: './pagina-doacoes-tecnico.html',
   styleUrls: ['./pagina-doacoes-tecnico.css']
 })
 export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
-
-  private router = inject(Router); 
+  private router = inject(Router);
   private doacaoService = inject(DoacaoService);
+  private cdr = inject(ChangeDetectorRef);
 
   displayedColumns: string[] = [
     'id',
@@ -62,15 +60,13 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     'acoes'
   ];
 
-  
-
   dataSource = new MatTableDataSource<DoacaoTecnico>();
-
   termoPesquisa = '';
-  dataFiltro: Date | null = null;
+  carregando = false;
+  erroAoCarregar = false;
+  private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
 
   ngOnInit(): void {
     this.buscarDoacoesDaApi();
@@ -78,14 +74,31 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.filterPredicate = (doacao: DoacaoTecnico, filtro: string): boolean => {
+      const termo = filtro.trim().toLowerCase();
+      const texto = [
+        doacao.id,
+        doacao.cpf,
+        doacao.nome,
+        doacao.equipamento,
+        doacao.dataCadastro,
+        doacao.dataUltimaAtualizacao,
+        doacao.status
+      ].join(' ').toLowerCase();
+
+      return texto.includes(termo);
+    };
   }
 
-
-  // chamda api 
   buscarDoacoesDaApi(): void {
-    this.doacaoService.listarDoacoesReverReparo().subscribe({
+    this.carregando = true;
+    this.erroAoCarregar = false;
+    this.iniciarTimeoutCarregamento();
+
+    this.doacaoService.listarDoacoesReverReparo().pipe(timeout(5000)).subscribe({
       next: (doacoes) => {
-        console.log('Doações recebidas da API:', doacoes);
+        this.limparTimeoutCarregamento();
+        console.log('Doacoes recebidas da API:', doacoes);
         this.dataSource.data = doacoes.map(doacao => ({
           id: doacao.id,
           cpf: doacao.cpf,
@@ -95,26 +108,24 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
           dataUltimaAtualizacao: doacao.dataAlteracaoStatus,
           status: doacao.status
         }));
+        this.carregando = false;
       },
       error: (error) => {
-        console.error('Erro ao carregar doações:', error);
-       
+        this.limparTimeoutCarregamento();
+        console.error('Erro ao carregar doacoes:', error);
+        this.carregando = false;
+        this.erroAoCarregar = true;
+        this.cdr.detectChanges();
       }
     });
   }
 
   pesquisar(): void {
-    const termo = this.termoPesquisa.trim().toLowerCase();
+    this.dataSource.filter = this.termoPesquisa.trim().toLowerCase();
 
-    this.dataSource.filterPredicate = (doacao: DoacaoTecnico, filtro: string): boolean => {
-  const termo = filtro.trim().toLowerCase();
-
-  return (doacao.nome || '').toLowerCase().includes(termo) ||
-         (doacao.cpf || '').includes(termo) ||
-         (doacao.equipamento || '').toLowerCase().includes(termo);
-};
-
-    this.dataSource.filter = termo;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   limparPesquisa(): void {
@@ -122,33 +133,36 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     this.dataSource.filter = '';
   }
 
-  aplicarFiltroData(): void {
-    if (!this.dataFiltro) {
-      this.dataSource.data = this.dataSource.data; // Mantém os dados atuais sem filtro
-      return;
-    }
-
-    const dataSelecionada = this.formatarData(this.dataFiltro);
-
-    this.dataSource.data = this.dataSource.data.filter(
-      doacao => doacao.dataCadastro === dataSelecionada
-    );
-  }
-
-  limparFiltroData(): void {
-    this.dataFiltro = null;
-    this.dataSource.data = this.dataSource.data;
-  }
-
   verDetalhes(doacao: DoacaoTecnico): void {
-    this.router.navigate(['/tecnico/doacoes', doacao.id]); //NAVEGAÇÃO
+    this.router.navigate(['/tecnico/doacoes', doacao.id]);
   }
 
-  private formatarData(data: Date): string {
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
+  imprimirEtiqueta(doacao: DoacaoTecnico): void {
+    console.log('Imprimir etiqueta:', doacao);
+  }
 
-    return `${dia}/${mes}/${ano}`;
+  tentarNovamente(): void {
+    this.buscarDoacoesDaApi();
+  }
+
+  private iniciarTimeoutCarregamento(): void {
+    this.limparTimeoutCarregamento();
+
+    this.timeoutCarregamento = setTimeout(() => {
+      if (!this.carregando) {
+        return;
+      }
+
+      this.carregando = false;
+      this.erroAoCarregar = true;
+      this.cdr.detectChanges();
+    }, 5000);
+  }
+
+  private limparTimeoutCarregamento(): void {
+    if (this.timeoutCarregamento) {
+      clearTimeout(this.timeoutCarregamento);
+      this.timeoutCarregamento = undefined;
+    }
   }
 }

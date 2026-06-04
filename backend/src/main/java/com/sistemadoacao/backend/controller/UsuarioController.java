@@ -121,7 +121,7 @@ public class UsuarioController {
     public ResponseEntity<List<PessoaResponseDTO>> listarUsuarios() {
         List<Pessoa> usuariosEntidade = usuarioService.getAllUsuarios();
         List<PessoaResponseDTO> usuarios = usuariosEntidade.stream()
-                .map(p -> new PessoaResponseDTO(p.getId(), p.getNome(), p.getCpf(), p.getEmail(), p.getClass().getSimpleName(), p.getDataCadastro().toString()))
+                .map(this::toResponseDTO)
                 .toList();
         return ResponseEntity.ok(usuarios);
     }
@@ -131,21 +131,20 @@ public class UsuarioController {
     @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioRequestDTO> listarUsuarioPorId(@PathParam(value = "") Long id) {
+    public ResponseEntity<PessoaResponseDTO> listarUsuarioPorId(@PathVariable Long id) {
         if (id == null) {
             return ResponseEntity.badRequest().build();
         }
         try {
-            Usuario usuarioEntidade = usuarioService.getUsuarioById(id);
-            UsuarioRequestDTO usuario = new UsuarioRequestDTO(usuarioEntidade);
-            return ResponseEntity.ok(usuario);
+            Pessoa usuarioEntidade = usuarioService.getPessoaById(id);
+            return ResponseEntity.ok(toResponseDTO(usuarioEntidade));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Deletar usuário pelo ID", description = "Excluir usuario permitido apenas para ADMINISTRADOR ou para o próprio usuário dono do ID")
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
@@ -172,8 +171,46 @@ public class UsuarioController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<PessoaResponseDTO> atualizarUsuario(@PathVariable @NonNull Long id, @RequestBody Pessoa pessoa) { 
         Pessoa usuarioAtualizado = usuarioService.updateUsuario(id, pessoa);
-        return ResponseEntity.ok(new PessoaResponseDTO(usuarioAtualizado.getId(), usuarioAtualizado.getNome(), usuarioAtualizado.getCpf(), usuarioAtualizado.getEmail(), usuarioAtualizado.getClass().getSimpleName(), usuarioAtualizado.getDataCadastro().toString()));
+        return ResponseEntity.ok(toResponseDTO(usuarioAtualizado));
 
+    }
+
+    @PatchMapping("/{id}/desativar")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @Operation(summary = "Desativar perfil", description = "Desativa o perfil sem remover seus registros do banco.")
+    public ResponseEntity<PessoaResponseDTO> desativarPerfil(@PathVariable @NonNull Long id) {
+        Pessoa perfilDesativado = usuarioService.desativarPerfil(id);
+        return ResponseEntity.ok(toResponseDTO(perfilDesativado));
+    }
+
+    @PatchMapping("/{id}/reativar")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @Operation(summary = "Reativar perfil", description = "Reativa um perfil previamente desativado.")
+    public ResponseEntity<PessoaResponseDTO> reativarPerfil(@PathVariable @NonNull Long id) {
+        Pessoa perfilReativado = usuarioService.reativarPerfil(id);
+        return ResponseEntity.ok(toResponseDTO(perfilReativado));
+    }
+
+    private PessoaResponseDTO toResponseDTO(Pessoa pessoa) {
+        String grr = "";
+        String curso = "";
+
+        if (pessoa instanceof Tecnico tecnico) {
+            grr = tecnico.getGrr() != null ? tecnico.getGrr() : "";
+            curso = tecnico.getCurso() != null ? tecnico.getCurso().name() : "";
+        }
+
+        return new PessoaResponseDTO(
+            pessoa.getId(),
+            pessoa.getNome(),
+            pessoa.getCpf(),
+            pessoa.getEmail(),
+            pessoa.getClass().getSimpleName(),
+            pessoa.getDataCadastro() != null ? pessoa.getDataCadastro().toString() : "",
+            pessoa.isAtivo(),
+            grr,
+            curso
+        );
     }
 
 }

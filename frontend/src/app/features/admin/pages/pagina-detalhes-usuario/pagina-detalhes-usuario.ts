@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { UsuarioService } from '../../../../core/services/usuario.service';
 import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 interface DoacaoResumo {
@@ -35,6 +36,7 @@ interface UsuarioDetalhes {
   grr: string;
   curso: string;
   dataCadastro: string;
+  ativo: boolean;
   doacoes: DoacaoResumo[];
   solicitacoes: SolicitacaoResumo[];
 }
@@ -63,11 +65,13 @@ export class PaginaDetalhesUsuario implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private usuarioService = inject(UsuarioService);
 
   idUsuario = Number(this.route.snapshot.paramMap.get('id'));
 
   modoEdicao = false;
   carregando = false;
+  acaoPerfilEmAndamento = false;
   cursos = CURSOS;
 
   usuario: UsuarioDetalhes = {
@@ -78,6 +82,7 @@ export class PaginaDetalhesUsuario implements OnInit {
     grr: '--',
     curso: '--',
     dataCadastro: '09/07/2025',
+    ativo: true,
     doacoes: [
       {
         id: 1,
@@ -112,9 +117,7 @@ export class PaginaDetalhesUsuario implements OnInit {
 
   ngOnInit(): void {
     this.carregarDadosMock();
-
-    // chamada api
-    // this.buscarUsuarioDaApi();
+    this.buscarUsuarioDaApi();
   }
 
   carregarDadosMock(): void {
@@ -125,7 +128,26 @@ export class PaginaDetalhesUsuario implements OnInit {
   }
 
   buscarUsuarioDaApi(): void {
-    // chamada api para buscar usuário por id
+    this.usuarioService.buscarPorId(this.idUsuario).subscribe({
+      next: (usuario) => {
+        this.usuario = {
+          ...this.usuario,
+          id: usuario.id,
+          nome: usuario.nome,
+          cpf: usuario.cpf,
+          email: usuario.email,
+          dataCadastro: usuario.dataCadastro ?? this.usuario.dataCadastro,
+          ativo: usuario.ativo ?? this.usuario.ativo,
+          grr: usuario.grr ?? this.usuario.grr,
+          curso: usuario.curso ?? this.usuario.curso
+        };
+        this.preencherFormulario();
+        this.usuarioForm.disable();
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar usuário:', erro);
+      }
+    });
   }
 
   preencherFormulario(): void {
@@ -189,15 +211,85 @@ export class PaginaDetalhesUsuario implements OnInit {
     // this.usuarioService.atualizarUsuario(this.usuario.id, dadosAtualizados).subscribe(...)
   }
 
+  desativarPerfil(): void {
+    if (this.acaoPerfilEmAndamento) {
+      return;
+    }
+
+    this.acaoPerfilEmAndamento = true;
+
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja desativar este perfil?',
+        mensagem: 'O usuário não poderá mais acessar a conta, mas seus registros serão preservados.',
+        textoConfirmar: 'Desativar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        this.acaoPerfilEmAndamento = false;
+        return;
+      }
+
+      this.usuarioService.desativarPerfil(this.usuario.id).subscribe({
+        next: () => {
+          this.usuario.ativo = false;
+          this.buscarUsuarioDaApi();
+          this.snackBar.open('Perfil desativado com sucesso!', 'Fechar', { duration: 3000 });
+          this.acaoPerfilEmAndamento = false;
+        },
+        error: (erro) => {
+          console.error('Erro ao desativar perfil:', erro);
+          this.snackBar.open('Erro ao desativar perfil.', 'Fechar', { duration: 3000 });
+          this.acaoPerfilEmAndamento = false;
+        }
+      });
+    });
+  }
+
+  reativarPerfil(): void {
+    if (this.acaoPerfilEmAndamento) {
+      return;
+    }
+
+    this.acaoPerfilEmAndamento = true;
+
+    this.usuarioService.reativarPerfil(this.usuario.id).subscribe({
+      next: () => {
+        this.usuario.ativo = true;
+        this.buscarUsuarioDaApi();
+        this.snackBar.open('Perfil reativado com sucesso!', 'Fechar', { duration: 3000 });
+        this.acaoPerfilEmAndamento = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao reativar perfil:', erro);
+        this.snackBar.open('Erro ao reativar perfil.', 'Fechar', { duration: 3000 });
+        this.acaoPerfilEmAndamento = false;
+      }
+    });
+  }
+
 deletar(): void {
+  if (this.acaoPerfilEmAndamento) {
+    return;
+  }
+
+  this.acaoPerfilEmAndamento = true;
+
   const dialogRef = this.dialog.open(DialogBaseComponent, {
     width: '420px',
     disableClose: true,
     data: {
       tipo: 'confirm',
-      titulo: 'Deseja excluir este perfil?',
-      mensagem: 'Essa ação será permanente.',
-      textoConfirmar: 'Confirmar',
+      titulo: 'Deseja desativar este perfil?',
+      mensagem: 'Essa ação será permanente e deve ser usada apenas para perfis desativados.',
+      textoConfirmar: 'Desativar',
       textoCancelar: 'Cancelar',
       mostrarCancelar: true
     }
@@ -205,18 +297,27 @@ deletar(): void {
 
   dialogRef.afterClosed().subscribe((confirmou) => {
     if (!confirmou) {
+      this.acaoPerfilEmAndamento = false;
       return;
     }
 
-    console.log('Deletar usuário:', this.usuario.id);
+    this.usuarioService.desativarPerfil(this.usuario.id).subscribe({
+      next: () => {
+        this.snackBar.open('Perfil excluído permanentemente!', 'Fechar', {
+          duration: 3000
+        });
 
-    // chamada api para deletar usuário
-
-    this.snackBar.open('Perfil excluído com sucesso!', 'Fechar', {
-      duration: 3000
+        this.usuario.ativo = false;
+        this.acaoPerfilEmAndamento = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao excluir perfil:', erro);
+        this.snackBar.open('Erro ao excluir perfil.', 'Fechar', {
+          duration: 3000
+        });
+        this.acaoPerfilEmAndamento = false;
+      }
     });
-
-    this.router.navigate(['/admin/usuarios']);
   });
 }
 

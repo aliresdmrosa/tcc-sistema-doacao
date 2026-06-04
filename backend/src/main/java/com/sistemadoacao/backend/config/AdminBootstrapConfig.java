@@ -33,13 +33,25 @@ public class AdminBootstrapConfig {
                 return;
             }
 
-            administradorRepository.findAll().stream()
-                    .filter(administrador -> !administrador.getPerfis().contains(Perfil.ADMINISTRADOR))
-                    .forEach(administrador -> {
-                        administrador.getPerfis().add(Perfil.ADMINISTRADOR);
-                        administradorRepository.save(administrador);
-                        log.info("Perfil ADMINISTRADOR aplicado ao administrador existente {}.", administrador.getEmail());
-                    });
+            administradorRepository.findAll().forEach(administrador -> {
+                boolean alterado = false;
+
+                if (!administrador.getPerfis().contains(Perfil.ADMINISTRADOR)) {
+                    administrador.getPerfis().add(Perfil.ADMINISTRADOR);
+                    alterado = true;
+                    log.info("Perfil ADMINISTRADOR aplicado ao administrador existente {}.", administrador.getEmail());
+                }
+
+                if (!administrador.isAtivo()) {
+                    administrador.setAtivo(true);
+                    alterado = true;
+                    log.info("Administrador existente {} reativado automaticamente.", administrador.getEmail());
+                }
+
+                if (alterado) {
+                    administradorRepository.save(administrador);
+                }
+            });
 
             if (administradorRepository.count() > 0) {
                 log.info("Administrador inicial não criado: já existe administrador cadastrado.");
@@ -56,6 +68,7 @@ public class AdminBootstrapConfig {
             administrador.setCpf(cpf);
             administrador.setEmail(email);
             administrador.setSenha(passwordEncoder.encode(senha));
+            administrador.setAtivo(true);
             administrador.setPerfis(Set.of(Perfil.ADMINISTRADOR));
 
             administradorRepository.save(administrador);

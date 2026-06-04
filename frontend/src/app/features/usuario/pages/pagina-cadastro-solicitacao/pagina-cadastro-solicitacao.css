@@ -1,6 +1,6 @@
 .pagina-solicitacao {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -29,13 +29,14 @@
 }
 
 .topo-pagina {
-  max-width: 900px;
+  max-width: 600px;
   margin: 0 auto 24px auto;
 }
 
 .topo-pagina h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 500;
   color: #2f2347;
 }
@@ -47,28 +48,28 @@
 }
 
 .card-solicitacao {
-  max-width: 900px;
+  max-width: 600px;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 4px;
   border: 1px solid #ece3f8;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .form-solicitacao {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .bloco-formulario {
-  background: #faf8fd;
-  border: 1px solid #eee7f8;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #ece3f8;
+  border-radius: 4px;
   padding: 24px;
 }
 
 .titulo-bloco {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .titulo-bloco h2 {
@@ -86,6 +87,11 @@
 
 mat-form-field {
   width: 100%;
+  --mat-form-field-container-shape: 0;
+}
+
+:host ::ng-deep .pagina-solicitacao .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0;
 }
 
 .campo-motivo {
@@ -115,13 +121,17 @@ mat-form-field {
 .botao-confirmar {
   min-width: 160px;
   height: 46px;
-  border-radius: 10px;
+  border-radius: 0;
 }
 
 .botao-cancelar {
   min-width: 130px;
   height: 46px;
-  border-radius: 10px;
+  border-radius: 0;
+}
+
+:host ::ng-deep .pagina-solicitacao .mat-mdc-button-base {
+  border-radius: 0;
 }
 
 @media (max-width: 768px) {

@@ -1,4 +1,4 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
   <section class="boas-vindas">
     <h1>Bem-vindo, {{ nomeUsuario }}!</h1>
   </section>
@@ -37,6 +37,18 @@
           [chart]="barChartOptions.chart"
           [xaxis]="barChartOptions.xaxis">
         </apx-chart>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <section class="informacoes-dashboard">
+    <mat-card class="card-informacao local-entrega">
+      <mat-card-content>
+        <mat-icon aria-hidden="true">location_on</mat-icon>
+        <p>
+          <strong>Local para entrega e retirada dos equipamentos:</strong>
+          Setor de Educação Profissional e Tecnológica UFPR - R. Dr. Alcides Vieira Arcoverde, 1225 - Jardim das Américas, Curitiba - PR, 81520-260
+        </p>
       </mat-card-content>
     </mat-card>
   </section>

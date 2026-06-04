@@ -2,36 +2,57 @@
 
   <div class="topo-pagina">
     <div class="titulo-area">
-      <h1>Usuarios</h1>
-      <p>Pesquise, visualize e gerencie os usuarios cadastrados no sistema.</p>
+      <h1>Usuários</h1>
+      <p>Pesquise, visualize e gerencie os usuários cadastrados no sistema.</p>
     </div>
 
     <button
       mat-raised-button
       color="primary"
       routerLink="/admin/usuarios/novo-tecnico">
-      Novo Aluno Tecnico
+      Novo Aluno Técnico
     </button>
   </div>
 
-  <mat-card class="card-listagem">
+  <mat-card class="card-listagem mat-elevation-z8">
     <mat-card-content>
 
       <div class="barra-filtros">
-        <mat-form-field appearance="outline" class="campo-busca">
-          <mat-label>Pesquisar</mat-label>
+        <mat-form-field class="campo-busca">
+          <mat-label>Pesquisar por ID, nome, e-mail, CPF, GRR, curso, perfil ou status</mat-label>
 
           <input
             matInput
             type="text"
-            (keyup)="aplicarFiltro($event)"
-            placeholder="Buscar por nome, e-mail, CPF ou perfil" />
+            [(ngModel)]="termoPesquisa"
+            (keyup)="aplicarFiltroPesquisa()" />
+
+          <button
+            *ngIf="termoPesquisa"
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="limparPesquisa()">
+            <mat-icon>close</mat-icon>
+          </button>
 
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
 
-      <div class="tabela-container" *ngIf="!carregando; else loading">
+      <div *ngIf="carregando && !erroAoCarregar" class="estado-tela">
+        <p>Carregando usuários...</p>
+      </div>
+
+      <div *ngIf="erroAoCarregar" class="estado-tela erro">
+        <p>Não foi possível carregar os usuários.</p>
+
+        <button mat-stroked-button type="button" (click)="tentarNovamente()">
+          Tentar novamente
+        </button>
+      </div>
+
+      <div class="tabela-container" *ngIf="!carregando && !erroAoCarregar">
         <table mat-table [dataSource]="dataSource" class="tabela-usuarios">
 
           <ng-container matColumnDef="id">
@@ -54,34 +75,54 @@
             <td mat-cell *matCellDef="let usuario">{{ usuario.email }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="grr">
+            <th mat-header-cell *matHeaderCellDef>GRR</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.grr || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="curso">
+            <th mat-header-cell *matHeaderCellDef>Curso</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.curso || '-' }}</td>
+          </ng-container>
+
           <ng-container matColumnDef="perfil">
             <th mat-header-cell *matHeaderCellDef>Perfil</th>
             <td mat-cell *matCellDef="let usuario">{{ usuario.perfil || '-' }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let usuario">
+              <span class="status-perfil" [class.desativado]="usuario.ativo === false">
+                {{ textoStatus(usuario) }}
+              </span>
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef>Acoes</th>
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
 
             <td mat-cell *matCellDef="let usuario">
               <div class="acoes-tabela">
+                <button
+                  mat-icon-button
+                  color="warn"
+                  type="button"
+                  class="botao-excluir"
+                  (click)="desativarUsuario(usuario)"
+                  [disabled]="usuario.ativo === false"
+                  aria-label="Desativar perfil">
+                  <mat-icon>delete</mat-icon>
+                </button>
+
                 <button
                   mat-icon-button
                   color="primary"
                   type="button"
                   matTooltip="Ver detalhes ou editar"
                   (click)="editarUsuario(usuario)"
-                  aria-label="Ver detalhes ou editar usuario">
+                  aria-label="Ver detalhes ou editar usuário">
                   <mat-icon>more_vert</mat-icon>
-                </button>
-
-                <button
-                  mat-icon-button
-                  color="warn"
-                  type="button"
-                  class="botao-excluir"
-                  (click)="excluirUsuario(usuario.id)"
-                  aria-label="Excluir usuario">
-                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </td>
@@ -93,8 +134,7 @@
         </table>
 
         <div class="sem-registros" *ngIf="dataSource.filteredData.length === 0">
-          <mat-icon>group</mat-icon>
-          <p>Nenhum usuario encontrado.</p>
+          <p>Nenhum usuário encontrado.</p>
         </div>
 
         <mat-paginator
@@ -104,12 +144,6 @@
         </mat-paginator>
       </div>
 
-      <ng-template #loading>
-        <div class="estado-tela">
-          <mat-icon>hourglass_top</mat-icon>
-          <p>Carregando usuarios...</p>
-        </div>
-      </ng-template>
     </mat-card-content>
   </mat-card>
 

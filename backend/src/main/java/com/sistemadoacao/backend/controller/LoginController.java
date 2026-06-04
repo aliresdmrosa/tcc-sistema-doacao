@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -48,6 +49,11 @@ public class LoginController {
     
             var pessoa = repository.findByEmail(dados.email())
                         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            if (!pessoa.isAtivo()) {
+                log.warn("Tentativa de login em perfil desativado: {}", pessoa.getEmail());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             log.info("Usuário autenticado: {}", pessoa.getEmail());
             log.debug("Gerando token para o usuário: {}", pessoa.getEmail());
             var token = tokenService.gerarToken(pessoa);
@@ -56,7 +62,10 @@ public class LoginController {
             
             String tipo = pessoa.getClass().getSimpleName().toUpperCase();
             
-            return ResponseEntity.ok(new LoginDTO(token, pessoa.getEmail(), tipo));
+            return ResponseEntity.ok(new LoginDTO(token, pessoa.getId(), pessoa.getEmail(), tipo));
+        } catch (DisabledException e) {
+            log.warn("Login bloqueado para perfil desativado: {}", dados.email());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }catch(UsernameNotFoundException e2){
             log.error("Usuário não encontrado: {}", e2.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

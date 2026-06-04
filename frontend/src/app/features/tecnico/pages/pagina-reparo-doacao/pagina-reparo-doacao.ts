@@ -9,22 +9,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
-
-// depois, importar service
+import { ReparoService } from '../../../../core/services/reparo.service';
 
 interface ReparoHistorico {
   data: string;
   tecnico: string;
   descricao: string;
-  status: string;
 }
 
 @Component({
   selector: 'app-pagina-reparo-doacao',
   standalone: true,
   imports: [ CommonModule, FormsModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatFormFieldModule,
-    MatInputModule, MatCardModule, MatSelectModule ],
+    MatInputModule, MatCardModule ],
   templateUrl: './pagina-reparo-doacao.html',
   styleUrls: ['./pagina-reparo-doacao.css']
 })
@@ -32,14 +29,16 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private reparoService = inject(ReparoService);
 
   idDoacao = this.route.snapshot.paramMap.get('id') ?? '1234';
+  statusDoacao = 'APROVADO_REPARO';
 
   displayedColumns: string[] = [
     'data',
     'tecnico',
     'descricao',
-    'status'
+    'acoes'
   ];
 
   // mock
@@ -47,27 +46,22 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     {
       data: '10/05/2025',
       tecnico: 'João',
-      descricao: 'Troca de teclado iniciada.',
-      status: 'Em reparo'
+      descricao: 'Troca de teclado iniciada.'
     },
     {
       data: '12/05/2025',
       tecnico: 'João',
-      descricao: 'Teste inicial realizado.',
-      status: 'Em reparo'
+      descricao: 'Teste inicial realizado.'
     }
   ];
 
   dataSource = new MatTableDataSource<ReparoHistorico>();
 
   tecnico = 'João';
-  dataReparo = '2025-05-12';
-  novoStatus = 'EM_REPARO';
   descricao = 'Teclado com defeito, precisa trocar';
+  private indiceEdicao: number | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  // injetar service aqui
 
   ngOnInit(): void {
 
@@ -92,56 +86,68 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
 
   salvarReparo(): void {
 
-    if (!this.descricao || !this.tecnico) {
-      console.warn('Preencha os campos obrigatórios');
+    if (!this.descricao.trim()) {
+      console.warn('Preencha a descrição do reparo');
+      return;
+    }
+
+    if (this.indiceEdicao !== null) {
+      const reparosAtualizados = [...this.dataSource.data];
+      reparosAtualizados[this.indiceEdicao] = {
+        ...reparosAtualizados[this.indiceEdicao],
+        descricao: this.descricao.trim()
+      };
+      this.dataSource.data = reparosAtualizados;
+      this.resetarFormulario();
       return;
     }
 
     const novoReparo: ReparoHistorico = {
-      data: this.formatarData(this.dataReparo),
+      data: this.formatarDataAtual(),
       tecnico: this.tecnico,
-      descricao: this.descricao,
-      status: this.obterTextoStatus(this.novoStatus)
+      descricao: this.descricao.trim()
     };
 
+    const idNumerico = Number(this.idDoacao);
+    if (Number.isFinite(idNumerico)) {
+      this.reparoService.salvarReparo(idNumerico, novoReparo.descricao).subscribe({
+        next: () => this.finalizarCadastroReparo(novoReparo),
+        error: (erro) => console.error('Erro ao salvar reparo:', erro)
+      });
+      return;
+    }
+
+    this.finalizarCadastroReparo(novoReparo);
+  }
+
+  private finalizarCadastroReparo(novoReparo: ReparoHistorico): void {
     this.dataSource.data = [...this.dataSource.data, novoReparo];
-
-    console.log('Salvar reparo:', novoReparo);
-
-    // chamada api para salvar reparo
-
+    this.statusDoacao = 'REPARO';
     this.resetarFormulario();
   }
 
-  cancelar(): void {
-    this.router.navigate(['/tecnico/doacoes']);
-  }
+  editarDescricao(reparo: ReparoHistorico): void {
+    const indice = this.dataSource.data.indexOf(reparo);
 
+    if (indice < 0) {
+      return;
+    }
+
+    this.indiceEdicao = indice;
+    this.descricao = reparo.descricao;
+  }
+  
   voltar(): void {
     this.router.navigate(['/tecnico/doacoes']);
   }
 
   private resetarFormulario(): void {
     this.descricao = '';
-    this.novoStatus = 'EM_REPARO';
-    this.dataReparo = '';
+    this.indiceEdicao = null;
   }
 
-  private formatarData(data: string): string {
-    const partes = data.split('-');
-
-    if (partes.length !== 3) {
-      return data;
-    }
-
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  private formatarDataAtual(): string {
+    return new Date().toLocaleDateString('pt-BR');
   }
 
-  private obterTextoStatus(status: string): string {
-    if (status === 'EM_REPARO') return 'Em reparo';
-    if (status === 'REPARO_CONCLUIDO') return 'Reparo concluído';
-    if (status === 'FINALIZADO') return 'Finalizado';
-
-    return status;
-  }
 }

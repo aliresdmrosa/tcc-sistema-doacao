@@ -14,6 +14,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(this.apiUrl, dados).pipe(
       tap((resposta) => {
         localStorage.setItem('token', resposta.token);
+        localStorage.setItem('idUsuario', String(resposta.id));
         localStorage.setItem('email', resposta.email);
         localStorage.setItem('perfil', this.normalizarPerfil(resposta.perfil));
       })
@@ -22,6 +23,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('idUsuario');
     localStorage.removeItem('email');
     localStorage.removeItem('perfil');
   }

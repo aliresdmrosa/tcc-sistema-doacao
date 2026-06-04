@@ -1,17 +1,18 @@
 .pagina-doacao {
   padding: 32px;
-  background: linear-gradient(180deg, #f8f6fc 0%, #f3effa 100%);
+  background: transparent;
   min-height: 100vh;
 }
 
 .topo-pagina {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto 24px auto;
 }
 
 .topo-pagina h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 500;
   color: #2f2347;
 }
@@ -23,22 +24,23 @@
 }
 
 .card-doacao {
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto;
-  border-radius: 12px;
   border: 1px solid #ece3f8;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .form-doacao {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .bloco-formulario {
-  background: #faf8fd;
-  border: 1px solid #eee7f8;
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid #ece3f8;
+  border-radius: 4px;
   padding: 24px;
 }
 
@@ -46,7 +48,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .titulo-bloco mat-icon {
@@ -74,6 +76,11 @@
 
 mat-form-field {
   width: 100%;
+  --mat-form-field-container-shape: 0;
+}
+
+:host ::ng-deep .pagina-doacao .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 0;
 }
 
 .campo-descricao {
@@ -94,7 +101,7 @@ mat-form-field {
   background: #ede4fb;
   color: #59595a;
   padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
   font-weight: 500;
   transition: 0.2s ease;
@@ -109,6 +116,19 @@ mat-form-field {
   font-size: 0.95rem;
 }
 
+.texto-ajuda-upload {
+  margin: 8px 0 0;
+  color: #6f6487;
+  font-size: 0.85rem;
+}
+
+.mensagem-erro {
+  margin-top: 8px;
+  margin-left: 4px;
+  font-size: 0.85rem;
+  color: #b3261e;
+}
+
 .preview-container {
   margin-top: 20px;
   display: flex;
@@ -120,7 +140,7 @@ mat-form-field {
 .preview-imagem {
   width: 220px;
   max-width: 100%;
-  border-radius: 16px;
+  border-radius: 4px;
   border: 1px solid #ddd;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
@@ -141,13 +161,17 @@ mat-form-field {
 .botao-confirmar {
   min-width: 180px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 0;
 }
 
 .botao-cancelar {
   min-width: 130px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 0;
+}
+
+:host ::ng-deep .pagina-doacao .mat-mdc-button-base {
+  border-radius: 0;
 }
 
 @media (max-width: 768px) {
