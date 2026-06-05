@@ -146,7 +146,8 @@ public class DoacaoService {
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
 
-            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO");
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
+                    "APROVADO");
             return doacao;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para aprovação com ID {}", id);
@@ -176,7 +177,8 @@ public class DoacaoService {
             doacaoReprovar.setStatus(Status.REPROVADO);
             repository.save(doacaoReprovar);
 
-            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "REPROVADO");
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
+                    "REPROVADO");
             return doacaoReprovar;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para reprovação com ID {}", id);
@@ -405,18 +407,31 @@ public class DoacaoService {
     // TODO: Melhorias futuras - usuario poderia pedir para revisar analise de ia
 
     // public Doacao reverDoacao(Long id) {
-    //     return repository.findById(id).map(doacao -> {
-    //         doacao.setStatus(Status.REVER);
-    //         return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
-    //     }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    // return repository.findById(id).map(doacao -> {
+    // doacao.setStatus(Status.REVER);
+    // return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
+    // }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " +
+    // id));
     // }
 
     public List<DoacaoReverDTO> listarDoacoesTecnico() {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO));
+        List<DoacaoReverDTO> doacoes = repository.buscarDoacoesTecnico();
+        if (doacoes.isEmpty()) {
+            log.warn("Nenhuma doação encontrada com status listados.");
+            throw new NotFoundException("Nenhuma doação encontrada para revisão técnica.");
+        } else {
+            
+            for (DoacaoReverDTO doacao : doacoes) {
+                log.info("Doação ID: {}, Status: {}, Doador: {}", doacao.getId(), doacao.getStatus(), doacao.getNome());
+            }
+            return doacoes;
+        }
+
     }
 
     public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO)).stream()
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO))
+                .stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
@@ -424,6 +439,6 @@ public class DoacaoService {
 
     public List<DoacaoResponseUserDTO> listarDoacoesUser() {
         return repository.buscarTodasUser();
-        
+
     }
 }
