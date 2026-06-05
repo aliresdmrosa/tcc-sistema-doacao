@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
 
@@ -36,8 +37,8 @@ public class Reparo {
     @Column(nullable = false, updatable = false)
     private LocalDate dataInicio;
     private LocalDateTime dataFim;
-    @OneToOne
     @JsonIgnoreProperties("reparos")
+    @ManyToOne
     @JoinColumn(name = "doacao_id") // Nome da coluna no banco de dados
     private Doacao doacao; 
 
