@@ -81,6 +81,8 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
         console.log('Dados do historico de reparos:', dados);
         this.dataSource.data = dados;
         this.carregando = false;
+        this.erroAoCarregar = false;
+        this.cdr.detectChanges();
       },
       error: (erro) => {
         this.limparTimeoutCarregamento();

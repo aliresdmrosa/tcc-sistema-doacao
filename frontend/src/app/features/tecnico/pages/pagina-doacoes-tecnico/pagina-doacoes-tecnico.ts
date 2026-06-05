@@ -136,7 +136,9 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
   }
 
   verDetalhes(doacao: DoacaoTecnico): void {
-    this.router.navigate(['/tecnico/doacoes', doacao.id]);
+    this.router.navigate(['/tecnico/doacoes', doacao.id], {
+      state: { doacao }
+    });
   }
 
   imprimirEtiqueta(doacao: DoacaoTecnico): void {
@@ -196,4 +198,6 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
 
     return 'status-default';
   }
+
+  
 }

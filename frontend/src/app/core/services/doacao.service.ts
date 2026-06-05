@@ -12,6 +12,7 @@ import { DoacaoDTO } from "../dto/daocao.dto";
 
 export class DoacaoService {
   
+  
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/doacao';
 
@@ -51,6 +52,10 @@ export class DoacaoService {
 
     reprovarDoacao(id: number, motivo: string): Observable<void> {
         return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
+    }
+
+    doacaoId(id: number): Observable<DoacaoDTO> {
+      return this.http.get<DoacaoDTO>(`${this.apiUrl}/${id}`);
     }
 
 

@@ -3,7 +3,7 @@ export interface DoacaoDTO {
     equipamento?: string;
     quantidade: number;
     descricao?: string;
-    status: string;
+    status?: string;
     statusConservacao?: string;
     dataCadastro : string;
     nome?: string;

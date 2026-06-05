@@ -30,6 +30,7 @@ import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
+import com.sistemadoacao.backend.dto.DoacaoTDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -87,7 +88,7 @@ public class DoacaoController {
     @ApiResponse(responseCode = "200", description = "Doação encontrada com sucesso")
     @ApiResponse(responseCode = "404", description = "Doação nao encontrada.")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Doacao> listarDoacaoPorId(@PathVariable(value = "") Long id) {
+    public ResponseEntity<DoacaoTDTO> listarDoacaoPorId(@PathVariable(value = "") Long id) {
         return ResponseEntity.ok(doacaoService.listarDoacaoPorId(id));
     }
 

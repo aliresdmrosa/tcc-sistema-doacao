@@ -9,8 +9,10 @@
 
       <div class="datas">
         <p>Data do cadastro: {{ doacao?.dataCadastro }}</p>
-        <p>Última modificação em: {{ doacao?.dataAlteracaoStatus }}</p>
       </div>
+      <span class="badge-status" [ngClass]="obterClasseStatus(doacao?.status)">
+        {{ obterTextoStatus(doacao?.status) }}
+      </span>
     </div>
   </div>
 
@@ -60,12 +62,7 @@
           </div>
 
           <div class="imagem-card">
-            <img
-              *ngIf="doacao?.url; else imagemPlaceholder"
-              src="http://localhost:8080{{ doacao?.url }}"
-              alt="Imagem do item doado"
-              class="imagem-item"
-            />
+            <img *ngFor="let imagem of imagens" [src]="imagem" alt="Imagem da doação" class="imagem-doacao" />
 
             <ng-template #imagemPlaceholder>
               <div class="imagem-preview">
@@ -83,7 +80,6 @@
           <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">
             <mat-radio-button value="NOVO">Novo</mat-radio-button>
             <mat-radio-button value="USADO">Usado</mat-radio-button>
-            <mat-radio-button value="REPARO">Precisa de reparo</mat-radio-button>
           </mat-radio-group>
         </section>
 
@@ -98,13 +94,8 @@
             Reprovar
           </button>
 
-          <button
-            type="button"
-            mat-stroked-button
-            class="botao-reparo"
-            [disabled]="!doacaoAprovada"
-            (click)="enviarParaReparo()"
-          >
+          <button type="button" mat-stroked-button class="botao-reparo" [disabled]="!doacaoAprovada"
+            (click)="enviarParaReparo()">
             <mat-icon>chevron_right</mat-icon>
             Reparo
           </button>
