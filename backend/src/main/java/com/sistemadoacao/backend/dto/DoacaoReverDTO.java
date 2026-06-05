@@ -17,7 +17,6 @@ public interface DoacaoReverDTO {
     Equipamento getEquipamento();
     String getNome();
     String getCpf();
-    String getEmail();
     java.sql.Timestamp getDataAlteracaoStatus();
     String getUrl();
     String getStatusConservacao();

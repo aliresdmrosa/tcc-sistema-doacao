@@ -109,6 +109,8 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
           status: doacao.status
         }));
         this.carregando = false;
+        this.erroAoCarregar = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.limparTimeoutCarregamento();
@@ -134,7 +136,9 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
   }
 
   verDetalhes(doacao: DoacaoTecnico): void {
-    this.router.navigate(['/tecnico/doacoes', doacao.id]);
+    this.router.navigate(['/tecnico/doacoes', doacao.id], {
+      state: { doacao }
+    });
   }
 
   imprimirEtiqueta(doacao: DoacaoTecnico): void {
@@ -165,4 +169,35 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
       this.timeoutCarregamento = undefined;
     }
   }
+
+  obterClasseStatus(status: string): string {
+    const statusNormalizado = status
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    if (statusNormalizado.includes('aprovada')) {
+      return 'status-aprovado';
+    }
+
+    if (statusNormalizado.includes('reprovado')) {
+      return 'status-reprovado';
+    }
+
+    if (statusNormalizado.includes('estoque') || statusNormalizado.includes('vinculada') || statusNormalizado.includes('doado')) {
+      return 'status-entregue';
+    }
+
+    if (statusNormalizado.includes('reparo')) {
+      return 'status-analise';
+    }
+
+    if (statusNormalizado.includes('pendente')) {
+      return 'status-pendente';
+    }
+
+    return 'status-default';
+  }
+
+  
 }

@@ -15,6 +15,7 @@ import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
+import com.sistemadoacao.backend.dto.DoacaoTDTO;
 import com.sistemadoacao.backend.dto.GraficoDTO;
 import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
 import com.sistemadoacao.backend.exception.AprovarErroException;
@@ -33,8 +34,11 @@ import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.HistoricoDoacao;
 import com.sistemadoacao.backend.model.ImagemDoacao;
+import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
+import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
+import com.sistemadoacao.backend.repository.PessoaRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
 
 import lombok.NonNull;
@@ -50,15 +54,17 @@ public class DoacaoService {
     private final OpenAIService openAIService;
     private final Utils utils;
     private final EmailService emailService;
+    private final PessoaRepository pessoaRepository;
 
     public DoacaoService(DoacaoRepository repository, UsuarioRepository usuarioRepository, FileService fileService,
-            OpenAIService openAIService, Utils utils, EmailService emailService) {
+            OpenAIService openAIService, Utils utils, EmailService emailService, PessoaRepository pessoaRepository) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.fileService = fileService;
         this.openAIService = openAIService;
         this.utils = utils;
         this.emailService = emailService;
+        this.pessoaRepository = pessoaRepository;
     }
 
     public Doacao atualizarHistoricoDoacao(@NonNull Doacao novaDoacao, String observacao) {
@@ -146,7 +152,8 @@ public class DoacaoService {
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
 
-            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO");
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
+                    "APROVADO");
             return doacao;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para aprovação com ID {}", id);
@@ -176,7 +183,8 @@ public class DoacaoService {
             doacaoReprovar.setStatus(Status.REPROVADO);
             repository.save(doacaoReprovar);
 
-            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "REPROVADO");
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
+                    "REPROVADO");
             return doacaoReprovar;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para reprovação com ID {}", id);
@@ -191,13 +199,24 @@ public class DoacaoService {
         return repository.count();
     }
 
-    public Doacao listarDoacaoPorId(Long id) {
+    public Doacao listarId(Long id) {
+        if (id == null) {
+            throw new IdNullException("ID não pode ser nulo");
+        }
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Doacao não encontrado com ID: " + id));
+    }
+
+    public DoacaoTDTO listarDoacaoPorId(Long id) {
         if (id == null) {
             throw new IdNullException("ID não pode ser nulo");
         }
         Doacao doacao = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Doacao não encontrado com ID: " + id));
-        return doacao;
+        Pessoa usuario = pessoaRepository.findById(doacao.getDoadorId())
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + doacao.getDoadorId()));
+
+        return new DoacaoTDTO(doacao, usuario.getNome(), usuario.getCpf());
     }
 
     public boolean deleteDoacao(@NonNull Long id) {
@@ -221,7 +240,7 @@ public class DoacaoService {
 
     public Doacao updateDoacao(@NonNull Long id, DoacaoRequestDTO atualizado) {
 
-        Doacao existente = listarDoacaoPorId(id);
+        Doacao existente = listarId(id);
 
         if (existente == null) {
             log.error("Doação não encontrado com ID {}", id);
@@ -405,18 +424,31 @@ public class DoacaoService {
     // TODO: Melhorias futuras - usuario poderia pedir para revisar analise de ia
 
     // public Doacao reverDoacao(Long id) {
-    //     return repository.findById(id).map(doacao -> {
-    //         doacao.setStatus(Status.REVER);
-    //         return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
-    //     }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
+    // return repository.findById(id).map(doacao -> {
+    // doacao.setStatus(Status.REVER);
+    // return atualizarHistoricoDoacao(doacao, "Doação enviada para revisão");
+    // }).orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " +
+    // id));
     // }
 
     public List<DoacaoReverDTO> listarDoacoesTecnico() {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO));
+        List<DoacaoReverDTO> doacoes = repository.buscarDoacoesTecnico();
+        if (doacoes.isEmpty()) {
+            log.warn("Nenhuma doação encontrada com status listados.");
+            throw new NotFoundException("Nenhuma doação encontrada para revisão técnica.");
+        } else {
+            
+            for (DoacaoReverDTO doacao : doacoes) {
+                log.info("Doação ID: {}, Status: {}, Doador: {}", doacao.getId(), doacao.getStatus(), doacao.getNome());
+            }
+            return doacoes;
+        }
+
     }
 
     public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO)).stream()
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO))
+                .stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Doação não encontrada com ID: " + id));
@@ -424,6 +456,6 @@ public class DoacaoService {
 
     public List<DoacaoResponseUserDTO> listarDoacoesUser() {
         return repository.buscarTodasUser();
-        
+
     }
 }

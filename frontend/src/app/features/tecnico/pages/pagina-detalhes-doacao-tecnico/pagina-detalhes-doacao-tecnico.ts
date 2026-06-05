@@ -33,6 +33,7 @@ import { ModalReprovacao } from './modal-reprovacao/modal-reprovacao';
   templateUrl: './pagina-detalhes-doacao-tecnico.html',
   styleUrls: ['./pagina-detalhes-doacao-tecnico.css']
 })
+
 export class PaginaDetalhesDoacaoTecnico implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -42,6 +43,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   idDoacao = this.route.snapshot.paramMap.get('id');
   doacao?: DoacaoDTO;
+  imagens: string[] = [];
   tiposItens: string[] = [
     'COMPUTADOR',
     'NOTEBOOK',
@@ -65,11 +67,11 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   get doacaoAprovada(): boolean {
     const status = this.doacao?.status?.toUpperCase();
-    return status === 'APROVADA' || status === 'APROVADO';
+    return status === 'REPARO' || status === 'APROVADO' || status === 'APROVADO_REPARO';
   }
 
   carregarDoacaoDaApi(): void {
-    this.doacaoService.listarDoacoesReverReparoPorId(Number(this.idDoacao)).subscribe({
+    this.doacaoService.doacaoId(Number(this.idDoacao)).subscribe({
       next: (doacao) => {
         this.doacao = doacao;
         this.form.patchValue({
@@ -77,9 +79,12 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
           cpf: doacao.cpf ?? '',
           equipamento: doacao.equipamento ?? '',
           descricao: doacao.descricao ?? '',
-          imagem: doacao.url ? `http://localhost:8080${doacao.url}` : '',
+  
           estadoConservacao: doacao.statusConservacao ?? ''
         });
+        this.imagens = doacao.imagens?.map(
+          imagem => `http://localhost:8080${imagem.url}`
+        ) ?? [];
         console.log('Doacao carregada:', doacao);
       },
       error: (error) => {
@@ -151,5 +156,51 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
     console.log('Enviar para reparo:', this.doacao?.id);
     this.router.navigate(['/tecnico/doacoes', this.doacao?.id, 'reparo']);
+  }
+  obterClasseStatus(status?: string): string {
+    switch (status?.toUpperCase()) {
+      case 'APROVADA':
+      case 'APROVADO':
+        return 'status-aprovado';
+      case 'REPROVADA':
+      case 'REPROVADO':
+        return 'status-reprovado';
+      case 'REPARO':
+      case 'EM_ANALISE':
+        return 'status-analise';
+      case 'PENDENTE':
+        return 'status-pendente';
+      case 'EM_ESTOQUE':
+      case 'VINCULADA':
+      case 'DOADO':
+        return 'status-entregue';
+      default:
+        return 'status-default';
+    }
+  }
+
+  obterTextoStatus(status?: string): string {
+    switch (status?.toUpperCase()) {
+      case 'APROVADA':
+      case 'APROVADO':
+        return 'Aprovada';
+      case 'REPROVADA':
+      case 'REPROVADO':
+        return 'Reprovada';
+      case 'REPARO':
+        return 'Reparo';
+      case 'EM_ANALISE':
+        return 'Em análise';
+      case 'PENDENTE':
+        return 'Pendente';
+      case 'EM_ESTOQUE':
+        return 'Em estoque';
+      case 'VINCULADA':
+        return 'Vinculada';
+      case 'DOADO':
+        return 'Doado';
+      default:
+        return status ?? 'Status desconhecido';
+    }
   }
 }

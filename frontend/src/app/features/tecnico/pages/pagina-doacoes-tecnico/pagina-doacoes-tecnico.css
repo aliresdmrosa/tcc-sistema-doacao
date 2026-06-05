@@ -106,3 +106,44 @@ mat-paginator {
     width: 100%;
   }
 }
+.status-aprovado {
+  background: #e8f7ee;
+  color: #1f7a45;
+}
+
+.status-reprovado {
+  background: #fdeaea;
+  color: #b42318;
+}
+
+.status-pendente {
+  background: #fff4e5;
+  color: #b26b00;
+}
+
+.status-analise {
+  background: #e8f1ff;
+  color: #205493;
+
+}
+
+.status-entregue {
+  background: #e8f1ff;
+  color: #205493;
+}
+
+.status-default {
+  background: #f1f1f1;
+  color: #555555;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}

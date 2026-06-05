@@ -12,9 +12,14 @@ import { MatCardModule } from '@angular/material/card';
 import { ReparoService } from '../../../../core/services/reparo.service';
 
 interface ReparoHistorico {
-  data: string;
-  tecnico: string;
+  id: number;
+  idDoacao: number;
+  idTecnico: number;
+  equipamentoDoacao: string;
   descricao: string;
+  dataInicio: string;
+  dataFim?: string | null;
+  conclusao?: string | null;
 }
 
 @Component({
@@ -41,19 +46,19 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     'acoes'
   ];
 
-  // mock
-  historicoMock: ReparoHistorico[] = [
-    {
-      data: '10/05/2025',
-      tecnico: 'João',
-      descricao: 'Troca de teclado iniciada.'
-    },
-    {
-      data: '12/05/2025',
-      tecnico: 'João',
-      descricao: 'Teste inicial realizado.'
-    }
-  ];
+  // // mock
+  // historicoMock: ReparoHistorico[] = [
+  //   {
+  //     data: '10/05/2025',
+  //     tecnico: 'João',
+  //     descricao: 'Troca de teclado iniciada.'
+  //   },
+  //   {
+  //     data: '12/05/2025',
+  //     tecnico: 'João',
+  //     descricao: 'Teste inicial realizado.'
+  //   }
+  // ];
 
   dataSource = new MatTableDataSource<ReparoHistorico>();
 
@@ -66,22 +71,32 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
 
     // mock
-    this.carregarDadosMock();
+    // this.carregarDadosMock();
 
     // chamada api
+    this.buscarHistoricoDaApi();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
 
-  // mock
-  carregarDadosMock(): void {
-    this.dataSource.data = this.historicoMock;
-  }
+  // // mock
+  // carregarDadosMock(): void {
+  //   this.dataSource.data = this.historicoMock;
+  // }
 
   // chamada api
   buscarHistoricoDaApi(): void {
+    this.reparoService.listarReparoTecnico().subscribe({
+      next: (dados) => {
+        console.log('Dados do historico de reparos:', dados);
+        this.dataSource.data = dados;
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar historico de reparos:', erro);
+      }
+    });
   }
 
   salvarReparo(): void {
@@ -103,9 +118,13 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     }
 
     const novoReparo: ReparoHistorico = {
-      data: this.formatarDataAtual(),
-      tecnico: this.tecnico,
-      descricao: this.descricao.trim()
+      id: 0,
+      idDoacao: Number(this.idDoacao),
+      idTecnico: 1, // Substituir com o ID do técnico logado
+      equipamentoDoacao: '', // Substituir com o nome do equipamento
+      descricao: this.descricao.trim(),
+      dataInicio: this.formatarDataAtual(),
+      
     };
 
     const idNumerico = Number(this.idDoacao);

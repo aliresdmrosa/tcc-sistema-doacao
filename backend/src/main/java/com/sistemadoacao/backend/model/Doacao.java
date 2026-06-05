@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -91,9 +92,10 @@ public class Doacao {
     @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
     private List<HistoricoDoacao> historico = new ArrayList<>();
     
-    @OneToOne(mappedBy = "doacao", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("doacao")
-    private Reparo reparo;
+    @JsonIgnore
+    private List<Reparo> reparo;
 
     @ManyToOne
     @JoinColumn(name = "solicitacao_id") 
