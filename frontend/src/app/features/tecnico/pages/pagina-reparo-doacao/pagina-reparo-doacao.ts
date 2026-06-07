@@ -101,6 +101,15 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
 
   concluirReparo(): void {
     console.log('adc data de reparo concluido')
+    this.reparoService.concluirReparo(this.dataSource.data[0].id, '').subscribe({
+      next: () => {
+        console.log('Reparo concluido com sucesso');
+        this.dataSource.data[0].conclusao = 'Reparo concluido com sucesso';
+        this.statusDoacao = 'ESTOQUE';
+      }
+      ,
+      error: (erro) => console.error('Erro ao concluir reparo:', erro)
+    });
 
   }
       

@@ -110,7 +110,7 @@ public class ReparoController {
     @PatchMapping("concluir/{id}")
     public ResponseEntity<Void> concluirReparo(@RequestBody String motivo, @PathVariable Long id) {
         try {
-            reparoService.concluirReparoAprovacao(id, motivo);
+            reparoService.concluirReparo(id, motivo);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

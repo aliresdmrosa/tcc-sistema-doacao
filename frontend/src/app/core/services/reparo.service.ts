@@ -24,5 +24,9 @@ export class ReparoService {
     return this.http.post<any>(this.apiUrl, null, { params });
   }
 
+  concluirReparo(id: number, motivo: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/concluir/${id}`, motivo);
+  }
+
 
 }

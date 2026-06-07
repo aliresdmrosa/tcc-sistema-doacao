@@ -80,7 +80,7 @@ public class ReparoService {
         return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
     }
 
-    public void concluirReparoAprovacao(@NonNull Long id, String motivo) {
+    public void concluirReparo(@NonNull Long id, String motivo) {
 
         Reparo reparoConcluir = reparoRepository.findById(id).orElseThrow();
 
@@ -100,11 +100,11 @@ public class ReparoService {
         historicoDoacao.setDataAlteracao(LocalDateTime.now());
         historicoDoacao.setObservacao("Doacao em reparo concluido");
         historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-        historicoDoacao.setStatus(Status.APROVADO);
+        historicoDoacao.setStatus(Status.ESTOQUE);
 
         historicoDoacao.setDoacao(doacao);
 
-        doacao.setStatus(Status.APROVADO);
+        doacao.setStatus(Status.ESTOQUE);
         doacao.getHistorico().add(historicoDoacao);
 
         reparoConcluir.setDataFim(LocalDateTime.now());
