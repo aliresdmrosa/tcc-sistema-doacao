@@ -37,7 +37,7 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   private reparoService = inject(ReparoService);
 
   idDoacao = this.route.snapshot.paramMap.get('id') ?? '1234';
-  statusDoacao = 'APROVADO_REPARO';
+  statusDoacao = 'REPARO';
 
   displayedColumns: string[] = [
     'data',
@@ -98,6 +98,12 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
       }
     });
   }
+
+  concluirReparo(): void {
+    console.log('adc data de reparo concluido')
+
+  }
+      
 
   salvarReparo(): void {
 

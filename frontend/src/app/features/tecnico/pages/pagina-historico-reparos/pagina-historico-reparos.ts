@@ -120,8 +120,11 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   verDetalhes(historico: HistoricoReparo): void {
     console.log('Ver detalhes do reparo:', historico);
     // depois, rota para detalhes do historico/reparo
-    // this.router.navigate(['/tecnico/historico', historico.id]);
+    this.router.navigate(['/tecnico/doacoes/', historico.id, 'reparo'], {
+      state: { historico }
+    });
   }
+  
 
   private iniciarTimeoutCarregamento(): void {
     this.limparTimeoutCarregamento();

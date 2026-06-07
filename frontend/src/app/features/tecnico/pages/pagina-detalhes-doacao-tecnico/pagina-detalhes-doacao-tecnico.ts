@@ -67,7 +67,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   get doacaoAprovada(): boolean {
     const status = this.doacao?.status?.toUpperCase();
-    return status === 'REPARO' || status === 'APROVADO' || status === 'APROVADO_REPARO';
+    return status === 'REPARO' || status === 'APROVADO' || status === 'APROVADO_REPARO' || status === 'PENDENTE';
   }
 
   carregarDoacaoDaApi(): void {
