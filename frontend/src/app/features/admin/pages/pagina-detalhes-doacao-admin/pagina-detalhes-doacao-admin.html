@@ -37,27 +37,32 @@
         <span>Cancelar edicao</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarReparo" (click)="marcarReparo()">
+      <!-- [disabled]="modoEdicao || !podeMarcarReparo" -->
+      <button mat-menu-item  (click)="marcarReparo()">
         <mat-icon>build</mat-icon>
         <span>Reparo</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
+      <!-- [disabled]="modoEdicao || !podeConcluirAnalise" -->
+      <button mat-menu-item  (click)="aprovar()">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="reprovar()">
+      <!-- [disabled]="modoEdicao || !podeConcluirAnalise" -->
+      <button mat-menu-item  (click)="reprovar()">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeMarcarEmEstoque" (click)="marcarEmEstoque()">
+      <!-- [disabled]="modoEdicao || !podeMarcarEmEstoque" -->
+      <button mat-menu-item  (click)="marcarEmEstoque()">
         <mat-icon>inventory_2</mat-icon>
         <span>Em estoque</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
+      <!-- [disabled]="modoEdicao || !podeReabrirAnalise" -->
+      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
@@ -147,7 +152,7 @@
           <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">
             <mat-radio-button value="NOVO">Novo</mat-radio-button>
             <mat-radio-button value="USADO">Usado</mat-radio-button>
-            <mat-radio-button value="PRECISA_REPARO">Precisa de Reparo</mat-radio-button>
+            <!-- <mat-radio-button value="PRECISA_REPARO">Precisa de Reparo</mat-radio-button> -->
           </mat-radio-group>
         </section>
 
