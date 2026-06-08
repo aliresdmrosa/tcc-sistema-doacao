@@ -37,7 +37,6 @@ public class ReparoController {
     private final ReparoService reparoService;
     private final Utils utils;
 
-
     public ReparoController(ReparoService reparoService, Utils utils) {
         this.reparoService = reparoService;
         this.utils = utils;
@@ -76,7 +75,7 @@ public class ReparoController {
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
     @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<List<ReparoResponseDTO>> listaTodosReparosDoacao(@PathVariable Long id){
+    public ResponseEntity<List<ReparoResponseDTO>> listaTodosReparosDoacao(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(reparoService.listarReparosDoacao(id));
         } catch (Exception e) {
@@ -84,29 +83,43 @@ public class ReparoController {
             return ResponseEntity.status(500).build();
         }
     }
-    
 
     @PostMapping()
     @Operation(summary = "Cadastra novo reparo", description = "Retorna um novo reparo cadastrado no sistema.")
     @ApiResponse(responseCode = "201", description = "Reparos cadastrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Doacao nao encontrada.")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<ReparoResponseDTO> novoReparo(@RequestParam Long id_doacao, @RequestParam String descricao ) {
-        try {   
-            return ResponseEntity.status(HttpStatus.CREATED).body(reparoService.save(descricao, utils.getIdUsuarioLogado(), id_doacao));
-        } catch(ResponseStatusException e1){
+    public ResponseEntity<ReparoResponseDTO> novoReparo(@RequestParam Long id_doacao, @RequestParam String descricao) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(reparoService.save(descricao, utils.getIdUsuarioLogado(), id_doacao));
+        } catch (ResponseStatusException e1) {
             log.error(e1.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            log.error("Erro ao salvar reparo: {}", e.getMessage());    
+            log.error("Erro ao salvar reparo: {}", e.getMessage());
             return ResponseEntity.status(500).build();
         }
     }
 
-    @Operation(summary = "Concluir reparo", description = "Altera o status da doação para Aprovado e adiciona data de fim de reparo.")
-    @ApiResponse(responseCode = "200", description = "Reparo concluido com sucesso")
-    @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
+    @PatchMapping("{id}/descricao")
+    @Operation(summary = "Atualizar descricao do reparo", description = "Atualiza apenas a descricao de um reparo.")
+    @ApiResponse(responseCode = "200", description = "Descricao do reparo atualizada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Reparo nao encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    public ResponseEntity<ReparoResponseDTO> atualizarDescricaoReparo(@RequestBody String descricao,
+            @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(reparoService.atualizarDescricaoReparo(id, descricao));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Concluir reparo", description = "Altera o status da doação para Aprovado e adiciona data de fim de reparo.")
+    @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
     @PatchMapping("concluir/{id}")
     public ResponseEntity<Void> concluirReparo(@RequestBody String motivo, @PathVariable Long id) {
         try {
@@ -135,5 +148,20 @@ public class ReparoController {
         }
     }
 
+    @PatchMapping("concluir-item/{id}")
+    @Operation(summary = "Concluir item de reparo", description = "Altera o status do item de reparo para Concluido e adiciona data de fim do item.")
+    @ApiResponse(responseCode = "200", description = "Item de reparo concluido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Item de reparo não encontrado", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    public ResponseEntity<Void> concluirReparoItem(@PathVariable Long id) {
+        try {
+            reparoService.concluirReparoItem(id);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

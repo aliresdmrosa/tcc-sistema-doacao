@@ -13,6 +13,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { timeout } from 'rxjs';
 import { DoacaoService } from '../../../../core/services/doacao.service';
+import { abrirJanelaEtiquetaVazia, imprimirEtiquetaDoacao } from '../../../../shared/utils/etiqueta-doacao';
 
 interface DoacaoTecnico {
   id?: number;
@@ -142,7 +143,25 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
   }
 
   imprimirEtiqueta(doacao: DoacaoTecnico): void {
-    console.log('Imprimir etiqueta:', doacao);
+    if (!this.podeImprimirEtiqueta(doacao)) {
+      console.warn('A etiqueta so pode ser impressa para doacoes em estoque ou reparo');
+      return;
+    }
+
+    if (!doacao.id) {
+      console.error('Doacao sem ID para imprimir etiqueta:', doacao);
+      return;
+    }
+
+    const janela = abrirJanelaEtiquetaVazia();
+
+    this.doacaoService.doacaoId(doacao.id).subscribe({
+      next: (doacaoAtualizada) => imprimirEtiquetaDoacao(doacaoAtualizada, janela),
+      error: (erro) => {
+        console.error('Erro ao buscar dados da doacao para etiqueta:', erro);
+        imprimirEtiquetaDoacao(doacao, janela);
+      }
+    });
   }
 
   tentarNovamente(): void {
@@ -197,6 +216,15 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     }
 
     return 'status-default';
+  }
+
+  podeImprimirEtiqueta(doacao: DoacaoTecnico): boolean {
+    const statusNormalizado = (doacao.status ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    return statusNormalizado.includes('estoque') || statusNormalizado.includes('reparo');
   }
 
   

@@ -14,6 +14,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
+import { abrirJanelaEtiquetaVazia, imprimirEtiquetaDoacao } from '../../../../shared/utils/etiqueta-doacao';
 
 interface DoacaoAdmin {
   id: string;
@@ -162,7 +163,20 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
   }
 
   imprimirEtiqueta(doacao: DoacaoDTO): void {
-    console.log('Imprimir etiqueta:', doacao);
+    if (!this.podeImprimirEtiqueta(doacao)) {
+      console.warn('A etiqueta so pode ser impressa para doacoes em estoque ou reparo');
+      return;
+    }
+
+    const janela = abrirJanelaEtiquetaVazia();
+
+    this.doacaoService.doacaoId(doacao.id).subscribe({
+      next: (doacaoAtualizada) => imprimirEtiquetaDoacao(doacaoAtualizada, janela),
+      error: (erro) => {
+        console.error('Erro ao buscar dados da doacao para etiqueta:', erro);
+        imprimirEtiquetaDoacao(doacao, janela);
+      }
+    });
   }
 
   obterClasseStatus(status: string): string {
@@ -192,6 +206,15 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     }
 
     return 'status-default';
+  }
+
+  podeImprimirEtiqueta(doacao: DoacaoDTO): boolean {
+    const statusNormalizado = (doacao.status ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    return statusNormalizado.includes('estoque') || statusNormalizado.includes('reparo');
   }
 
   private formatarData(data: Date): string {

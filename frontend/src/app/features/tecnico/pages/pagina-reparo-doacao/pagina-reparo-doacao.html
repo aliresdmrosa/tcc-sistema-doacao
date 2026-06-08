@@ -20,8 +20,15 @@
         <table mat-table [dataSource]="dataSource" class="tabela-reparos">
 
           <ng-container matColumnDef="data">
-            <th mat-header-cell *matHeaderCellDef>Data</th>
+            <th mat-header-cell *matHeaderCellDef>Cadastro</th>
             <td mat-cell *matCellDef="let reparo">{{ reparo.dataInicio | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dataFim">
+            <th mat-header-cell *matHeaderCellDef>Conclusao</th>
+            <td mat-cell *matCellDef="let reparo">
+              {{ reparo.dataFim ? (reparo.dataFim | date:'dd/MM/yyyy') : '-' }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="tecnico">
@@ -35,10 +42,13 @@
           </ng-container>
 
           <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef></th>
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
             <td mat-cell *matCellDef="let reparo" class="celula-acoes">
               <button mat-icon-button type="button" aria-label="Editar descrição" (click)="editarDescricao(reparo)">
-                <!-- <mat-icon>edit</mat-icon> -->
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button type="button" aria-label="Concluir reparo" [disabled]="!!reparo.dataFim" (click)="concluirReparoItem(reparo)">
+                <mat-icon>check</mat-icon>
               </button>
             </td>
           </ng-container>
@@ -62,18 +72,18 @@
   <section class="form-reparo">
     <mat-form-field class="campo-descricao">
       <mat-label>Descrição</mat-label>
-      <textarea matInput rows="5" ></textarea>
+      <textarea matInput rows="5" [(ngModel)]="descricao"></textarea>
     </mat-form-field>
 
     <div class="acoes-formulario">
-      <button mat-raised-button color="secondary" type="button" class="botao-salvar" (click)="salvarReparo()">
+      <button mat-raised-button color="secondary" type="button" class="botao-salvar" [disabled]="!podeAdicionarReparo && !editandoReparo" (click)="salvarReparo()">
         <mat-icon><span class="material-symbols-outlined">
             add
           </span></mat-icon>
-        Adicionar
+        {{ editandoReparo ? 'Salvar' : 'Adicionar' }}
       </button>
 
-      <button mat-raised-button color="primary" type="button" class="botao-salvar" (click)="concluirReparo()">
+      <button mat-raised-button color="primary" type="button" class="botao-salvar" [disabled]="!podeConcluirDoacao" (click)="concluirReparo()">
         <mat-icon>check</mat-icon>
         Concluir
       </button>
