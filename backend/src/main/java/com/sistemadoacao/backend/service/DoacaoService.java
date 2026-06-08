@@ -36,7 +36,6 @@ import com.sistemadoacao.backend.model.HistoricoDoacao;
 import com.sistemadoacao.backend.model.ImagemDoacao;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
-import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.PessoaRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
