@@ -53,6 +53,11 @@
             <td mat-cell *matCellDef="let historico">{{ historico.id }}</td>
           </ng-container>
 
+          <ng-container matColumnDef="idDoacao">
+            <th mat-header-cell *matHeaderCellDef>ID Doação</th>
+            <td mat-cell *matCellDef="let historico">{{ historico.idDoacao }}</td>
+          </ng-container>
+
           <ng-container matColumnDef="equipamento">
             <th mat-header-cell *matHeaderCellDef>Equipamento</th>
             <td mat-cell *matCellDef="let historico">{{ historico.equipamentoDoacao }}</td>
@@ -69,7 +74,7 @@
           </ng-container>
 
           <ng-container matColumnDef="descricao">
-            <th mat-header-cell *matHeaderCellDef>Descri&ccedil;&atilde;o do Reparo</th>
+            <th mat-header-cell *matHeaderCellDef>Descrição do Reparo</th>
             <td mat-cell *matCellDef="let historico">{{ historico.descricao }}</td>
           </ng-container>
 
@@ -80,17 +85,17 @@
               <button
                 mat-icon-button
                 class="botao-acoes"
-                [matMenuTriggerFor]="menuAcoes"
+                (click)="verDetalhes(historico)"
                 aria-label="Ver detalhes ou editar">
-                <mat-icon>more_vert</mat-icon>
+                <mat-icon>visibility</mat-icon>
               </button>
 
-              <mat-menu #menuAcoes="matMenu">
+              <!-- <mat-menu #menuAcoes="matMenu">
                 <button mat-menu-item (click)="verDetalhes(historico)">
                   <mat-icon>visibility</mat-icon>
                   <span>Ver detalhes ou editar</span>
                 </button>
-              </mat-menu>
+              </mat-menu> -->
             </td>
           </ng-container>
 

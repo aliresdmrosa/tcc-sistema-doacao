@@ -15,6 +15,7 @@ import { ReparoService } from '../../../../core/services/reparo.service';
 
 interface HistoricoReparo {
   id: string;
+  idDoacao: number;
   equipamentoDoacao: string;
   dataInicio: string;
   dataFim: string;
@@ -47,6 +48,7 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
   displayedColumns: string[] = [
     'id',
+    'idDoacao',
     'equipamento',
     'dataInicio',
     'dataFinalizacao',
@@ -103,7 +105,8 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
     this.dataSource.filterPredicate = (historico: HistoricoReparo, filtro: string) => {
       return (
-        historico.id.toLowerCase().includes(filtro) ||
+        String(historico.id).toLowerCase().includes(filtro) ||
+        String(historico.idDoacao).toLowerCase().includes(filtro) ||
         historico.equipamentoDoacao.toLowerCase().includes(filtro) ||
         historico.descricao.toLowerCase().includes(filtro)
       );
@@ -119,9 +122,13 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
 
   verDetalhes(historico: HistoricoReparo): void {
     console.log('Ver detalhes do reparo:', historico);
-    // depois, rota para detalhes do historico/reparo
-    // this.router.navigate(['/tecnico/historico', historico.id]);
+    const idDoacao = historico.idDoacao ?? Number(historico.id);
+
+    this.router.navigate(['/tecnico/doacoes', idDoacao, 'reparo'], {
+      state: { historico }
+    });
   }
+  
 
   private iniciarTimeoutCarregamento(): void {
     this.limparTimeoutCarregamento();

@@ -22,7 +22,7 @@
 }
 
 .identificacao-doacao {
-  max-width: 700px;
+  max-width: 880px;
   margin: 0 auto 40px;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .card-listagem {
-  max-width: 700px;
+  max-width: 880px;
   margin: 0 auto 40px;
   border-radius: 12px;
   border: 1px solid #ece3f8;
@@ -71,6 +71,7 @@
 }
 
 .tabela-reparos {
+  min-width: 760px;
   width: 100%;
   background: #ffffff;
 }
@@ -91,12 +92,17 @@
 }
 
 .mat-column-acoes {
-  width: 84px;
+  width: 112px;
+  min-width: 112px;
   text-align: center;
 }
 
 .celula-acoes {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .celula-acoes button {
