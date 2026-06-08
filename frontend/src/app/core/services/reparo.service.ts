@@ -20,6 +20,10 @@ export class ReparoService {
     return this.http.get<any[]>(`${this.apiUrl}/${idDoacao}`);
   }
 
+  listarReparoTecnicoPorId(idTecnico: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tecnico/${idTecnico}`);
+  }
+
   salvarReparo(idDoacao: number, descricao: string): Observable<any> {
     const params = new HttpParams()
       .set('id_doacao', idDoacao)

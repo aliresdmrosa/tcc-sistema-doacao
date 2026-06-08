@@ -5,6 +5,7 @@
 
   <div class="topo-pagina">
     <h1>Detalhes do Aluno Técnico #{{ tecnico.id }}</h1>
+    <p>Data do cadastro: {{ formatarDataCadastro(tecnico.dataCadastro) }}</p>
   </div>
 
   <div class="conteudo">
@@ -143,8 +144,7 @@
 
           <div
             *ngFor="let reparo of tecnico.reparosConcluidos"
-            class="item-relacionado"
-            (click)="abrirReparo(reparo.id)">
+            class="item-relacionado">
 
             <div>
               <p class="destaque">Reparo #{{ reparo.id }}</p>
@@ -165,24 +165,16 @@
           <div
             *ngFor="let reparo of tecnico.reparosEmAndamento"
             class="item-relacionado"
-            (click)="abrirReparo(reparo.id)">
+            role="button"
+            tabindex="0"
+            (click)="abrirReparoEmAndamento(reparo.doacaoId)"
+            (keydown.enter)="abrirReparoEmAndamento(reparo.doacaoId)">
 
             <div>
               <p class="destaque">Reparo #{{ reparo.id }}</p>
               <p>{{ reparo.equipamento }} • {{ reparo.status }} • {{ reparo.data }}</p>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="card-relacionado">
-        <mat-card-content>
-          <h2>Data do cadastramento</h2>
-
-          <mat-form-field class="campo-data">
-            <mat-label>Data</mat-label>
-            <input matInput [value]="tecnico.dataCadastro" disabled />
-          </mat-form-field>
         </mat-card-content>
       </mat-card>
 

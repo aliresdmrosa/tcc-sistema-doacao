@@ -50,12 +50,20 @@ export class DoacaoService {
         return this.http.patch<void>(`${this.apiUrl}/aprovar/${id}`, { motivo });
     }
 
+    aprovarDoacaoParaReparo(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovar-reparo/${id}`, { motivo });
+    }
+
     reprovarDoacao(id: number, motivo: string): Observable<void> {
         return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
     }
 
     doacaoId(id: number): Observable<DoacaoDTO> {
       return this.http.get<DoacaoDTO>(`${this.apiUrl}/${id}`);
+    }
+
+    entregarDoacao(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/entregar/${id}`, { motivo });
     }
 
 

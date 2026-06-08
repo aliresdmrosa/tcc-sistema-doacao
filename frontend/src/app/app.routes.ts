@@ -90,6 +90,12 @@ export const routes: Routes = [
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
+      {
+        path: 'admin/tecnicos/:id/historico',
+        component: PaginaHistoricoReparosComponent,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
         
       {
         path: 'admin/tecnicos/:id',

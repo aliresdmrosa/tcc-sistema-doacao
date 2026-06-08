@@ -2,7 +2,7 @@
 
   <div class="cabecalho-pagina">
     <h1>Histórico de Reparos</h1>
-    <p>Visualize os equipamentos avaliados ou reparados por você.</p>
+    <p>{{ idTecnicoAdmin ? 'Visualize os equipamentos avaliados ou reparados por este técnico.' : 'Visualize os equipamentos avaliados ou reparados por você.' }}</p>
   </div>
 
   <mat-card class="card-listagem mat-elevation-z8">

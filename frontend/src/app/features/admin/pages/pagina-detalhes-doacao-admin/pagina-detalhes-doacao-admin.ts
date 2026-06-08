@@ -13,8 +13,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { DoacaoService } from '../../../../core/services/doacao.service';
 
-type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADA' | 'REPROVADA' | 'EM_ESTOQUE' | 'VINCULADA' | 'DOADO';
+type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'DOADO' | 'ENTREGUE';
 
 interface DetalhesDoacaoAdmin {
   id: string;
@@ -55,6 +56,7 @@ export class PaginaDetalhesDoacaoAdmin {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private doacaoService = inject(DoacaoService);
 
   idDoacao = this.route.snapshot.paramMap.get('id');
   modoEdicao = false;
@@ -90,20 +92,28 @@ export class PaginaDetalhesDoacaoAdmin {
     estadoConservacao: [{ value: this.doacao.estadoConservacao, disabled: true }]
   });
 
-  get podeMarcarReparo(): boolean {
+  get podeAprovarParaReparo(): boolean {
     return this.doacao.status === 'PENDENTE';
   }
 
+  get podeMarcarReparo(): boolean {
+    return this.podeAprovarParaReparo;
+  }
+
   get podeConcluirAnalise(): boolean {
-    return this.doacao.status === 'PENDENTE' || this.doacao.status === 'REPARO';
+    return this.doacao.status === 'PENDENTE';
   }
 
   get podeReabrirAnalise(): boolean {
     return this.doacao.status !== 'PENDENTE';
   }
 
+  get podeMarcarEntregue(): boolean {
+    return this.doacao.status === 'APROVADO' || this.doacao.status === 'APROVADO_REPARO';
+  }
+
   get podeMarcarEmEstoque(): boolean {
-    return this.doacao.status === 'APROVADA';
+    return this.podeMarcarEntregue;
   }
 
   get imagemUrl(): string | null {
@@ -231,7 +241,7 @@ export class PaginaDetalhesDoacaoAdmin {
     this.confirmarAlteracaoStatus(
       'Aprovar doação?',
       'Confirme para alterar o status desta doação para aprovada.',
-      'APROVADA',
+      'APROVADO',
       'Doação aprovada com sucesso!'
     );
   }
@@ -240,8 +250,33 @@ export class PaginaDetalhesDoacaoAdmin {
     this.confirmarAlteracaoStatus(
       'Reprovar doação?',
       'Confirme para alterar o status desta doação para reprovada.',
-      'REPROVADA',
+      'REPROVADO',
       'Doação reprovada com sucesso!'
+    );
+  }
+
+  aprovarParaReparo(): void {
+    this.confirmarAlteracaoStatus(
+      'Aprovar para reparo?',
+      'Confirme para alterar o status desta doacao para aprovada para reparo.',
+      'APROVADO_REPARO',
+      'Doacao aprovada para reparo com sucesso!'
+    );
+  }
+
+  entregar(): void {
+    if (!this.podeMarcarEntregue) {
+      this.snackBar.open('A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.', 'Fechar', {
+        duration: 3500
+      });
+      return;
+    }
+
+    this.confirmarAlteracaoStatus(
+      'Marcar como entregue?',
+      'Confirme que o equipamento foi entregue.',
+      'ENTREGUE',
+      'Doacao marcada como entregue!'
     );
   }
 
@@ -310,6 +345,7 @@ export class PaginaDetalhesDoacaoAdmin {
     switch (status?.toUpperCase()) {
       case 'APROVADA':
       case 'APROVADO':
+      case 'APROVADO_REPARO':
         return 'status-aprovado';
       case 'REPROVADA':
       case 'REPROVADO':
@@ -317,8 +353,11 @@ export class PaginaDetalhesDoacaoAdmin {
       case 'REPARO':
         return 'status-analise';
       case 'EM_ESTOQUE':
+      case 'ESTOQUE':
       case 'VINCULADA':
+      case 'VINCULADO':
       case 'DOADO':
+      case 'ENTREGUE':
         return 'status-entregue';
       case 'PENDENTE':
         return 'status-pendente';
@@ -330,14 +369,22 @@ export class PaginaDetalhesDoacaoAdmin {
   obterTextoStatus(status: string): string {
     switch (status?.toUpperCase()) {
       case 'APROVADA':
+      case 'APROVADO':
         return 'Aprovada';
+      case 'APROVADO_REPARO':
+        return 'aprovado_reparo';
       case 'REPROVADA':
+      case 'REPROVADO':
         return 'Reprovada';
       case 'REPARO':
         return 'Reparo';
       case 'EM_ESTOQUE':
+      case 'ESTOQUE':
         return 'Em estoque';
+      case 'ENTREGUE':
+        return 'Entregue';
       case 'VINCULADA':
+      case 'VINCULADO':
         return 'Vinculada';
       case 'DOADO':
         return 'Doado';
@@ -348,14 +395,41 @@ export class PaginaDetalhesDoacaoAdmin {
     }
   }
 
+  private podeExecutarAlteracaoStatus(status: StatusAnalise): boolean {
+    if (status === 'ENTREGUE') {
+      return this.podeMarcarEntregue;
+    }
+
+    return this.podeConcluirAnalise;
+  }
+
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
-    if (!this.podeConcluirAnalise) {
+    if (!this.podeExecutarAlteracaoStatus(status)) {
       this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
         duration: 3500
       });
       return;
     }
 
+    const id = Number(this.doacao.id);
+    const requisicao = Number.isFinite(id)
+      ? this.obterRequisicaoAlteracaoStatus(id, status, mensagem)
+      : null;
+
+    if (requisicao) {
+      requisicao.subscribe({
+        next: () => this.finalizarAlteracaoStatus(status, mensagem),
+        error: () => {
+          this.snackBar.open('Nao foi possivel alterar o status da doacao.', 'Fechar', { duration: 3500 });
+        }
+      });
+      return;
+    }
+
+    this.finalizarAlteracaoStatus(status, mensagem);
+  }
+
+  private finalizarAlteracaoStatus(status: StatusAnalise, mensagem: string): void {
     this.doacao = {
       ...this.doacao,
       status,
@@ -366,13 +440,28 @@ export class PaginaDetalhesDoacaoAdmin {
     this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
   }
 
+  private obterRequisicaoAlteracaoStatus(id: number, status: StatusAnalise, motivo: string) {
+    switch (status) {
+      case 'APROVADO':
+        return this.doacaoService.aprovarDoacao(id, motivo);
+      case 'APROVADO_REPARO':
+        return this.doacaoService.aprovarDoacaoParaReparo(id, motivo);
+      case 'REPROVADO':
+        return this.doacaoService.reprovarDoacao(id, motivo);
+      case 'ENTREGUE':
+        return this.doacaoService.entregarDoacao(id, motivo);
+      default:
+        return null;
+    }
+  }
+
   private confirmarAlteracaoStatus(
     titulo: string,
     mensagem: string,
     status: StatusAnalise,
     mensagemSucesso: string
   ): void {
-    if (!this.podeConcluirAnalise) {
+    if (!this.podeExecutarAlteracaoStatus(status)) {
       this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
         duration: 3500
       });

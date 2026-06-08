@@ -185,15 +185,15 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
 
-    if (statusNormalizado.includes('aprovada')) {
+    if (statusNormalizado.includes('aprovada') || statusNormalizado.includes('aprovado')) {
       return 'status-aprovado';
     }
 
-    if (statusNormalizado.includes('reprovada')) {
+    if (statusNormalizado.includes('reprovada') || statusNormalizado.includes('reprovado')) {
       return 'status-reprovado';
     }
 
-    if (statusNormalizado.includes('estoque') || statusNormalizado.includes('vinculada') || statusNormalizado.includes('doado')) {
+    if (statusNormalizado.includes('estoque') || statusNormalizado.includes('vinculada') || statusNormalizado.includes('doado') || statusNormalizado.includes('entregue')) {
       return 'status-entregue';
     }
 

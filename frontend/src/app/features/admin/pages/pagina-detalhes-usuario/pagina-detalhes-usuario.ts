@@ -337,6 +337,25 @@ deletar(): void {
     });
   }
 
+  formatarDataCadastro(data?: string): string {
+    if (!data) {
+      return '--';
+    }
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
+      return data;
+    }
+
+    const partesDataIso = data.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    if (partesDataIso) {
+      const [, ano, mes, dia] = partesDataIso;
+      return `${dia}/${mes}/${ano}`;
+    }
+
+    return data;
+  }
+
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.usuarioForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
