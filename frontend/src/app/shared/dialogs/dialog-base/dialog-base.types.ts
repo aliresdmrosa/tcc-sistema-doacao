@@ -13,4 +13,6 @@ export interface DialogBaseData {
   mostrarConfirmar?: boolean;
 
   mostrarCancelar?: boolean;
+
+  carregando?: boolean;
 }

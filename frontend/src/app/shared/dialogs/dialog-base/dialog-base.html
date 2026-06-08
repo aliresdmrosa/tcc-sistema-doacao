@@ -1,6 +1,7 @@
 <div class="modal-base">
 
   <button
+    *ngIf="!data.carregando"
     class="botao-fechar"
     mat-icon-button
     type="button"
@@ -12,6 +13,13 @@
   </button>
 
   <div class="conteudo-modal">
+
+    <mat-progress-spinner
+      *ngIf="data.carregando"
+      mode="indeterminate"
+      diameter="44"
+      class="spinner-modal">
+    </mat-progress-spinner>
 
     <div class="textos">
 
@@ -25,7 +33,7 @@
 
     </div>
 
-    <div class="acoes-modal">
+    <div class="acoes-modal" *ngIf="!data.carregando">
 
       <button
         *ngIf="data.mostrarCancelar"
