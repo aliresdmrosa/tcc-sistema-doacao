@@ -58,6 +58,26 @@ export class DoacaoService {
       return this.http.get<DoacaoDTO>(`${this.apiUrl}/${id}`);
     }
 
+    atualizarDoacao(id: number, dados: {
+      equipamento: string;
+      descricao: string;
+      conservacao: string;
+      imagem: File;
+    }): Observable<DoacaoDTO> {
+      const formData = new FormData();
+      formData.append('equipamento', dados.equipamento);
+      formData.append('quantidade', '1');
+      formData.append('descricao', dados.descricao);
+      formData.append('conservacao', dados.conservacao);
+      formData.append('imagens', dados.imagem);
+
+      return this.http.patch<DoacaoDTO>(`${this.apiUrl}/${id}`, formData);
+    }
+
+    deletarDoacao(id: number): Observable<void> {
+      return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
 
 
 
