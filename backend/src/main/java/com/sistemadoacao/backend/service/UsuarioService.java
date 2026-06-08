@@ -249,4 +249,9 @@ public class UsuarioService {
     public boolean getUsuarioByEmail (String email) {
         return pessoaRepository.existsByEmail(email);
     }
+
+    public Pessoa getPessoaByCpf(@NonNull String cpf) {
+        return pessoaRepository.findByCpf(cpf)
+                .orElseThrow(() -> new RuntimeException("Perfil nao encontrado com CPF: " + cpf));
+    }
 }

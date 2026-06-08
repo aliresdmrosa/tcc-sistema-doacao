@@ -189,6 +189,24 @@ public class UsuarioController {
         return ResponseEntity.ok(toResponseDTO(perfilReativado));
     }
 
+    @GetMapping("/cpf/{cpf}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @Operation(summary = "Listar usuario por CPF")
+    @ApiResponse(responseCode = "200", description = "Usuario encontrado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Usuario nao encontrado", content = @Content)
+    public ResponseEntity<PessoaResponseDTO> listarUsuarioPorCpf(@PathVariable String cpf) {
+        if (cpf == null || cpf.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            Pessoa usuarioEntidade = usuarioService.getPessoaByCpf(cpf);
+            return ResponseEntity.ok(toResponseDTO(usuarioEntidade));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     private PessoaResponseDTO toResponseDTO(Pessoa pessoa) {
         String grr = "";
         String curso = "";
