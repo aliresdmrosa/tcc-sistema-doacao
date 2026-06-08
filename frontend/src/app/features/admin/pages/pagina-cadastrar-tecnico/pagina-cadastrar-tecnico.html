@@ -11,7 +11,12 @@
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="tecnicoForm" (ngSubmit)="salvar()" class="formulario">
+        <form
+          [formGroup]="tecnicoForm"
+          (ngSubmit)="salvar(formDirective)"
+          #formDirective="ngForm"
+          class="formulario"
+        >
           <mat-form-field>
             <mat-label>Nome</mat-label>
             <input matInput formControlName="nome" type="text" />
@@ -75,7 +80,7 @@
               mat-button
               class="botao-cancelar"
               type="button"
-              (click)="cancelar()"
+              (click)="cancelar(formDirective)"
               [disabled]="carregando">
               Cancelar
             </button>

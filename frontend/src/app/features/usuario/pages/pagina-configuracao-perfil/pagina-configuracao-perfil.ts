@@ -153,7 +153,7 @@ export class PaginaConfiguracaoPerfil implements OnInit {
             this.snackBar.open('Perfil desativado com sucesso.', 'Fechar', {
               duration: 3000
             });
-            this.router.navigate(['/login']);
+            this.router.navigate(['/']);
           },
           error: (erro) => {
             console.error('Erro ao desativar perfil:', erro);

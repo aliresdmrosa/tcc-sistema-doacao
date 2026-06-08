@@ -6,7 +6,12 @@
     </mat-card-header>
 
     <mat-card-content>
-      <form [formGroup]="cadastroForm" (ngSubmit)="salvar()" class="formulario">
+      <form
+        [formGroup]="cadastroForm"
+        (ngSubmit)="salvar(formDirective)"
+        #formDirective="ngForm"
+        class="formulario"
+      >
         <mat-form-field>
           <mat-label>Nome</mat-label>
           <input matInput formControlName="nome" type="text" />
@@ -65,7 +70,7 @@
         </div>
 
         <div class="mensagens cancelar">
-          <button mat-button type="button" routerLink="/login">
+          <button mat-button type="button" routerLink="/">
             Já tem uma conta? Fazer login
           </button>
         </div>

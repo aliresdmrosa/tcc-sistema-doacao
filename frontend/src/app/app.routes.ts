@@ -52,6 +52,7 @@ export const routes: Routes = [
     path: '',
     component: LayoutAutenticacao,
     children: [
+      { path: '', component: PaginaLogin, pathMatch: 'full' },
       { path: 'login', component: PaginaLogin },
       { path: 'cadastro', component: PaginaCadastrarUsuario },
       { path: 'redefinir-senha', component: PaginaRedefinirSenha },
