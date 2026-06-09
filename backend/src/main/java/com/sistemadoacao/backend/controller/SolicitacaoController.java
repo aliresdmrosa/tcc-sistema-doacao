@@ -62,6 +62,14 @@ public class SolicitacaoController {
         return ResponseEntity.ok(service.findByUsuarioId(principal.getId()));
     }
 
+    @GetMapping("/usuario/{id}")
+    @Operation(summary = "Lista solicitacoes de um usuario pelo ID", description = "Retorna todas as solicitacoes associadas ao usuario informado.")
+    @ApiResponse(responseCode = "200", description = "Lista de solicitacoes retornada com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<Solicitacao>> listarPorUsuarioId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByUsuarioIdParaAdmin(id));
+    }
+
     @GetMapping
     @Operation(summary = "Lista todas as solicitações", description = "Retorna todas as solicitações no sistema.")
     @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso")

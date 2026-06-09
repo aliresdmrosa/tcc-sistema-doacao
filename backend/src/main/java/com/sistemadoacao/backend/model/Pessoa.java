@@ -61,7 +61,7 @@ public class Pessoa implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(perfis == null) {
+        if(perfis == null || perfis.isEmpty()) {
             return List.of(new SimpleGrantedAuthority("ROLE_" + this.getClass().getSimpleName().toUpperCase()));
         }
 

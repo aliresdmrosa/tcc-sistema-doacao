@@ -145,9 +145,7 @@ public class UsuarioService {
     @Transactional
     public Pessoa desativarPerfil(@NonNull Long id) {
         Pessoa pessoa = getPessoaById(id);
-        if (pessoa instanceof Administrador) {
-            throw new RuntimeException("Administrador nao pode ser desativado por este fluxo.");
-        }
+        
         pessoa.setAtivo(false);
         return pessoaRepository.save(pessoa);
     }

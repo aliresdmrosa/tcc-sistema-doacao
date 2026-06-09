@@ -87,6 +87,14 @@ public class SolicitacaoService {
         return solicitacaoRepository.findAllByUsuarioId(id);
     }
 
+    public List<Solicitacao> findByUsuarioIdParaAdmin(Long id) {
+        if (id == null) {
+            throw new IdNullException("Id usuario null ao buscar solicitacoes");
+        }
+
+        return solicitacaoRepository.findAllByUsuarioId(id);
+    }
+
     public Solicitacao findById(@NonNull Long id) throws Exception {
         return solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Solicitação não encontrada com ID: " + id));

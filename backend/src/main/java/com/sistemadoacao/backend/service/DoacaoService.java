@@ -194,6 +194,126 @@ public class DoacaoService {
         }
     }
 
+    public Doacao enviarDoacaoParaReparo(@NonNull Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao em reparo: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.REPARO);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.REPARO);
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para envio ao reparo com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao para reparo: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para reparo", e);
+        }
+    }
+
+    public Doacao enviarDoacaoParaEstoque(@NonNull Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao em estoque: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.ESTOQUE);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.ESTOQUE);
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para envio ao estoque com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao para estoque: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para estoque", e);
+        }
+    }
+
+    public Doacao enviarDoacaoParaPendente(@NonNull Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao pendente: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.PENDENTE);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.PENDENTE);
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para envio a pendente com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao para pendente: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para pendente", e);
+        }
+    }
+
+    public Doacao enviarDoacaoParaAprovadoReparo(@NonNull Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao aprovada para reparo: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.APROVADO_REPARO);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.APROVADO_REPARO);
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para envio a aprovado reparo com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao para aprovado reparo: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para aprovado reparo", e);
+        }
+    }
+
+    public Doacao enviarDoacaoParaDoado(@NonNull Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao marcada como doada: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.DOADO);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.DOADO);
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para envio a doado com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao para doado: {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para doado", e);
+        }
+    }
+
     public Long totalDoacoes() {
         return repository.count();
     }
