@@ -16,7 +16,6 @@ import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { ReparoService } from '../../../../core/services/reparo.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusDoacaoTecnico = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'VINCULADA' | 'DOADO' | 'ENTREGUE' | 'DESCARTE';
 
@@ -191,10 +190,6 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     this.router.navigate(['/tecnico/doacoes']);
   }
 
-  formatarData(data: unknown): string {
-    return formatarDataBr(data);
-  }
-
   aprovar(): void {
     if (!this.podeConcluirAnalise || !this.doacao) {
       this.exibirMensagem('Esta doacao nao pode ser aprovada neste status.');
@@ -332,7 +327,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
       requisicao.subscribe({
         next: () => this.finalizarAlteracaoStatus(status, mensagemSucesso),
-        error: (error) => {
+        error: (error: unknown) => {
           console.error('Erro ao alterar status da doacao:', error);
           this.exibirMensagem('Nao foi possivel alterar o status da doacao.');
         }

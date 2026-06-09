@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CURSOS } from '../../../../shared/utils/form-validations';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusSolicitacao = 'PENDENTE' | 'REPARO' | 'EM_ANALISE' | 'APROVADA' | 'APROVADO' | 'REPROVADA' | 'REPROVADO' | 'VINCULADA' | 'DOADO';
 
@@ -54,8 +53,11 @@ export class PaginaDetalhesSolicitacao {
     semComputador: this.solicitacaoNavegacao?.semComputador ?? true,
     matriculaAtiva: this.solicitacaoNavegacao?.matriculaAtiva ?? true,
     status: (this.solicitacaoNavegacao?.status ?? 'PENDENTE') as StatusSolicitacao,
-    dataCadastro: this.formatarData(this.solicitacaoNavegacao?.dataCadastro) ?? '01/05/2025',
-    dataUltimaModificacao: this.formatarData(this.solicitacaoNavegacao?.ultimaAtualizacao ?? this.solicitacaoNavegacao?.dataUltimaAtualizacao ?? this.solicitacaoNavegacao?.dataAlteracao) ?? '01/05/2025'
+    dataCadastro: this.solicitacaoNavegacao?.dataCadastro ?? '2025-05-01',
+    dataUltimaModificacao: this.solicitacaoNavegacao?.ultimaAtualizacao
+      ?? this.solicitacaoNavegacao?.dataUltimaAtualizacao
+      ?? this.solicitacaoNavegacao?.dataAlteracao
+      ?? '2025-05-01'
   };
 
   form = this.fb.group({
@@ -115,10 +117,6 @@ export class PaginaDetalhesSolicitacao {
     }
   }
 
-  get mensagemReprovacao(): string {
-    return `Sua solicitação de doação não foi aceita. Para solicitar reavaliação ou tirar dúvidas, entre em contato com o e-mail conexaosolidaria@email.com e descreva no corpo da mensagem os seguintes dados: Id da solicitação ${this.solicitacao.id}, Nome Completo e Data da solicitação ${this.solicitacao.dataCadastro}.`;
-  }
-
   get solicitacaoReprovada(): boolean {
     const status = this.normalizarStatus(this.solicitacao.status);
     return status === 'REPROVADA' || status === 'REPROVADO';
@@ -131,11 +129,4 @@ export class PaginaDetalhesSolicitacao {
       .toUpperCase();
   }
 
-  private formatarData(data: unknown): string | null {
-    if (!data) {
-      return null;
-    }
-
-    return formatarDataBr(data);
-  }
 }

@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusDoacao = 'PENDENTE' | 'REPARO' | 'EM_ANALISE' | 'APROVADA' | 'APROVADO' | 'REPROVADA' | 'REPROVADO' | 'EM_ESTOQUE' | 'VINCULADA' | 'DOADO';
 
@@ -44,8 +43,10 @@ export class PaginaDetalhesDoacao {
     descricao: this.doacaoNavegacao?.descricao ?? 'Computador completo em bom estado, com sinais de uso.',
     estadoConservacao: this.doacaoNavegacao?.statusConservacao ?? 'USADO',
     status: (this.doacaoNavegacao?.status ?? 'PENDENTE') as StatusDoacao,
-    dataCadastro: this.formatarData(this.doacaoNavegacao?.dataCadastro) ?? '01/05/2025',
-    dataUltimaModificacao: this.formatarData(this.doacaoNavegacao?.ultimaAtualizacao ?? this.doacaoNavegacao?.dataUltimaAtualizacao) ?? '01/05/2025',
+    dataCadastro: this.doacaoNavegacao?.dataCadastro ?? '2025-05-01',
+    dataUltimaModificacao: this.doacaoNavegacao?.ultimaAtualizacao
+      ?? this.doacaoNavegacao?.dataUltimaAtualizacao
+      ?? '2025-05-01',
     imagensUrls: this.montarImagensUrls(this.doacaoNavegacao)
   };
 
@@ -114,10 +115,6 @@ export class PaginaDetalhesDoacao {
     }
   }
 
-  get mensagemReprovacao(): string {
-    return `Sua doação não foi aceita. Para solicitar reavaliação ou tirar dúvidas, entre em contato com o e-mail conexaosolidaria@email.com e descreva no corpo da mensagem os seguintes dados: Id da doação ${this.doacao.id}, Nome Completo e Data da Doação ${this.doacao.dataCadastro}.`;
-  }
-
   get doacaoReprovada(): boolean {
     const status = this.normalizarStatus(this.doacao.status);
     return status === 'REPROVADA' || status === 'REPROVADO';
@@ -128,14 +125,6 @@ export class PaginaDetalhesDoacao {
       ?.normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase();
-  }
-
-  private formatarData(data: unknown): string | null {
-    if (!data) {
-      return null;
-    }
-
-    return formatarDataBr(data);
   }
 
   private montarImagensUrls(doacao: any): string[] {

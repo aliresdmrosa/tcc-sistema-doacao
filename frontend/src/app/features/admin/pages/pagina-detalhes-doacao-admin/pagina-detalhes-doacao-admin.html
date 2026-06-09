@@ -8,8 +8,8 @@
       <h1>Detalhes da doação #{{ doacao.id }}</h1>
 
       <div class="datas">
-        <p>Data do cadastro: {{ formatarData(doacao.dataCadastro) }}</p>
-        <p>Última modificação em: {{ formatarData(doacao.dataUltimaModificacao) }}</p>
+        <p>Data do cadastro: {{ doacao.dataCadastro | date:'dd/MM/yyyy' }}</p>
+        <p>Última modificação em: {{ doacao.dataUltimaModificacao | date:'dd/MM/yyyy' }}</p>
         <span class="badge-status" [ngClass]="obterClasseStatus(doacao.status)">
           {{ obterTextoStatus(doacao.status) }}
         </span>

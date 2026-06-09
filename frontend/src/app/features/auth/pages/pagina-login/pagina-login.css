@@ -18,8 +18,9 @@
   width: 500px;
   max-width: 100%;
   box-sizing: border-box;
-  border-radius: 0;
-  --mdc-elevated-card-container-shape: 0;
+  border-radius: 8px;
+  --mdc-elevated-card-container-shape: 8px;
+  overflow: hidden;
 }
 
 .formulario {
@@ -43,7 +44,6 @@ mat-form-field {
   --mat-form-field-container-shape: 0;
 }
 
-:host ::ng-deep .container .mat-mdc-card,
 :host ::ng-deep .container .mat-mdc-button-base,
 :host ::ng-deep .container .mat-mdc-form-field .mat-mdc-text-field-wrapper {
   border-radius: 0;

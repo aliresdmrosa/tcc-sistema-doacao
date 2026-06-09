@@ -22,7 +22,22 @@
 
         <mat-form-field>
           <mat-label>Senha</mat-label>
-          <input matInput type="password" formControlName="senha" />
+          <input
+            matInput
+            [type]="senhaVisivel ? 'text' : 'password'"
+            formControlName="senha"
+          />
+
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [attr.aria-label]="senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'"
+            [attr.title]="senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="alternarVisibilidadeSenha()"
+          >
+            <mat-icon>{{ senhaVisivel ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
 
           <mat-error *ngIf="campoTemErro('senha', 'required')">
             A senha é obrigatória

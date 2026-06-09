@@ -94,8 +94,10 @@
               <div class="acoes-tabela">
                 <button
                   mat-icon-button
-                  class="botao-acoes" (click)="verDetalhes(doacao)"
-                  aria-label="Ver detalhes ou editar">
+                  class="botao-acoes"
+                  matTooltip="Ver detalhes e editar"
+                  (click)="verDetalhes(doacao)"
+                  aria-label="Ver detalhes e editar">
                   <mat-icon>visibility</mat-icon>
                 </button>
 

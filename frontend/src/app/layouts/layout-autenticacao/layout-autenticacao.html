@@ -1,6 +1,15 @@
 <div class="layout-auth" [class.layout-auth--lateral]="usarLayoutLateral()">
   <section class="auth-body">
-    <aside class="auth-visual" aria-hidden="true"></aside>
+    <aside class="auth-visual">
+      <img
+        src="/logo-conexao-solidaria.svg"
+        alt="Conexão Solidária"
+        class="auth-logo">
+      <p class="auth-mensagem">
+        Doe equipamentos em desuso, ou<br>
+        solicite um equipamento que você necessite!
+      </p>
+    </aside>
     <main class="auth-content">
       <router-outlet></router-outlet>
     </main>

@@ -18,7 +18,6 @@ import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.respons
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise = 'PENDENTE' | 'APROVADO' | 'APROVADA' | 'REPROVADO' | 'REPROVADA' | 'VINCULADO' | 'VINCULADA' | 'DOADO';
 
@@ -167,7 +166,7 @@ export class PaginaDetalhesSolicitacaoAdmin {
       sem_computador: solicitacao.sem_computador ?? solicitacao.semComputador ?? false,
       ativo: solicitacao.ativo ?? true,
       status: this.converterStatus(solicitacao.status),
-      dataCadastro: this.formatarData(solicitacao.dataCadastro),
+      dataCadastro: solicitacao.dataCadastro ?? '',
       dataUltimaModificacao: this.obterDataUltimaModificacao(solicitacao)
 
     };
@@ -195,29 +194,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase();
-  }
-
-  private formatarData(data?: string): string {
-    if (!data) {
-      return '';
-    }
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      const [ano, mes, dia] = data.split('-').map(Number);
-      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR');
-    }
-
-    const dataConvertida = new Date(data);
-
-    if (Number.isNaN(dataConvertida.getTime())) {
-      return data;
-    }
-
-    return dataConvertida.toLocaleDateString('pt-BR');
-  }
-
-  formatarData(data: unknown): string {
-    return formatarDataBr(data);
   }
 
   voltar(): void {
@@ -755,7 +731,7 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   private obterDataAtual(): string {
-    return new Date().toLocaleDateString('pt-BR');
+    return new Date().toISOString();
   }
 
   private obterIdSolicitacaoValido(): number | null {
@@ -805,6 +781,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
       .filter((item) => !!item.dataAlteracao)
       .sort((a, b) => new Date(b.dataAlteracao).getTime() - new Date(a.dataAlteracao).getTime())[0];
 
-    return this.formatarData(ultimoHistorico?.dataAlteracao ?? solicitacao.dataCadastro);
+    return ultimoHistorico?.dataAlteracao ?? solicitacao.dataCadastro ?? '';
   }
 }

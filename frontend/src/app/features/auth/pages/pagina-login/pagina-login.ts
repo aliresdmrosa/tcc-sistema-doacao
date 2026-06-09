@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LoginRequest } from '../../../../core/models/auth.model';
@@ -20,6 +21,7 @@ import { LoginRequest } from '../../../../core/models/auth.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatSnackBarModule,
     RouterLink
   ],
@@ -33,6 +35,7 @@ export class PaginaLogin {
   private snackBar = inject(MatSnackBar);
 
   carregando = false;
+  senhaVisivel = false;
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -85,5 +88,9 @@ export class PaginaLogin {
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.loginForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
+  }
+
+  alternarVisibilidadeSenha(): void {
+    this.senhaVisivel = !this.senhaVisivel;
   }
 }

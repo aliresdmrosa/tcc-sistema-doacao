@@ -15,8 +15,6 @@ import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
-import { DoacaoService } from '../../../../core/services/doacao.service';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise =
   | 'PENDENTE'
@@ -31,6 +29,7 @@ type StatusAnalise =
   | 'VINCULADO'
   | 'VINCULADA'
   | 'DOADO'
+  | 'ENTREGUE'
   | 'DESCARTE';
 
 interface DetalhesDoacaoAdmin {
@@ -132,13 +131,14 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
     return this.statusNormalizado(this.doacao.status) === 'PENDENTE';
   }
 
-  get podeMarcarReparo(): boolean {
-    return this.podeAprovarParaReparo;
-  }
-
   get podeConcluirAnalise(): boolean {
     const status = this.statusNormalizado(this.doacao.status);
     return status === 'PENDENTE' || status === 'REPARO';
+  }
+
+  get podeMarcarEntregue(): boolean {
+    const status = this.statusNormalizado(this.doacao.status);
+    return status === 'APROVADO' || status === 'APROVADO_REPARO';
   }
 
   get podeReabrirAnalise(): boolean {
@@ -501,9 +501,11 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
 
   entregar(): void {
     if (!this.podeMarcarEntregue) {
-      this.snackBar.open('A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.', 'Fechar', {
-        duration: 3500
-      });
+      this.abrirModalAviso(
+        'Acao indisponivel',
+        'A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.',
+        'warning'
+      );
       return;
     }
 
@@ -689,13 +691,21 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
     const id = Number(this.doacao.id);
-    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
-    const requisicao =
-      statusAprovado
-        ? this.doacaoService.aprovarDoacao(id, mensagem)
-        : this.doacaoService.reprovarDoacao(id, mensagem);
+    const requisicao = this.obterRequisicaoAlteracaoStatus(id, status, mensagem);
+
+    if (!requisicao) {
+      return;
+    }
+
+    const statusNormalizado = this.statusNormalizado(status);
+    const statusAprovado = statusNormalizado === 'APROVADO';
+    const statusReprovado = statusNormalizado === 'REPROVADO';
     const modalCarregamento = this.abrirModalCarregamento(
-      statusAprovado ? 'Aprovando doacao' : 'Reprovando doacao',
+      statusAprovado
+        ? 'Aprovando doacao'
+        : statusReprovado
+          ? 'Reprovando doacao'
+          : 'Atualizando doacao',
       'Aguarde enquanto o status da doacao e atualizado.'
     );
 
@@ -706,7 +716,11 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
         this.acaoEmAndamento = false;
         modalCarregamento.close();
         this.abrirModalAviso(
-          statusAprovado ? 'Doacao aprovada' : 'Doacao reprovada',
+          statusAprovado
+            ? 'Doacao aprovada'
+            : statusReprovado
+              ? 'Doacao reprovada'
+              : 'Status atualizado',
           mensagem,
           'success'
         );
@@ -742,9 +756,7 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
     status: StatusAnalise,
     mensagemSucesso: string
   ): void {
-    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
-
-    if (statusAprovado && !this.podeConcluirAnalise) {
+    if (!this.podeExecutarAlteracaoStatus(status)) {
       this.abrirModalAviso('Acao indisponivel', 'Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'warning');
       return;
     }
@@ -856,8 +868,8 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       imagensUrls,
       estadoConservacao: doacao.statusConservacao ?? '',
       status: this.converterStatus(doacao.status),
-      dataCadastro: this.formatarData(doacao.dataCadastro),
-      dataUltimaModificacao: this.formatarData(doacao.dataAlteracaoStatus ?? doacao.dataCadastro)
+      dataCadastro: doacao.dataCadastro ?? '',
+      dataUltimaModificacao: doacao.dataAlteracaoStatus ?? doacao.dataCadastro ?? ''
     };
   }
 
@@ -895,6 +907,7 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       case 'VINCULADO':
       case 'VINCULADA':
       case 'DOADO':
+      case 'ENTREGUE':
       case 'DESCARTE':
         return normalizado as StatusAnalise;
       default:
@@ -907,25 +920,6 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase();
-  }
-
-  private formatarData(data?: string): string {
-    if (!data) {
-      return '';
-    }
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      const [ano, mes, dia] = data.split('-').map(Number);
-      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR');
-    }
-
-    const dataConvertida = new Date(data);
-
-    if (Number.isNaN(dataConvertida.getTime())) {
-      return data;
-    }
-
-    return dataConvertida.toLocaleDateString('pt-BR');
   }
 
   private async obterImagensEdicaoComoArquivos(): Promise<File[]> {

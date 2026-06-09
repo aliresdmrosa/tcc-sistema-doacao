@@ -9,7 +9,7 @@
       <p>Visualize os dados da sua solicitação de doação.</p>
 
       <div class="datas">
-        <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
+        <p>Data do cadastro: {{ solicitacao.dataCadastro | date:'dd/MM/yyyy' }}</p>
       </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
@@ -19,7 +19,10 @@
   </div>
 
   <div class="mensagem-reprovacao" *ngIf="solicitacaoReprovada">
-    {{ mensagemReprovacao }}
+    Sua solicitação de doação não foi aceita. Para solicitar reavaliação ou tirar dúvidas, entre em
+    contato com o e-mail conexaosolidaria@email.com e descreva no corpo da mensagem os seguintes
+    dados: Id da solicitação {{ solicitacao.id }}, Nome Completo e Data da solicitação
+    {{ solicitacao.dataCadastro | date:'dd/MM/yyyy' }}.
   </div>
 
   <mat-card class="card-solicitacao">

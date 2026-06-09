@@ -1,4 +1,7 @@
 .mensagem-auth {
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
   min-height: 280px;
   display: flex;
   flex-direction: column;
@@ -9,6 +12,9 @@
   font-size: 0.95rem;
   line-height: 1.45;
   padding: 48px 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .mensagem-auth p {

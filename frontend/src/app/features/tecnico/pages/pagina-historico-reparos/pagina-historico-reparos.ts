@@ -10,9 +10,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { timeout } from 'rxjs';
 import { ReparoService } from '../../../../core/services/reparo.service';
-import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 interface HistoricoReparo {
   id: string;
@@ -37,6 +37,7 @@ interface HistoricoReparo {
     MatFormFieldModule,
     MatInputModule,
     MatMenuModule,
+    MatTooltipModule,
     MatCardModule
   ],
   templateUrl: './pagina-historico-reparos.html',
@@ -125,10 +126,6 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   limparPesquisa(): void {
     this.termoPesquisa = '';
     this.dataSource.filter = '';
-  }
-
-  formatarData(data: unknown): string {
-    return formatarDataBr(data);
   }
 
   verDetalhes(historico: HistoricoReparo): void {

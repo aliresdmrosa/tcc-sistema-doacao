@@ -18,6 +18,9 @@
   width: 500px;
   max-width: 100%;
   box-sizing: border-box;
+  border-radius: 8px;
+  --mdc-elevated-card-container-shape: 8px;
+  overflow: hidden;
 }
 
 .formulario {

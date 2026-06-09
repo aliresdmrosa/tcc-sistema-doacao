@@ -39,8 +39,9 @@
   width: 100%;
   max-width: 500px;
   margin: 56px auto 0;
-  border-radius: 0;
-  --mdc-elevated-card-container-shape: 0;
+  border-radius: 8px;
+  --mdc-elevated-card-container-shape: 8px;
+  overflow: hidden;
 }
 
 .formulario {
@@ -78,7 +79,6 @@ mat-form-field {
   --mat-form-field-container-shape: 0;
 }
 
-:host ::ng-deep .pagina-configuracao-perfil .mat-mdc-card,
 :host ::ng-deep .pagina-configuracao-perfil .mat-mdc-button-base,
 :host ::ng-deep .pagina-configuracao-perfil .mat-mdc-form-field .mat-mdc-text-field-wrapper {
   border-radius: 0;
