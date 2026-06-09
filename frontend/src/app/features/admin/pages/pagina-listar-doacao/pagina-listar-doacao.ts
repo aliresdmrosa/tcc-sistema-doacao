@@ -163,10 +163,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
   }
 
   imprimirEtiqueta(doacao: DoacaoDTO): void {
-    if (!this.podeImprimirEtiqueta(doacao)) {
-      console.warn('A etiqueta so pode ser impressa para doacoes em estoque ou reparo');
-      return;
-    }
+    
 
     const janela = abrirJanelaEtiquetaVazia();
 
@@ -208,14 +205,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
     return 'status-default';
   }
 
-  podeImprimirEtiqueta(doacao: DoacaoDTO): boolean {
-    const statusNormalizado = (doacao.status ?? '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    return statusNormalizado.includes('estoque') || statusNormalizado.includes('reparo');
-  }
+ 
 
   private formatarData(data: Date): string {
     return data.toLocaleDateString('pt-BR');
