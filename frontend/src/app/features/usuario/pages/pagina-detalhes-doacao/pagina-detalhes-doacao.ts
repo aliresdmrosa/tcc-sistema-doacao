@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusDoacao = 'PENDENTE' | 'REPARO' | 'EM_ANALISE' | 'APROVADA' | 'APROVADO' | 'REPROVADA' | 'REPROVADO' | 'EM_ESTOQUE' | 'VINCULADA' | 'DOADO';
 
@@ -134,16 +135,7 @@ export class PaginaDetalhesDoacao {
       return null;
     }
 
-    if (data instanceof Date) {
-      return data.toLocaleDateString('pt-BR');
-    }
-
-    const dataParseada = new Date(data as string);
-    if (!Number.isNaN(dataParseada.getTime())) {
-      return dataParseada.toLocaleDateString('pt-BR');
-    }
-
-    return String(data);
+    return formatarDataBr(data);
   }
 
   private montarImagensUrls(doacao: any): string[] {

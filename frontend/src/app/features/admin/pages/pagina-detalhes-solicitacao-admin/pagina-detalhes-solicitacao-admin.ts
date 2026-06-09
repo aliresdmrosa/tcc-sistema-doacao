@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise = 'PENDENTE' | 'APROVADA' | 'REPROVADA' | 'VINCULADA' | 'DOADO';
 
@@ -112,6 +113,10 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   // chamada api
   carregarSolicitacaoDaApi(): void {
+  }
+
+  formatarData(data: unknown): string {
+    return formatarDataBr(data);
   }
 
   voltar(): void {

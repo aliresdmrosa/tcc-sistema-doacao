@@ -65,12 +65,12 @@
 
           <ng-container matColumnDef="dataInicio">
             <th mat-header-cell *matHeaderCellDef>Data de Início</th>
-            <td mat-cell *matCellDef="let historico">{{ historico.dataInicio }}</td>
+            <td mat-cell *matCellDef="let historico">{{ formatarData(historico.dataInicio) }}</td>
           </ng-container>
 
           <ng-container matColumnDef="dataFinalizacao">
             <th mat-header-cell *matHeaderCellDef>Data de Finalização</th>
-            <td mat-cell *matCellDef="let historico">{{ historico.dataFim }}</td>
+            <td mat-cell *matCellDef="let historico">{{ formatarData(historico.dataFim) }}</td>
           </ng-container>
 
           <ng-container matColumnDef="descricao">

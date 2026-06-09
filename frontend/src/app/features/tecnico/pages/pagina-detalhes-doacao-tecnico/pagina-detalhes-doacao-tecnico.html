@@ -8,12 +8,53 @@
       <h1>Detalhes da doação #{{ doacao?.id }}</h1>
 
       <div class="datas">
-        <p>Data do cadastro: {{ doacao?.dataCadastro }}</p>
+        <p>Data do cadastro: {{ formatarData(doacao?.dataCadastro) }}</p>
       </div>
       <span class="badge-status" [ngClass]="obterClasseStatus(doacao?.status)">
         {{ obterTextoStatus(doacao?.status) }}
       </span>
     </div>
+
+    <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
+      Ações
+    </button>
+
+    <mat-menu #menuAcoes="matMenu">
+      <button mat-menu-item [disabled]="!podeAprovarParaReparo" (click)="aprovarParaReparo()">
+        <mat-icon>build</mat-icon>
+        <span>Aprovar para reparo</span>
+      </button>
+
+      <button mat-menu-item [disabled]="!podeConcluirAnalise" (click)="aprovar()">
+        <mat-icon>check</mat-icon>
+        <span>Aprovar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="!podeConcluirAnalise" (click)="reprovar()">
+        <mat-icon>close</mat-icon>
+        <span>Reprovar</span>
+      </button>
+
+      <button mat-menu-item [disabled]="!doacaoAprovada" (click)="enviarParaReparo()">
+        <mat-icon>chevron_right</mat-icon>
+        <span>Reparo</span>
+      </button>
+
+      <button mat-menu-item [disabled]="!podeMarcarEntregue" (click)="entregar()">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Entregue</span>
+      </button>
+
+      <button mat-menu-item class="acao-perigo" [disabled]="!podeDescartar" (click)="descartar()">
+        <mat-icon>delete_sweep</mat-icon>
+        <span>Descarte</span>
+      </button>
+
+      <button mat-menu-item *ngIf="deveExibirReabrirAnalise" (click)="reabrirAnalise()">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Reabrir análise</span>
+      </button>
+    </mat-menu>
   </div>
 
   <mat-card class="card-doacao">
@@ -83,23 +124,6 @@
           </mat-radio-group>
         </section>
 
-        <section class="acoes-formulario">
-          <button type="button" mat-raised-button color="primary" class="botao-confirmar" (click)="aprovar()">
-            <mat-icon>check</mat-icon>
-            Aprovar
-          </button>
-
-          <button type="button" mat-stroked-button class="botao-cancelar" (click)="reprovar()">
-            <mat-icon>close</mat-icon>
-            Reprovar
-          </button>
-
-          <button type="button" mat-stroked-button class="botao-reparo" [disabled]="!doacaoAprovada"
-            (click)="enviarParaReparo()">
-            <mat-icon>chevron_right</mat-icon>
-            Reparo
-          </button>
-        </section>
       </form>
     </mat-card-content>
   </mat-card>

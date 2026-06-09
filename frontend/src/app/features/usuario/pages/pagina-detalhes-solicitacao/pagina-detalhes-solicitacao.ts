@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CURSOS } from '../../../../shared/utils/form-validations';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusSolicitacao = 'PENDENTE' | 'REPARO' | 'EM_ANALISE' | 'APROVADA' | 'APROVADO' | 'REPROVADA' | 'REPROVADO' | 'VINCULADA' | 'DOADO';
 
@@ -135,15 +136,6 @@ export class PaginaDetalhesSolicitacao {
       return null;
     }
 
-    if (data instanceof Date) {
-      return data.toLocaleDateString('pt-BR');
-    }
-
-    const dataParseada = new Date(data as string);
-    if (!Number.isNaN(dataParseada.getTime())) {
-      return dataParseada.toLocaleDateString('pt-BR');
-    }
-
-    return String(data);
+    return formatarDataBr(data);
   }
 }

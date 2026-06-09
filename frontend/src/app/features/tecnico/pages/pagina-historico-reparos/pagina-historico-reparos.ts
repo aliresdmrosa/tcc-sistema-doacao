@@ -12,6 +12,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { timeout } from 'rxjs';
 import { ReparoService } from '../../../../core/services/reparo.service';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 interface HistoricoReparo {
   id: string;
@@ -124,6 +125,10 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   limparPesquisa(): void {
     this.termoPesquisa = '';
     this.dataSource.filter = '';
+  }
+
+  formatarData(data: unknown): string {
+    return formatarDataBr(data);
   }
 
   verDetalhes(historico: HistoricoReparo): void {

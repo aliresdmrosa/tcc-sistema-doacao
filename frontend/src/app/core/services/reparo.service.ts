@@ -45,6 +45,13 @@ export class ReparoService {
     });
   }
 
+  concluirReparoDescarte(id: number, motivo: string): Observable<void> {
+    const motivoReparo = motivo.trim() || 'Doacao enviada para descarte';
+    return this.http.patch<void>(`${this.apiUrl}/descarte/${id}`, motivoReparo, {
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+
   concluirReparoItem(id: number): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/concluir-item/${id}`, null);
   }

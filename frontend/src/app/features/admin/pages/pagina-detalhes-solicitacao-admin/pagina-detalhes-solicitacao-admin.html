@@ -8,8 +8,8 @@
       <h1>Detalhes da Solicitação #{{ solicitacao.id }}</h1>
 
       <div class="datas">
-        <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
-        <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p>
+        <p>Data do cadastro: {{ formatarData(solicitacao.dataCadastro) }}</p>
+        <p>Última modificação em: {{ formatarData(solicitacao.dataUltimaModificacao) }}</p>
       </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
@@ -131,3 +131,4 @@
   </mat-card>
 
 </div>
+

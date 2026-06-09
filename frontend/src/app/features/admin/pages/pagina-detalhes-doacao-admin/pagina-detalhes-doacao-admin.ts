@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { DoacaoService } from '../../../../core/services/doacao.service';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'DOADO' | 'ENTREGUE';
 
@@ -124,6 +125,10 @@ export class PaginaDetalhesDoacaoAdmin {
     }
 
     return imagem.startsWith('/') ? `http://localhost:8080${imagem}` : imagem;
+  }
+
+  formatarData(data: unknown): string {
+    return formatarDataBr(data);
   }
 
   // depois, chamada api
