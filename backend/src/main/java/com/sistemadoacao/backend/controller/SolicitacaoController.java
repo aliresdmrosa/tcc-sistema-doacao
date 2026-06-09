@@ -131,5 +131,11 @@ public class SolicitacaoController {
 
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitacaoDTO> listarSolicitacaoPorId(@PathVariable Long id) {
+        return  ResponseEntity.ok(service.buscarDtoPorId(id));
+    }
+    
+
 
 }

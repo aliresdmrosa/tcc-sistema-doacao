@@ -128,7 +128,10 @@ export class PaginaListarSolicitacao implements AfterViewInit {
   }
 
   verDetalhes(solicitacao: SolicitacaoResponseDTO): void {
-    this.router.navigate(['/admin/solicitacoes', solicitacao.id]);
+    this.router.navigate(['/admin/solicitacoes', solicitacao.id],{
+      state : { solicitacao }
+    }
+    );
   }
 
   editar(solicitacao: SolicitacaoResponseDTO): void {
@@ -158,6 +161,26 @@ export class PaginaListarSolicitacao implements AfterViewInit {
 
       this.solicitacoes = this.solicitacoes.filter((item) => item.id !== solicitacao.id);
       this.dataSource.data = this.solicitacoes;
+
+      this.solicitacaoService.excluirSolicitacao(solicitacao.id).subscribe({
+        next: () => {
+          console.log('Solicitação excluída com sucesso');
+          this.carregarSolicitacoes();
+          this.dialog.open(DialogBaseComponent, {
+            width: '420px',
+            disableClose: true,
+            data: {
+              tipo: 'success',
+              titulo: 'Solicitação excluída com sucesso',
+              mensagem: 'A solicitação foi excluída com sucesso.',
+              textoConfirmar: 'OK'
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Erro ao excluir solicitação:', error);
+        }
+      });
     });
   }
 

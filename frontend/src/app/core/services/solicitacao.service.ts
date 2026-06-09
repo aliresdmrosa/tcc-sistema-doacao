@@ -29,4 +29,13 @@ export class SolicitacaoService {
     listarTodasSolicitacao(): Observable<SolicitacaoResponseDTO[]> {
         return this.http.get<SolicitacaoResponseDTO[]>(this.apiUrl);
     }
+
+    excluirSolicitacao(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    obterSolicitacaoPorId(id: number): Observable<SolicitacaoResponseDTO> {
+        return this.http.get<SolicitacaoResponseDTO>(`${this.apiUrl}/${id}`);
+    }
+
 }

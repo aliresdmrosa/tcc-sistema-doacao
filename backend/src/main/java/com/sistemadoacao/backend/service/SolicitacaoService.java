@@ -1,6 +1,6 @@
 package com.sistemadoacao.backend.service;
 
-import java.nio.file.AccessDeniedException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class SolicitacaoService {
         return solicitacaoRepository.findAllByUsuarioId(id);
     }
 
-    public Solicitacao findById(@NonNull Long id) throws Exception {
+    public Solicitacao findById(@NonNull Long id){
         return solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Solicitação não encontrada com ID: " + id));
     }
@@ -198,9 +198,6 @@ public class SolicitacaoService {
 
             log.info("Solicitacao aprovado - ", id);
 
-        } catch (AccessDeniedException e1) {
-            log.error("Usuario não tem permisao para aprovar {}", e1.getMessage());
-
         } catch (Exception e) {
             log.error("Erro ao aprovar solicitação ID {}: {}", id, e.getMessage());
             throw new ErroCadastoException("Erro ao aprovar solicitação");
@@ -297,6 +294,11 @@ public class SolicitacaoService {
             return pessoa.getNome(); // Retorna o nome da entidade Pessoa logada
         }
         return "Sistema"; // Fallback para ações automáticas
+    }
+
+    public SolicitacaoDTO buscarDtoPorId(Long id) {
+        return solicitacaoRepository.buscarDtoPorId(id);
+        
     }
 
 }

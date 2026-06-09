@@ -15,21 +15,25 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
+import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
 
 type StatusAnalise = 'PENDENTE' | 'APROVADA' | 'REPROVADA' | 'VINCULADA' | 'DOADO';
 
 interface DetalhesSolicitacaoAdmin {
-  id: string;
-  nome: string;
+  id: number;
+  usuarioId: number;
+  nomeSolicitante: string;
   grr: string;
   curso: string;
-  status: StatusAnalise;
+  status: string;
   dataCadastro: string;
   dataUltimaModificacao: string;
-  equipamentoSolicitado: string;
-  justificativa: string;
-  declaracaoComputador: boolean;
-  declaracaoMatricula: boolean;
+  equipamento: string;
+  motivo: string;
+  sem_computador: boolean;
+  ativo: boolean;
+  cpf: string;
 }
 
 interface EquipamentoAtribuido {
@@ -63,6 +67,8 @@ export class PaginaDetalhesSolicitacaoAdmin {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private serviceSolicitacao = inject(SolicitacaoService);
+  carregando = false;
 
   idSolicitacao = this.route.snapshot.paramMap.get('id');
   modoEdicao = false;
@@ -79,27 +85,29 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   // mock
   solicitacao: DetalhesSolicitacaoAdmin = {
-    id: this.idSolicitacao ?? '1',
-    nome: 'Maria da Luz',
-    grr: '20202020',
-    curso: 'TADS',
-    status: this.buscarStatusSolicitacao() ?? 'PENDENTE',
-    dataCadastro: '01/05/2025',
-    dataUltimaModificacao: '01/05/2025',
-    equipamentoSolicitado: 'COMPUTADOR',
-    justificativa: 'Sou estudante de Análise de Sistemas por motivos econômicos não consigo obter computador para estudo, gostaria de participar do programa de doação.',
-    declaracaoComputador: true,
-    declaracaoMatricula: true
+    id: 0,
+    usuarioId: 0,
+    equipamento: '',
+    curso: '',
+    grr: '',
+    motivo: '',
+    sem_computador: false,
+    ativo: true,
+    dataCadastro: '',
+    nomeSolicitante: '',
+    status: '',
+    cpf: '',
+    dataUltimaModificacao: ''
   };
 
   form = this.fb.group({
-    nome: [{ value: this.solicitacao.nome, disabled: true }],
+    nomeSolicitante: [{ value: this.solicitacao.nomeSolicitante, disabled: true }],
     grr: [{ value: this.solicitacao.grr, disabled: true }],
     curso: [{ value: this.solicitacao.curso, disabled: true }],
-    equipamentoSolicitado: [{ value: this.solicitacao.equipamentoSolicitado, disabled: true }],
-    justificativa: [{ value: this.solicitacao.justificativa, disabled: true }],
-    declaracaoComputador: [{ value: this.solicitacao.declaracaoComputador, disabled: true }],
-    declaracaoMatricula: [{ value: this.solicitacao.declaracaoMatricula, disabled: true }]
+    equipamentoSolicitado: [{ value: this.solicitacao.equipamento, disabled: true }],
+    justificativa: [{ value: this.solicitacao.motivo, disabled: true }],
+    declaracaoComputador: [{ value: this.solicitacao.sem_computador, disabled: true }],
+    declaracaoMatricula: [{ value: this.solicitacao.ativo, disabled: true }]
   });
 
   get podeConcluirAnalise(): boolean {
@@ -110,8 +118,96 @@ export class PaginaDetalhesSolicitacaoAdmin {
     return this.solicitacao.status !== 'PENDENTE';
   }
 
+  ngOnInit(): void {
+
+    this.carregarSolicitacaoDaApi();
+
+  }
+
+
   // chamada api
   carregarSolicitacaoDaApi(): void {
+    const id = Number(this.idSolicitacao);
+
+    this.carregando = true;
+
+    this.serviceSolicitacao.obterSolicitacaoPorId(id).subscribe({
+      next: (solicitacao) => {
+        this.solicitacao = this.mapearSolicitacaoApi(solicitacao);
+        console.log("solicitacao da api nome:", solicitacao)
+        this.preencherFormulario();
+        this.form.disable();
+        this.carregando = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar solicitação:', erro);
+        this.carregando = false;
+      }
+
+    });
+  }
+
+  private mapearSolicitacaoApi(solicitacao: SolicitacaoResponseDTO): DetalhesSolicitacaoAdmin {
+
+    return {
+      id: solicitacao.id,
+      usuarioId: solicitacao.usuarioId ?? 0,
+      nomeSolicitante: solicitacao.nome ?? '',
+      grr: solicitacao.grr ?? '',
+      cpf: solicitacao.cpf ?? '',
+      curso: solicitacao.curso ?? '',
+      equipamento: solicitacao.equipamento ?? '',
+      motivo: solicitacao.motivo ?? '',
+      sem_computador: solicitacao.sem_computador ?? solicitacao.semComputador ?? false,
+      ativo: solicitacao.ativo ?? true,
+      status: this.converterStatus(solicitacao.status),
+      dataCadastro: this.formatarData(solicitacao.dataCadastro),
+      dataUltimaModificacao: this.obterDataUltimaModificacao(solicitacao)
+
+    };
+  }
+
+  private converterStatus(status?: string): StatusAnalise {
+    const normalizado = this.statusNormalizado(status);
+
+    switch (normalizado) {
+      case 'APROVADO':
+      case 'APROVADA':
+      case 'REPROVADO':
+      case 'REPROVADA':
+      case 'PENDENTE':
+      case 'VINCULADO':
+      case 'VINCULADA':
+        return normalizado as StatusAnalise;
+      default:
+        return 'PENDENTE';
+    }
+  }
+
+  private statusNormalizado(status?: string): string {
+    return (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+  }
+
+  private formatarData(data?: string): string {
+    if (!data) {
+      return '';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      const [ano, mes, dia] = data.split('-').map(Number);
+      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR');
+    }
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return data;
+    }
+
+    return dataConvertida.toLocaleDateString('pt-BR');
   }
 
   voltar(): void {
@@ -136,14 +232,14 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
     this.solicitacao = {
       ...this.solicitacao,
-      nome: dados.nome ?? '',
+      nomeSolicitante: dados.nomeSolicitante ?? '',
       grr: dados.grr ?? '',
       curso: dados.curso ?? '',
       dataUltimaModificacao: this.obterDataAtual(),
-      equipamentoSolicitado: dados.equipamentoSolicitado ?? '',
-      justificativa: dados.justificativa ?? '',
-      declaracaoComputador: !!dados.declaracaoComputador,
-      declaracaoMatricula: !!dados.declaracaoMatricula
+      equipamento: dados.equipamentoSolicitado ?? '',
+      motivo: dados.justificativa ?? '',
+      sem_computador: !!dados.declaracaoComputador,
+      ativo: !!dados.declaracaoMatricula
     };
 
     this.modoEdicao = false;
@@ -368,13 +464,13 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   private preencherFormulario(): void {
     this.form.patchValue({
-      nome: this.solicitacao.nome,
+      nomeSolicitante: this.solicitacao.nomeSolicitante,
       grr: this.solicitacao.grr,
       curso: this.solicitacao.curso,
-      equipamentoSolicitado: this.solicitacao.equipamentoSolicitado,
-      justificativa: this.solicitacao.justificativa,
-      declaracaoComputador: this.solicitacao.declaracaoComputador,
-      declaracaoMatricula: this.solicitacao.declaracaoMatricula
+      equipamentoSolicitado: this.solicitacao.equipamento,
+      justificativa: this.solicitacao.motivo,
+      declaracaoComputador: this.solicitacao.sem_computador,
+      declaracaoMatricula: this.solicitacao.ativo
     });
   }
 
@@ -420,5 +516,14 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   private obterDataAtual(): string {
     return new Date().toLocaleDateString('pt-BR');
+  }
+
+  private obterDataUltimaModificacao(solicitacao: SolicitacaoResponseDTO): string {
+    const historico = solicitacao.historico ?? [];
+    const ultimoHistorico = historico
+      .filter((item) => !!item.dataAlteracao)
+      .sort((a, b) => new Date(b.dataAlteracao).getTime() - new Date(a.dataAlteracao).getTime())[0];
+
+    return this.formatarData(ultimoHistorico?.dataAlteracao ?? solicitacao.dataCadastro);
   }
 }

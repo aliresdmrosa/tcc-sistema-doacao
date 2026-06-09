@@ -9,7 +9,7 @@
 
       <div class="datas">
         <p>Data do cadastro: {{ solicitacao.dataCadastro }}</p>
-        <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p>
+        <!-- <p>Última modificação em: {{ solicitacao.dataUltimaModificacao }}</p> -->
       </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
@@ -78,7 +78,7 @@
 
           <mat-form-field>
             <mat-label>Nome do solicitante</mat-label>
-            <input matInput formControlName="nome" />
+            <input matInput formControlName="nomeSolicitante" />
           </mat-form-field>
 
           <mat-form-field>
