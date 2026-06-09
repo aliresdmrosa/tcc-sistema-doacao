@@ -62,6 +62,14 @@ public class SolicitacaoController {
         return ResponseEntity.ok(service.findByUsuarioId(principal.getId()));
     }
 
+    @GetMapping("/usuario/{id}")
+    @Operation(summary = "Lista solicitacoes de um usuario pelo ID", description = "Retorna todas as solicitacoes associadas ao usuario informado.")
+    @ApiResponse(responseCode = "200", description = "Lista de solicitacoes retornada com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<Solicitacao>> listarPorUsuarioId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findByUsuarioIdParaAdmin(id));
+    }
+
     @GetMapping
     @Operation(summary = "Lista todas as solicitações", description = "Retorna todas as solicitações no sistema.")
     @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso")
@@ -110,6 +118,16 @@ public class SolicitacaoController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/pendente/{id}")
+    @Operation(summary = "Reabre a analise de uma solicitacao pelo ID", description = "Marca a solicitacao como pendente pelo ID fornecido.")
+    @ApiResponse(responseCode = "200", description = "Analise da solicitacao reaberta com sucesso")
+    @ApiResponse(responseCode = "403", description = "Usuario nao autenticado", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<Void> reabrirAnaliseSolicitacao(@PathVariable Long id) {
+        service.reabrirAnaliseSolicitacao(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{solicitacaoId}/selecionar-doacao")
     @Operation(summary = "Seleciona uma doação para a solicitação", description = "Associa uma doação aprovada à solicitação pelo ID fornecido.")
     @ApiResponse(responseCode = "200", description = "Doação selecionada com sucesso")
@@ -122,6 +140,12 @@ public class SolicitacaoController {
             return ResponseEntity.ok(service.selecionarDoacaoSolicitacao(solicitacaoId, doacaoId));
 
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SolicitacaoDTO> listarSolicitacaoPorId(@PathVariable Long id) {
+        return  ResponseEntity.ok(service.buscarDtoPorId(id));
+    }
+    
 
 
 }

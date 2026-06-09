@@ -25,6 +25,10 @@
 
   <div class="lista-equipamentos">
 
+    <div class="estado-vazio" *ngIf="carregando">
+      Carregando equipamentos em estoque...
+    </div>
+
     <mat-card
       class="card-equipamento"
       *ngFor="let equipamento of equipamentosFiltrados"
@@ -77,7 +81,7 @@
 
     </mat-card>
 
-    <div class="estado-vazio" *ngIf="equipamentosFiltrados.length === 0">
+    <div class="estado-vazio" *ngIf="!carregando && equipamentosFiltrados.length === 0">
       Nenhum equipamento encontrado para os filtros selecionados.
     </div>
 

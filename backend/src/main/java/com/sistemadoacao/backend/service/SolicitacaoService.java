@@ -1,6 +1,6 @@
 package com.sistemadoacao.backend.service;
 
-import java.nio.file.AccessDeniedException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -87,7 +87,15 @@ public class SolicitacaoService {
         return solicitacaoRepository.findAllByUsuarioId(id);
     }
 
-    public Solicitacao findById(@NonNull Long id) throws Exception {
+    public List<Solicitacao> findByUsuarioIdParaAdmin(Long id) {
+        if (id == null) {
+            throw new IdNullException("Id usuario null ao buscar solicitacoes");
+        }
+
+        return solicitacaoRepository.findAllByUsuarioId(id);
+    }
+
+    public Solicitacao findById(@NonNull Long id){
         return solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Solicitação não encontrada com ID: " + id));
     }
@@ -190,9 +198,6 @@ public class SolicitacaoService {
 
             log.info("Solicitacao aprovado - ", id);
 
-        } catch (AccessDeniedException e1) {
-            log.error("Usuario não tem permisao para aprovar {}", e1.getMessage());
-
         } catch (Exception e) {
             log.error("Erro ao aprovar solicitação ID {}: {}", id, e.getMessage());
             throw new ErroCadastoException("Erro ao aprovar solicitação");
@@ -221,6 +226,27 @@ public class SolicitacaoService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public void reabrirAnaliseSolicitacao(Long id) {
+        try {
+            Solicitacao existente = findById(id);
+
+            HistoricoSolicitacao historico = new HistoricoSolicitacao();
+            historico.setDataAlteracao(LocalDateTime.now());
+            historico.setObservacao("Analise da solicitacao reaberta.");
+            historico.setExecutor(getNomeUsuarioLogado());
+            historico.setStatus(Status.PENDENTE);
+            historico.setSolicitacao(existente);
+
+            existente.getHistorico().add(historico);
+            existente.setStatus(Status.PENDENTE);
+            solicitacaoRepository.save(existente);
+        } catch (Exception e) {
+            log.error("Erro ao reabrir analise da solicitacao ID {}: {}", id, e.getMessage());
+            throw new ErroCadastoException("Erro ao reabrir analise da solicitacao");
+        }
+    }
+
     // @PreAuthorize("hasRole('ADMINISTRADOR')")
     public Solicitacao selecionarDoacaoSolicitacao(@NonNull Long solicitacaoId, @NonNull Long doacaoId) {
 
@@ -242,7 +268,7 @@ public class SolicitacaoService {
             throw new IdNullException("Doação não encontrada com ID: " + doacaoId);
         }
 
-        List<Status> statusPermitidos = List.of(Status.APROVADO);
+        List<Status> statusPermitidos = List.of(Status.ESTOQUE);
         // Verifica se a doação está disponível para seleção
         if (!statusPermitidos.contains(doacaoEscolhida.getStatus())) {
             log.error("Doação com ID: {} não está disponível para seleção. Status atual: {}", doacaoId,
@@ -262,9 +288,11 @@ public class SolicitacaoService {
         historicoDoacao.setDoacao(doacaoEscolhida);
         doacaoEscolhida.getHistorico().add(historicoDoacao);
         doacaoEscolhida.setStatus(Status.VINCULADO);
+        doacaoEscolhida.setSolicitacao(solicitacao);
 
         // --- PARTE DA SOLICITAÇÃO ---
         solicitacao.getDoacoes().add(doacaoEscolhida);
+        solicitacao.setStatus(Status.VINCULADO);
 
         HistoricoSolicitacao h = new HistoricoSolicitacao();
         h.setDataAlteracao(LocalDateTime.now());
@@ -277,6 +305,7 @@ public class SolicitacaoService {
 
         solicitacao.getHistorico().add(h);
 
+        doacaoRepository.save(doacaoEscolhida);
         return solicitacaoRepository.save(solicitacao);
         } catch (Exception e) {
             throw new AprovarErroException("Erro ao vincular doacao a solicitacao");
@@ -289,6 +318,11 @@ public class SolicitacaoService {
             return pessoa.getNome(); // Retorna o nome da entidade Pessoa logada
         }
         return "Sistema"; // Fallback para ações automáticas
+    }
+
+    public SolicitacaoDTO buscarDtoPorId(Long id) {
+        return solicitacaoRepository.buscarDtoPorId(id);
+        
     }
 
 }

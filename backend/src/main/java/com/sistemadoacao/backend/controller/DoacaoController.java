@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.Pessoa;
+import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.service.DoacaoService;
 import com.sistemadoacao.backend.dto.AlterStatusDTO;
 import com.sistemadoacao.backend.dto.DashboardDTO;
@@ -73,6 +74,12 @@ public class DoacaoController {
         return ResponseEntity.ok(doacaoService.listarDoacoesPorUsuario(user.getId()));
                 
     }
+
+    @GetMapping("usuario/{id}")
+    @Operation(summary = "Listar todas as doacoes de um usuario pelo ID")
+    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoesPorUsuarioId(@PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.listarDoacoesPorUsuario(id));
+    }
     
 
     @GetMapping("tipo/{equipamento}")
@@ -81,6 +88,17 @@ public class DoacaoController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<List<Doacao>> listarDoacoesPorEquipamento(@PathVariable Equipamento equipamento) {
         return ResponseEntity.ok(doacaoService.listarDoacoesPorEquipamento(equipamento));
+    }
+
+    @GetMapping("status/{status}")
+    @Operation(summary = "Listar doacoes por status", description = "Retorna uma lista de doacoes filtradas pelo status informado.")
+    @ApiResponse(responseCode = "200", description = "Doacoes retornadas com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoesPorStatus(@PathVariable Status status) {
+        return ResponseEntity.ok(
+                doacaoService.listarDoacoesPorStatus(status).stream()
+                        .map(DoacaoResponseDTO::new)
+                        .toList());
     }
 
     @GetMapping("/{id}")
@@ -162,6 +180,51 @@ public class DoacaoController {
     @PatchMapping("reprovar/{id}")
     public ResponseEntity<Doacao> reprovarDoacao(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
         return ResponseEntity.ok(doacaoService.reprovarDoacao(id, body.motivo()));
+    }
+
+    @Operation(summary = "Enviar doacao para reparo", description = "Altera apenas o status da doacao para REPARO.")
+    @ApiResponse(responseCode = "200", description = "Doacao enviada para reparo com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("reparo/{id}")
+    public ResponseEntity<Doacao> enviarDoacaoParaReparo(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.enviarDoacaoParaReparo(id, body.motivo()));
+    }
+
+    @Operation(summary = "Enviar doacao para estoque", description = "Altera apenas o status da doacao para ESTOQUE.")
+    @ApiResponse(responseCode = "200", description = "Doacao enviada para estoque com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("estoque/{id}")
+    public ResponseEntity<Doacao> enviarDoacaoParaEstoque(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.enviarDoacaoParaEstoque(id, body.motivo()));
+    }
+
+    @Operation(summary = "Reabrir análise", description = "Altera apenas o status da doacao para PENDENTE.")
+    @ApiResponse(responseCode = "200", description = "Doacao enviada para analise com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("pendente/{id}")
+    public ResponseEntity<Doacao> enviarDoacaoParaPendente(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.enviarDoacaoParaPendente(id, body.motivo()));
+    }
+
+    @Operation(summary = "Enviar doacao para aprovado reparo", description = "Altera apenas o status da doacao para APROVADO_REPARO.")
+    @ApiResponse(responseCode = "200", description = "Doacao enviada para aprovado reparo com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("aprovado-reparo/{id}")
+    public ResponseEntity<Doacao> enviarDoacaoParaAprovadoReparo(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.enviarDoacaoParaAprovadoReparo(id, body.motivo()));
+    }
+
+    @Operation(summary = "Marcar doacao como doada", description = "Altera apenas o status da doacao para DOADO.")
+    @ApiResponse(responseCode = "200", description = "Doacao marcada como doada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("doado/{id}")
+    public ResponseEntity<Doacao> enviarDoacaoParaDoado(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.enviarDoacaoParaDoado(id, body.motivo()));
     }
 
     @GetMapping("/aprovada")

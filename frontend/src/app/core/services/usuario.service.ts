@@ -19,6 +19,10 @@ export class UsuarioService {
     return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
   }
 
+  buscarPorCpf(cpf: string): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/cpf/${cpf}`);
+  }
+
   cadastrarUsuario(dados: UsuarioCadastroRequest): Observable<Usuario> {
     return this.http.post<Usuario>(this.apiUrl, dados);
   }

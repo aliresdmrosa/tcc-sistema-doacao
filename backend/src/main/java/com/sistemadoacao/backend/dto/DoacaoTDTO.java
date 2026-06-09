@@ -18,6 +18,7 @@ public record DoacaoTDTO(
         Status status,
         Conservacao statusConservacao,
         LocalDate dataCadastro,
+        LocalDate dataEntrega,
         List<ImagemDoacao> imagens,
         String nome,
         String cpf
@@ -26,7 +27,7 @@ public record DoacaoTDTO(
         public DoacaoTDTO(Doacao doacao, String nome, String cpf) {
                 this(doacao.getId(), doacao.getEquipamento(), doacao.getQuantidade(), doacao.getDescricao(),
                                 doacao.getStatus(), doacao.getStatusConservacao(), doacao.getDataCadastro(),
-                                doacao.getImagens(), nome, cpf);
+                                doacao.getDataEntrega(), doacao.getImagens(), nome, cpf);
         }
 
 }

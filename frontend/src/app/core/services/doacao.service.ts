@@ -34,8 +34,16 @@ export class DoacaoService {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario`);
     }
 
+    listarDoacoesPorUsuario(idUsuario: number): Observable<DoacaoDTO[]> {
+        return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario/${idUsuario}`);
+    }
+
     listarTodasDoacoes(): Observable<DoacaoDTO[]> {
       return this.http.get<DoacaoDTO[]>(`${this.apiUrl}`);
+  }
+
+    listarDoacoesPorStatus(status: string): Observable<DoacaoDTO[]> {
+      return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/status/${status}`);
   }
 
       listarDoacoesTecnico(): Observable<DoacaoDTO[]> {
@@ -58,12 +66,50 @@ export class DoacaoService {
         return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
     }
 
+    enviarDoacaoParaReparo(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/reparo/${id}`, { motivo });
+    }
+
+    enviarDoacaoParaEstoque(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/estoque/${id}`, { motivo });
+    }
+
+    enviarDoacaoParaPendente(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/pendente/${id}`, { motivo });
+    }
+
+    enviarDoacaoParaAprovadoReparo(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovado-reparo/${id}`, { motivo });
+    }
+
+    enviarDoacaoParaDoado(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/doado/${id}`, { motivo });
+    }
+
     doacaoId(id: number): Observable<DoacaoDTO> {
       return this.http.get<DoacaoDTO>(`${this.apiUrl}/${id}`);
     }
 
-    entregarDoacao(id: number, motivo: string): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/entregar/${id}`, { motivo });
+    atualizarDoacao(id: number, dados: {
+      equipamento: string;
+      descricao: string;
+      conservacao: string;
+      imagem?: File;
+      imagens?: File[];
+    }): Observable<DoacaoDTO> {
+      const formData = new FormData();
+      formData.append('equipamento', dados.equipamento);
+      formData.append('quantidade', '1');
+      formData.append('descricao', dados.descricao);
+      formData.append('conservacao', dados.conservacao);
+      const imagens = dados.imagens ?? (dados.imagem ? [dados.imagem] : []);
+      imagens.forEach((imagem) => formData.append('imagens', imagem));
+
+      return this.http.patch<DoacaoDTO>(`${this.apiUrl}/${id}`, formData);
+    }
+
+    deletarDoacao(id: number): Observable<void> {
+      return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
 

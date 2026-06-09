@@ -37,6 +37,10 @@
   color: #454546;
 }
 
+.spinner-modal {
+  margin-bottom: 18px;
+}
+
 .textos p {
   margin: 0;
 

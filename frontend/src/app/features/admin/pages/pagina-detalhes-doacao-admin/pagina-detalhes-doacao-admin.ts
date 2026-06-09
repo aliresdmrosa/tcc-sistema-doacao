@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,12 +11,27 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { UsuarioService } from '../../../../core/services/usuario.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { formatarDataBr } from '../../../../shared/utils/date-format';
 
-type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'DOADO' | 'ENTREGUE';
+type StatusAnalise =
+  | 'PENDENTE'
+  | 'REPARO'
+  | 'APROVADO'
+  | 'APROVADA'
+  | 'APROVADO_REPARO'
+  | 'REPROVADO'
+  | 'REPROVADA'
+  | 'ESTOQUE'
+  | 'EM_ESTOQUE'
+  | 'VINCULADO'
+  | 'VINCULADA'
+  | 'DOADO'
+  | 'DESCARTE';
 
 interface DetalhesDoacaoAdmin {
   id: string;
@@ -25,10 +40,17 @@ interface DetalhesDoacaoAdmin {
   tipoItem: string;
   descricao: string;
   imagem: string;
+  imagensUrls: string[];
   estadoConservacao: string;
   status: StatusAnalise;
   dataCadastro: string;
   dataUltimaModificacao: string;
+}
+
+interface ImagemEdicao {
+  preview: string;
+  nome: string;
+  arquivo?: File;
 }
 
 @Component({
@@ -45,23 +67,27 @@ interface DetalhesDoacaoAdmin {
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatDialogModule
   ],
   templateUrl: './pagina-detalhes-doacao-admin.html',
   styleUrls: ['./pagina-detalhes-doacao-admin.css']
 })
-export class PaginaDetalhesDoacaoAdmin {
+export class PaginaDetalhesDoacaoAdmin implements OnInit {
+
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
   private doacaoService = inject(DoacaoService);
+  private usuarioService = inject(UsuarioService);
 
   idDoacao = this.route.snapshot.paramMap.get('id');
   modoEdicao = false;
+  carregando = false;
+  acaoEmAndamento = false;
   private dadosAntesDaEdicao?: DetalhesDoacaoAdmin;
+
   tiposItens: string[] = [
     'COMPUTADOR',
     'NOTEBOOK',
@@ -70,19 +96,24 @@ export class PaginaDetalhesDoacaoAdmin {
     'MOUSE'
   ];
 
-  // mock
   doacao: DetalhesDoacaoAdmin = {
-    id: this.idDoacao ?? '1',
-    nomeDoador: 'Vitoria Lais Souza',
-    cpf: '000.000.000-00',
-    tipoItem: 'COMPUTADOR',
-    descricao: 'Ex tela quebrada',
-    imagem: 'Aqui ficam as imagens a serem analisadas',
-    estadoConservacao: 'USADO',
+    id: this.idDoacao ?? '',
+    nomeDoador: '',
+    cpf: '',
+    tipoItem: '',
+    descricao: '',
+    imagem: '',
+    imagensUrls: [],
+    estadoConservacao: '',
     status: 'PENDENTE',
-    dataCadastro: '04/10/2022',
-    dataUltimaModificacao: '05/10/2022'
+    dataCadastro: '',
+    dataUltimaModificacao: ''
   };
+
+  imagensEdicao: ImagemEdicao[] = [];
+  erroImagem = '';
+  private readonly tamanhoMaximoImagem = 5 * 1024 * 1024;
+  private readonly tiposImagemPermitidos = ['image/jpeg', 'image/png'];
 
   form = this.fb.group({
     nomeDoador: [{ value: this.doacao.nomeDoador, disabled: true }],
@@ -93,8 +124,12 @@ export class PaginaDetalhesDoacaoAdmin {
     estadoConservacao: [{ value: this.doacao.estadoConservacao, disabled: true }]
   });
 
-  get podeAprovarParaReparo(): boolean {
-    return this.doacao.status === 'PENDENTE';
+  ngOnInit(): void {
+    this.carregarDoacaoDaApi();
+  }
+
+  get podeMarcarReparo(): boolean {
+    return this.statusNormalizado(this.doacao.status) === 'PENDENTE';
   }
 
   get podeMarcarReparo(): boolean {
@@ -102,37 +137,72 @@ export class PaginaDetalhesDoacaoAdmin {
   }
 
   get podeConcluirAnalise(): boolean {
-    return this.doacao.status === 'PENDENTE';
+    const status = this.statusNormalizado(this.doacao.status);
+    return status === 'PENDENTE' || status === 'REPARO';
   }
 
   get podeReabrirAnalise(): boolean {
-    return this.doacao.status !== 'PENDENTE';
+    return this.statusNormalizado(this.doacao.status) !== 'PENDENTE';
   }
 
-  get podeMarcarEntregue(): boolean {
-    return this.doacao.status === 'APROVADO' || this.doacao.status === 'APROVADO_REPARO';
-  }
-
-  get podeMarcarEmEstoque(): boolean {
-    return this.podeMarcarEntregue;
+  podeMarcarDoado(): boolean {
+    const status = this.statusNormalizado(this.doacao.status);
+    return status === 'VINCULADO' || status === 'VINCULADA';
   }
 
   get imagemUrl(): string | null {
     const imagem = this.doacao.imagem?.trim();
 
-    if (!imagem || !/^https?:\/\//.test(imagem) && !imagem.startsWith('/')) {
+    if (!imagem) {
       return null;
     }
 
-    return imagem.startsWith('/') ? `http://localhost:8080${imagem}` : imagem;
+    if (/^https?:\/\//.test(imagem)) {
+      return imagem;
+    }
+
+    if (imagem.startsWith('/')) {
+      return `http://localhost:8080${imagem}`;
+    }
+
+    return `http://localhost:8080/${imagem}`;
   }
 
-  formatarData(data: unknown): string {
-    return formatarDataBr(data);
+  get imagensUrls(): string[] {
+    if (this.doacao.imagensUrls.length) {
+      return this.doacao.imagensUrls;
+    }
+
+    return this.imagemUrl ? [this.imagemUrl] : [];
   }
 
-  // depois, chamada api
   carregarDoacaoDaApi(): void {
+    const id = Number(this.idDoacao);
+
+    if (!id) {
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error')
+        .afterClosed()
+        .subscribe(() => this.voltar());
+      return;
+    }
+
+    this.carregando = true;
+
+    this.doacaoService.doacaoId(id).subscribe({
+      next: (doacao) => {
+        this.doacao = this.mapearDoacaoApi(doacao);
+        this.preencherFormulario();
+        this.form.disable();
+        this.carregando = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar doacao:', erro);
+        this.carregando = false;
+        // this.abrirModalAviso('Erro ao carregar doacao', 'Nao foi possivel carregar os dados da doacao.', 'error')
+        //   .afterClosed()
+        //   .subscribe(() => this.voltar());
+      }
+    });
   }
 
   voltar(): void {
@@ -147,32 +217,169 @@ export class PaginaDetalhesDoacaoAdmin {
   }
 
   verPerfil(): void {
-    this.router.navigate(['/admin/usuarios', this.doacao.id]);
+    const cpf = this.doacao.cpf?.replace(/\D/g, '');
+
+    if (!cpf) {
+      this.abrirModalAviso('CPF nao encontrado', 'Nao foi possivel identificar o CPF do doador.', 'warning');
+      return;
+    }
+
+    this.usuarioService.buscarPorCpf(cpf).subscribe({
+      next: (usuario) => {
+        this.router.navigate(['/admin/usuarios', usuario.id], {
+          queryParams: {
+            voltarPara: `/admin/doacoes/${this.doacao.id}`
+          }
+        });
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar doador por CPF:', erro);
+        this.abrirModalAviso('Doador nao encontrado', 'Nao foi possivel encontrar o doador pelo CPF.', 'error');
+      }
+    });
   }
 
   editar(): void {
     this.dadosAntesDaEdicao = { ...this.doacao };
+    this.imagensEdicao = this.imagensUrls.map((url, indice) => ({
+      preview: url,
+      nome: `Imagem atual ${indice + 1}`
+    }));
+    this.erroImagem = '';
     this.modoEdicao = true;
-    this.form.enable();
+    this.form.get('tipoItem')?.enable();
+    this.form.get('descricao')?.enable();
+    this.form.get('estadoConservacao')?.enable();
+  }
+
+  selecionarImagem(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const novosArquivos = Array.from(input.files);
+    this.erroImagem = '';
+
+    if (this.imagensEdicao.length + novosArquivos.length > 3) {
+      input.value = '';
+      this.erroImagem = 'Selecione no maximo 3 imagens.';
+      return;
+    }
+
+    if (novosArquivos.some((arquivo) => !this.tiposImagemPermitidos.includes(arquivo.type))) {
+      this.rejeitarImagem(input, 'Selecione imagens nos formatos JPG ou PNG.');
+      return;
+    }
+
+    if (novosArquivos.some((arquivo) => arquivo.size > this.tamanhoMaximoImagem)) {
+      this.rejeitarImagem(input, 'Selecione imagens de ate 5 MB cada.');
+      return;
+    }
+
+    novosArquivos.forEach((arquivo) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagensEdicao.push({
+          preview: reader.result as string,
+          nome: arquivo.name,
+          arquivo
+        });
+      };
+      reader.readAsDataURL(arquivo);
+    });
+
+    input.value = '';
+  }
+
+  removerImagem(indice: number): void {
+    this.imagensEdicao.splice(indice, 1);
+    this.erroImagem = '';
   }
 
   salvarEdicao(): void {
     const dados = this.form.getRawValue();
+    const id = Number(this.doacao.id);
 
-    this.doacao = {
-      ...this.doacao,
-      nomeDoador: dados.nomeDoador ?? '',
-      cpf: dados.cpf ?? '',
-      tipoItem: dados.tipoItem ?? '',
-      descricao: dados.descricao ?? '',
-      imagem: dados.imagem ?? '',
-      estadoConservacao: dados.estadoConservacao ?? '',
-      dataUltimaModificacao: this.obterDataAtual()
-    };
+    if (!id) {
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error');
+      return;
+    }
 
-    this.modoEdicao = false;
-    this.form.disable();
-    this.snackBar.open('Doação atualizada com sucesso!', 'Fechar', { duration: 3000 });
+    if (!this.imagensEdicao.length) {
+      this.erroImagem = 'Mantenha ou selecione pelo menos uma imagem para atualizar.';
+      return;
+    }
+
+    const dialogCarregamento = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Atualizando doacao',
+        mensagem: 'Aguarde enquanto as alteracoes sao salvas.',
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
+
+    this.acaoEmAndamento = true;
+    this.obterImagensEdicaoComoArquivos()
+      .then((imagens) => {
+        this.doacaoService.atualizarDoacao(id, {
+          equipamento: dados.tipoItem ?? '',
+          descricao: dados.descricao ?? '',
+          conservacao: dados.estadoConservacao ?? '',
+          imagens
+        }).subscribe({
+          next: () => {
+            this.acaoEmAndamento = false;
+            this.modoEdicao = false;
+            this.imagensEdicao = [];
+            this.form.disable();
+            dialogCarregamento.close();
+            this.dialog.open(DialogBaseComponent, {
+              width: '420px',
+              data: {
+                tipo: 'success',
+                titulo: 'Doacao atualizada',
+                mensagem: 'As informacoes da doacao foram atualizadas com sucesso.',
+                textoConfirmar: 'OK'
+              }
+            });
+            this.carregarDoacaoDaApi();
+          },
+          error: (erro) => {
+            console.error('Erro ao atualizar doacao:', erro);
+            this.acaoEmAndamento = false;
+            dialogCarregamento.close();
+            this.dialog.open(DialogBaseComponent, {
+              width: '420px',
+              data: {
+                tipo: 'error',
+                titulo: 'Erro ao atualizar doacao',
+                mensagem: 'Nao foi possivel salvar as alteracoes. Tente novamente.',
+                textoConfirmar: 'OK'
+              }
+            });
+          }
+        });
+      })
+      .catch((erro) => {
+        console.error('Erro ao carregar imagem atual:', erro);
+        this.acaoEmAndamento = false;
+        dialogCarregamento.close();
+        this.dialog.open(DialogBaseComponent, {
+          width: '420px',
+          data: {
+            tipo: 'error',
+            titulo: 'Erro ao preparar imagens',
+            mensagem: 'Nao foi possivel carregar as imagens selecionadas para atualizar.',
+            textoConfirmar: 'OK'
+          }
+        });
+      });
   }
 
   cancelarEdicao(): void {
@@ -182,35 +389,20 @@ export class PaginaDetalhesDoacaoAdmin {
     }
 
     this.modoEdicao = false;
+    this.imagensEdicao = [];
+    this.erroImagem = '';
     this.form.disable();
   }
 
   marcarReparo(): void {
-    if (!this.podeMarcarReparo) {
-      this.snackBar.open('A doação só pode ser marcada como reparo quando está pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
-    this.alterarStatus('REPARO', 'Doação marcada como reparo.');
-  }
-
-  marcarEmEstoque(): void {
-    if (!this.podeMarcarEmEstoque) {
-      this.snackBar.open('A doação só pode ir para estoque depois de aprovada.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
 
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Mover para estoque?',
-        mensagem: 'Confirme que o equipamento foi recebido e está disponível em estoque.',
+        titulo: 'Enviar para reparo?',
+        mensagem: 'Confirme para alterar o status desta doacao para reparo.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -222,21 +414,59 @@ export class PaginaDetalhesDoacaoAdmin {
         return;
       }
 
-      this.doacao = {
-        ...this.doacao,
-        status: 'EM_ESTOQUE',
-        dataUltimaModificacao: this.obterDataAtual()
-      };
-
-      this.preencherFormulario();
-      this.snackBar.open('Doação marcada como em estoque!', 'Fechar', { duration: 3000 });
-      this.router.navigate(['/admin/atribuir-equipamento'], {
-        queryParams: {
-          doacaoId: this.doacao.id,
-          tipo: this.doacao.tipoItem
+      this.acaoEmAndamento = true;
+      this.doacaoService.enviarDoacaoParaReparo(Number(this.doacao.id), 'Doacao enviada para reparo pelo administrador.').subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          this.abrirModalAviso('Status alterado', 'A doacao foi enviada para reparo.', 'success');
+          this.carregarDoacaoDaApi();
         },
-        state: {
-          doacao: this.doacao
+        error: (erro) => {
+          console.error('Erro ao alterar status para reparo:', erro);
+          this.acaoEmAndamento = false;
+          this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel enviar a doacao para reparo.', 'error');
+        }
+      });
+    });
+  }
+
+  marcarEmEstoque(): void {
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Mover para estoque?',
+        mensagem: 'Confirme para alterar o status desta doacao para estoque.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Movendo para estoque',
+        'Aguarde enquanto o status da doacao e atualizado.'
+      );
+
+      this.acaoEmAndamento = true;
+      this.doacaoService.enviarDoacaoParaEstoque(Number(this.doacao.id), 'Doacao enviada para estoque pelo administrador.').subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Doacao em estoque', 'A doacao foi movida para estoque.', 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status para estoque:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao mover doacao', 'Nao foi possivel mover a doacao para estoque.', 'error');
         }
       });
     });
@@ -244,19 +474,19 @@ export class PaginaDetalhesDoacaoAdmin {
 
   aprovar(): void {
     this.confirmarAlteracaoStatus(
-      'Aprovar doação?',
-      'Confirme para alterar o status desta doação para aprovada.',
+      'Aprovar doacao?',
+      'Confirme para alterar o status desta doacao para aprovada.',
       'APROVADO',
-      'Doação aprovada com sucesso!'
+      'Doacao aprovada com sucesso!'
     );
   }
 
   reprovar(): void {
     this.confirmarAlteracaoStatus(
-      'Reprovar doação?',
-      'Confirme para alterar o status desta doação para reprovada.',
+      'Reprovar doacao?',
+      'Confirme para alterar o status desta doacao para reprovada.',
       'REPROVADO',
-      'Doação reprovada com sucesso!'
+      'Doacao reprovada com sucesso!'
     );
   }
 
@@ -286,20 +516,13 @@ export class PaginaDetalhesDoacaoAdmin {
   }
 
   reabrirAnalise(): void {
-    if (!this.podeReabrirAnalise) {
-      this.snackBar.open('A análise só pode ser reaberta quando a doação não está pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Reabrir análise?',
-        mensagem: 'Confirme para voltar esta doação para pendente.',
+        titulo: 'Reabrir analise?',
+        mensagem: 'Confirme para alterar o status desta doacao para pendente.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -311,14 +534,58 @@ export class PaginaDetalhesDoacaoAdmin {
         return;
       }
 
-      this.doacao = {
-        ...this.doacao,
-        status: 'PENDENTE',
-        dataUltimaModificacao: this.obterDataAtual()
-      };
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Reabrindo analise',
+        'Aguarde enquanto o status da doacao e atualizado.'
+      );
 
-      this.preencherFormulario();
-      this.snackBar.open('Análise reaberta com sucesso!', 'Fechar', { duration: 3000 });
+      this.acaoEmAndamento = true;
+      this.doacaoService.enviarDoacaoParaPendente(Number(this.doacao.id), 'Analise reaberta pelo administrador.').subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Analise reaberta', 'A doacao voltou para o status pendente.', 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao reabrir analise:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao reabrir analise', 'Nao foi possivel alterar o status da doacao para pendente.', 'error');
+        }
+      });
+    });
+  }
+
+  marcarAprovadoReparo(): void {
+    this.confirmarAlteracaoStatusDireta({
+      tituloConfirmacao: 'Marcar como aprovado reparo?',
+      mensagemConfirmacao: 'Confirme para alterar o status desta doacao para aprovado reparo.',
+      tituloCarregamento: 'Atualizando status',
+      mensagemCarregamento: 'Aguarde enquanto a doacao e marcada como aprovado reparo.',
+      tituloSucesso: 'Doacao aprovada para reparo',
+      mensagemSucesso: 'A doacao foi marcada como aprovado reparo.',
+      mensagemErro: 'Nao foi possivel marcar a doacao como aprovado reparo.',
+      requisicao: (id) => this.doacaoService.enviarDoacaoParaAprovadoReparo(
+        id,
+        'Doacao marcada como aprovado reparo pelo administrador.'
+      )
+    });
+  }
+
+  marcarDoado(): void {
+    this.confirmarAlteracaoStatusDireta({
+      tituloConfirmacao: 'Marcar como doado?',
+      mensagemConfirmacao: 'Confirme para alterar o status desta doacao para doado.',
+      tituloCarregamento: 'Atualizando status',
+      mensagemCarregamento: 'Aguarde enquanto a doacao e marcada como doada.',
+      tituloSucesso: 'Doacao marcada como doada',
+      mensagemSucesso: 'A doacao foi marcada como doada.',
+      mensagemErro: 'Nao foi possivel marcar a doacao como doada.',
+      requisicao: (id) => this.doacaoService.enviarDoacaoParaDoado(
+        id,
+        'Doacao marcada como doada pelo administrador.'
+      )
     });
   }
 
@@ -328,8 +595,8 @@ export class PaginaDetalhesDoacaoAdmin {
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo: 'Deseja excluir esta doação?',
-        mensagem: 'Essa ação será permanente.',
+        titulo: 'Deseja excluir esta doacao?',
+        mensagem: 'Essa acao sera permanente.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -341,19 +608,29 @@ export class PaginaDetalhesDoacaoAdmin {
         return;
       }
 
-      this.snackBar.open('Doação excluída com sucesso!', 'Fechar', { duration: 3000 });
-      this.voltar();
+      this.doacaoService.deletarDoacao(Number(this.doacao.id)).subscribe({
+        next: () => {
+          this.abrirModalAviso('Doacao excluida', 'A doacao foi excluida com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.voltar());
+        },
+        error: (erro) => {
+          console.error('Erro ao deletar doacao:', erro);
+          this.abrirModalAviso('Erro ao excluir doacao', 'Nao foi possivel excluir a doacao.', 'error');
+        }
+      });
     });
   }
 
   obterClasseStatus(status: string): string {
-    switch (status?.toUpperCase()) {
+    switch (this.statusNormalizado(status)) {
       case 'APROVADA':
       case 'APROVADO':
       case 'APROVADO_REPARO':
         return 'status-aprovado';
       case 'REPROVADA':
       case 'REPROVADO':
+      case 'DESCARTE':
         return 'status-reprovado';
       case 'REPARO':
         return 'status-analise';
@@ -372,12 +649,12 @@ export class PaginaDetalhesDoacaoAdmin {
   }
 
   obterTextoStatus(status: string): string {
-    switch (status?.toUpperCase()) {
+    switch (this.statusNormalizado(status)) {
       case 'APROVADA':
       case 'APROVADO':
         return 'Aprovada';
       case 'APROVADO_REPARO':
-        return 'aprovado_reparo';
+        return 'Aprovada_Reparo'
       case 'REPROVADA':
       case 'REPROVADO':
         return 'Reprovada';
@@ -393,6 +670,8 @@ export class PaginaDetalhesDoacaoAdmin {
         return 'Vinculada';
       case 'DOADO':
         return 'Doado';
+      case 'DESCARTE':
+        return 'Descarte';
       case 'PENDENTE':
         return 'Pendente';
       default:
@@ -409,40 +688,37 @@ export class PaginaDetalhesDoacaoAdmin {
   }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
-    if (!this.podeExecutarAlteracaoStatus(status)) {
-      this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
     const id = Number(this.doacao.id);
-    const requisicao = Number.isFinite(id)
-      ? this.obterRequisicaoAlteracaoStatus(id, status, mensagem)
-      : null;
+    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
+    const requisicao =
+      statusAprovado
+        ? this.doacaoService.aprovarDoacao(id, mensagem)
+        : this.doacaoService.reprovarDoacao(id, mensagem);
+    const modalCarregamento = this.abrirModalCarregamento(
+      statusAprovado ? 'Aprovando doacao' : 'Reprovando doacao',
+      'Aguarde enquanto o status da doacao e atualizado.'
+    );
 
-    if (requisicao) {
-      requisicao.subscribe({
-        next: () => this.finalizarAlteracaoStatus(status, mensagem),
-        error: () => {
-          this.snackBar.open('Nao foi possivel alterar o status da doacao.', 'Fechar', { duration: 3500 });
-        }
-      });
-      return;
-    }
+    this.acaoEmAndamento = true;
 
-    this.finalizarAlteracaoStatus(status, mensagem);
-  }
-
-  private finalizarAlteracaoStatus(status: StatusAnalise, mensagem: string): void {
-    this.doacao = {
-      ...this.doacao,
-      status,
-      dataUltimaModificacao: this.obterDataAtual()
-    };
-
-    this.preencherFormulario();
-    this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
+    requisicao.subscribe({
+      next: () => {
+        this.acaoEmAndamento = false;
+        modalCarregamento.close();
+        this.abrirModalAviso(
+          statusAprovado ? 'Doacao aprovada' : 'Doacao reprovada',
+          mensagem,
+          'success'
+        );
+        this.carregarDoacaoDaApi();
+      },
+      error: (erro) => {
+        console.error('Erro ao alterar status da doacao:', erro);
+        this.acaoEmAndamento = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da doacao.', 'error');
+      }
+    });
   }
 
   private obterRequisicaoAlteracaoStatus(id: number, status: StatusAnalise, motivo: string) {
@@ -466,10 +742,10 @@ export class PaginaDetalhesDoacaoAdmin {
     status: StatusAnalise,
     mensagemSucesso: string
   ): void {
-    if (!this.podeExecutarAlteracaoStatus(status)) {
-      this.snackBar.open('Esta ação só pode ser feita quando a doação está pendente ou em reparo.', 'Fechar', {
-        duration: 3500
-      });
+    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
+
+    if (statusAprovado && !this.podeConcluirAnalise) {
+      this.abrirModalAviso('Acao indisponivel', 'Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'warning');
       return;
     }
 
@@ -495,6 +771,64 @@ export class PaginaDetalhesDoacaoAdmin {
     });
   }
 
+  private confirmarAlteracaoStatusDireta(config: {
+    tituloConfirmacao: string;
+    mensagemConfirmacao: string;
+    tituloCarregamento: string;
+    mensagemCarregamento: string;
+    tituloSucesso: string;
+    mensagemSucesso: string;
+    mensagemErro: string;
+    requisicao: (id: number) => ReturnType<DoacaoService['enviarDoacaoParaDoado']>;
+  }): void {
+    const id = Number(this.doacao.id);
+
+    if (!id) {
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: config.tituloConfirmacao,
+        mensagem: config.mensagemConfirmacao,
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        config.tituloCarregamento,
+        config.mensagemCarregamento
+      );
+
+      this.acaoEmAndamento = true;
+      config.requisicao(id).subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso(config.tituloSucesso, config.mensagemSucesso, 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status da doacao:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao alterar status', config.mensagemErro, 'error');
+        }
+      });
+    });
+  }
+
   private preencherFormulario(): void {
     this.form.patchValue({
       nomeDoador: this.doacao.nomeDoador,
@@ -506,7 +840,159 @@ export class PaginaDetalhesDoacaoAdmin {
     });
   }
 
-  private obterDataAtual(): string {
-    return new Date().toLocaleDateString('pt-BR');
+  private mapearDoacaoApi(doacao: DoacaoDTO): DetalhesDoacaoAdmin {
+    const primeiraImagem = doacao.imagens?.[0]?.url ?? doacao.url ?? '';
+    const imagensUrls = doacao.imagens
+      ?.map((imagem) => this.montarImagemUrl(imagem.url))
+      .filter((url): url is string => !!url) ?? [];
+
+    return {
+      id: String(doacao.id),
+      nomeDoador: doacao.nome ?? '',
+      cpf: doacao.cpf ?? '',
+      tipoItem: doacao.equipamento ?? '',
+      descricao: doacao.descricao ?? '',
+      imagem: primeiraImagem,
+      imagensUrls,
+      estadoConservacao: doacao.statusConservacao ?? '',
+      status: this.converterStatus(doacao.status),
+      dataCadastro: this.formatarData(doacao.dataCadastro),
+      dataUltimaModificacao: this.formatarData(doacao.dataAlteracaoStatus ?? doacao.dataCadastro)
+    };
   }
+
+  private montarImagemUrl(imagem: unknown): string | null {
+    if (typeof imagem !== 'string' || !imagem.trim()) {
+      return null;
+    }
+
+    const valor = imagem.trim();
+
+    if (/^https?:\/\//.test(valor)) {
+      return valor;
+    }
+
+    if (valor.startsWith('/')) {
+      return `http://localhost:8080${valor}`;
+    }
+
+    return `http://localhost:8080/${valor}`;
+  }
+
+  private converterStatus(status?: string): StatusAnalise {
+    const normalizado = this.statusNormalizado(status);
+
+    switch (normalizado) {
+      case 'APROVADO':
+      case 'APROVADA':
+      case 'APROVADO_REPARO':
+      case 'REPROVADO':
+      case 'REPROVADA':
+      case 'REPARO':
+      case 'PENDENTE':
+      case 'ESTOQUE':
+      case 'EM_ESTOQUE':
+      case 'VINCULADO':
+      case 'VINCULADA':
+      case 'DOADO':
+      case 'DESCARTE':
+        return normalizado as StatusAnalise;
+      default:
+        return 'PENDENTE';
+    }
+  }
+
+  private statusNormalizado(status?: string): string {
+    return (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+  }
+
+  private formatarData(data?: string): string {
+    if (!data) {
+      return '';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      const [ano, mes, dia] = data.split('-').map(Number);
+      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR');
+    }
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return data;
+    }
+
+    return dataConvertida.toLocaleDateString('pt-BR');
+  }
+
+  private async obterImagensEdicaoComoArquivos(): Promise<File[]> {
+    const arquivos = await Promise.all(
+      this.imagensEdicao.map((imagem, indice) => this.obterImagemEdicaoComoArquivo(imagem, indice))
+    );
+
+    if (!arquivos.length || arquivos.length > 3) {
+      throw new Error('Quantidade de imagens invalida.');
+    }
+
+    return arquivos;
+  }
+
+  private async obterImagemEdicaoComoArquivo(imagem: ImagemEdicao, indice: number): Promise<File> {
+    if (imagem.arquivo) {
+      return imagem.arquivo;
+    }
+
+    const url = imagem.preview;
+    const resposta = await fetch(url);
+
+    if (!resposta.ok) {
+      throw new Error('Erro ao buscar imagem atual.');
+    }
+
+    const blob = await resposta.blob();
+    const extensao = blob.type.split('/')[1] || 'jpg';
+
+    return new File([blob], `doacao-${this.doacao.id}-${indice + 1}.${extensao}`, {
+      type: blob.type || 'image/jpeg'
+    });
+  }
+
+  private rejeitarImagem(input: HTMLInputElement, mensagem: string): void {
+    input.value = '';
+    this.erroImagem = mensagem;
+  }
+
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
+      }
+    });
+  }
+
+  private abrirModalCarregamento(titulo: string, mensagem: string) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo,
+        mensagem,
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
+  }
+
 }

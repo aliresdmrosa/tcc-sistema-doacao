@@ -13,24 +13,29 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
 import { formatarDataBr } from '../../../../shared/utils/date-format';
 
-type StatusAnalise = 'PENDENTE' | 'APROVADA' | 'REPROVADA' | 'VINCULADA' | 'DOADO';
+type StatusAnalise = 'PENDENTE' | 'APROVADO' | 'APROVADA' | 'REPROVADO' | 'REPROVADA' | 'VINCULADO' | 'VINCULADA' | 'DOADO';
 
 interface DetalhesSolicitacaoAdmin {
-  id: string;
-  nome: string;
+  id: number;
+  usuarioId: number;
+  nomeSolicitante: string;
   grr: string;
   curso: string;
-  status: StatusAnalise;
+  status: string;
   dataCadastro: string;
   dataUltimaModificacao: string;
-  equipamentoSolicitado: string;
-  justificativa: string;
-  declaracaoComputador: boolean;
-  declaracaoMatricula: boolean;
+  equipamento: string;
+  motivo: string;
+  sem_computador: boolean;
+  ativo: boolean;
+  cpf: string;
 }
 
 interface EquipamentoAtribuido {
@@ -64,6 +69,8 @@ export class PaginaDetalhesSolicitacaoAdmin {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private serviceSolicitacao = inject(SolicitacaoService);
+  carregando = false;
 
   idSolicitacao = this.route.snapshot.paramMap.get('id');
   modoEdicao = false;
@@ -80,27 +87,29 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   // mock
   solicitacao: DetalhesSolicitacaoAdmin = {
-    id: this.idSolicitacao ?? '1',
-    nome: 'Maria da Luz',
-    grr: '20202020',
-    curso: 'TADS',
-    status: this.buscarStatusSolicitacao() ?? 'PENDENTE',
-    dataCadastro: '01/05/2025',
-    dataUltimaModificacao: '01/05/2025',
-    equipamentoSolicitado: 'COMPUTADOR',
-    justificativa: 'Sou estudante de Análise de Sistemas por motivos econômicos não consigo obter computador para estudo, gostaria de participar do programa de doação.',
-    declaracaoComputador: true,
-    declaracaoMatricula: true
+    id: 0,
+    usuarioId: 0,
+    equipamento: '',
+    curso: '',
+    grr: '',
+    motivo: '',
+    sem_computador: false,
+    ativo: true,
+    dataCadastro: '',
+    nomeSolicitante: '',
+    status: '',
+    cpf: '',
+    dataUltimaModificacao: ''
   };
 
   form = this.fb.group({
-    nome: [{ value: this.solicitacao.nome, disabled: true }],
+    nomeSolicitante: [{ value: this.solicitacao.nomeSolicitante, disabled: true }],
     grr: [{ value: this.solicitacao.grr, disabled: true }],
     curso: [{ value: this.solicitacao.curso, disabled: true }],
-    equipamentoSolicitado: [{ value: this.solicitacao.equipamentoSolicitado, disabled: true }],
-    justificativa: [{ value: this.solicitacao.justificativa, disabled: true }],
-    declaracaoComputador: [{ value: this.solicitacao.declaracaoComputador, disabled: true }],
-    declaracaoMatricula: [{ value: this.solicitacao.declaracaoMatricula, disabled: true }]
+    equipamentoSolicitado: [{ value: this.solicitacao.equipamento, disabled: true }],
+    justificativa: [{ value: this.solicitacao.motivo, disabled: true }],
+    declaracaoComputador: [{ value: this.solicitacao.sem_computador, disabled: true }],
+    declaracaoMatricula: [{ value: this.solicitacao.ativo, disabled: true }]
   });
 
   get podeConcluirAnalise(): boolean {
@@ -111,8 +120,100 @@ export class PaginaDetalhesSolicitacaoAdmin {
     return this.solicitacao.status !== 'PENDENTE';
   }
 
+  get podeVincular(): boolean {
+    const status = this.statusNormalizado(this.solicitacao.status);
+    return status === 'APROVADO' || status === 'APROVADA';
+  }
+
+  ngOnInit(): void {
+
+    this.carregarSolicitacaoDaApi();
+
+  }
+
+
   // chamada api
   carregarSolicitacaoDaApi(): void {
+    const id = Number(this.idSolicitacao);
+
+    this.carregando = true;
+
+    this.serviceSolicitacao.obterSolicitacaoPorId(id).subscribe({
+      next: (solicitacao) => {
+        this.solicitacao = this.mapearSolicitacaoApi(solicitacao);
+        this.preencherFormulario();
+        this.form.disable();
+        this.carregando = false;
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar solicitação:', erro);
+        this.carregando = false;
+      }
+
+    });
+  }
+
+  private mapearSolicitacaoApi(solicitacao: SolicitacaoResponseDTO): DetalhesSolicitacaoAdmin {
+
+    return {
+      id: solicitacao.id,
+      usuarioId: solicitacao.usuarioId ?? 0,
+      nomeSolicitante: solicitacao.nome ?? '',
+      grr: solicitacao.grr ?? '',
+      cpf: solicitacao.cpf ?? '',
+      curso: solicitacao.curso ?? '',
+      equipamento: solicitacao.equipamento ?? '',
+      motivo: solicitacao.motivo ?? '',
+      sem_computador: solicitacao.sem_computador ?? solicitacao.semComputador ?? false,
+      ativo: solicitacao.ativo ?? true,
+      status: this.converterStatus(solicitacao.status),
+      dataCadastro: this.formatarData(solicitacao.dataCadastro),
+      dataUltimaModificacao: this.obterDataUltimaModificacao(solicitacao)
+
+    };
+  }
+
+  private converterStatus(status?: string): StatusAnalise {
+    const normalizado = this.statusNormalizado(status);
+
+    switch (normalizado) {
+      case 'APROVADO':
+      case 'APROVADA':
+      case 'REPROVADO':
+      case 'REPROVADA':
+      case 'PENDENTE':
+      case 'VINCULADO':
+      case 'VINCULADA':
+        return normalizado as StatusAnalise;
+      default:
+        return 'PENDENTE';
+    }
+  }
+
+  private statusNormalizado(status?: string): string {
+    return (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+  }
+
+  private formatarData(data?: string): string {
+    if (!data) {
+      return '';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      const [ano, mes, dia] = data.split('-').map(Number);
+      return new Date(ano, mes - 1, dia).toLocaleDateString('pt-BR');
+    }
+
+    const dataConvertida = new Date(data);
+
+    if (Number.isNaN(dataConvertida.getTime())) {
+      return data;
+    }
+
+    return dataConvertida.toLocaleDateString('pt-BR');
   }
 
   formatarData(data: unknown): string {
@@ -134,21 +235,66 @@ export class PaginaDetalhesSolicitacaoAdmin {
     this.dadosAntesDaEdicao = { ...this.solicitacao };
     this.modoEdicao = true;
     this.form.enable();
+    this.form.get('nomeSolicitante')?.disable();
   }
 
   salvarEdicao(): void {
+    const id = this.obterIdSolicitacaoValido();
+    if (!id) {
+      return;
+    }
+
+    const dadosAtualizacao = this.form.getRawValue();
+    const payload: SolicitacaoDTO = {
+      equipamento: dadosAtualizacao.equipamentoSolicitado ?? '',
+      curso: dadosAtualizacao.curso ?? '',
+      grr: dadosAtualizacao.grr ?? '',
+      motivo: dadosAtualizacao.justificativa ?? '',
+      semComputador: !!dadosAtualizacao.declaracaoComputador,
+      ativo: !!dadosAtualizacao.declaracaoMatricula
+    };
+
+    const modalCarregamento = this.abrirModalCarregamento(
+      'Salvando solicitacao',
+      'Aguarde enquanto as alteracoes sao salvas.'
+    );
+
+    this.carregando = true;
+    this.serviceSolicitacao.atualizarSolicitacao(id, payload).subscribe({
+      next: (solicitacaoAtualizada) => {
+        this.solicitacao = this.mapearSolicitacaoApi({
+          ...solicitacaoAtualizada,
+          nome: this.solicitacao.nomeSolicitante,
+          cpf: this.solicitacao.cpf
+        });
+        this.preencherFormulario();
+        this.modoEdicao = false;
+        this.form.disable();
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Solicitacao atualizada', 'A solicitacao foi atualizada com sucesso.', 'success');
+      },
+      error: (erro) => {
+        console.error('Erro ao atualizar solicitacao:', erro);
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao atualizar solicitacao', 'Nao foi possivel salvar as alteracoes.', 'error');
+      }
+    });
+    return;
+
     const dados = this.form.getRawValue();
 
     this.solicitacao = {
       ...this.solicitacao,
-      nome: dados.nome ?? '',
+      nomeSolicitante: dados.nomeSolicitante ?? '',
       grr: dados.grr ?? '',
       curso: dados.curso ?? '',
       dataUltimaModificacao: this.obterDataAtual(),
-      equipamentoSolicitado: dados.equipamentoSolicitado ?? '',
-      justificativa: dados.justificativa ?? '',
-      declaracaoComputador: !!dados.declaracaoComputador,
-      declaracaoMatricula: !!dados.declaracaoMatricula
+      equipamento: dados.equipamentoSolicitado ?? '',
+      motivo: dados.justificativa ?? '',
+      sem_computador: !!dados.declaracaoComputador,
+      ativo: !!dados.declaracaoMatricula
     };
 
     this.modoEdicao = false;
@@ -192,6 +338,40 @@ export class PaginaDetalhesSolicitacaoAdmin {
         return;
       }
 
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Aprovando solicitacao',
+        'Aguarde enquanto a solicitacao e aprovada.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.aprovarSolicitacao(id).subscribe({
+        next: () => {
+          this.solicitacao = {
+            ...this.solicitacao,
+            status: 'APROVADO',
+            dataUltimaModificacao: this.obterDataAtual()
+          };
+          this.preencherFormulario();
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Solicitacao aprovada', 'A solicitacao foi aprovada com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.atribuirEquipamento());
+        },
+        error: (erro) => {
+          console.error('Erro ao aprovar solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao aprovar solicitacao', 'Nao foi possivel aprovar a solicitacao.', 'error');
+        }
+      });
+      return;
+
       this.solicitacao = {
         ...this.solicitacao,
         status: 'APROVADA',
@@ -214,6 +394,70 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   reabrirAnalise(): void {
+    if (!this.podeReabrirAnalise) {
+      this.abrirModalAviso('Acao indisponivel', 'A analise so pode ser reaberta quando a solicitacao nao esta pendente.', 'warning');
+      return;
+    }
+
+    const dialogReabrir = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Reabrir analise?',
+        mensagem: 'Confirme para voltar esta solicitacao para pendente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogReabrir.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Reabrindo analise',
+        'Aguarde enquanto a solicitacao volta para pendente.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.reabrirAnaliseSolicitacao(id).subscribe({
+        next: () => {
+          this.solicitacao = {
+            ...this.solicitacao,
+            status: 'PENDENTE',
+            dataUltimaModificacao: this.obterDataAtual()
+          };
+          this.limparEquipamentoAtribuido();
+          this.preencherFormulario();
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Analise reaberta', 'A solicitacao voltou para pendente.', 'success');
+        },
+        error: (erro) => {
+          console.error('Erro ao reabrir analise da solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao reabrir analise', 'Nao foi possivel alterar a solicitacao para pendente.', 'error');
+        }
+      });
+    });
+    return;
+
+    this.abrirModalAviso(
+      'Acao indisponivel',
+      'Ainda nao existe endpoint no backend para reabrir a analise da solicitacao.',
+      'warning'
+    );
+    return;
+
     if (!this.podeReabrirAnalise) {
       this.snackBar.open('A análise só pode ser reaberta quando a solicitação não está pendente.', 'Fechar', {
         duration: 3500
@@ -254,12 +498,60 @@ export class PaginaDetalhesSolicitacaoAdmin {
   atribuirEquipamento(): void {
     this.router.navigate(['/admin/atribuir-equipamento'], {
       queryParams: {
-        solicitacaoId: this.solicitacao.id
+        solicitacaoId: this.solicitacao.id,
+        tipo: this.solicitacao.equipamento
       }
     });
   }
 
   deletar(): void {
+    const dialogConfirmacao = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir esta solicitacao?',
+        mensagem: 'Essa acao sera permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogConfirmacao.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Excluindo solicitacao',
+        'Aguarde enquanto a solicitacao e excluida.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.excluirSolicitacao(id).subscribe({
+        next: () => {
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Solicitacao excluida', 'A solicitacao foi excluida com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.voltar());
+        },
+        error: (erro) => {
+          console.error('Erro ao excluir solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao excluir solicitacao', 'Nao foi possivel excluir a solicitacao.', 'error');
+        }
+      });
+    });
+    return;
+
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
@@ -303,10 +595,13 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   obterTextoStatus(status: string): string {
     switch (status?.toUpperCase()) {
+      case 'APROVADO':
       case 'APROVADA':
         return 'Aprovada';
+      case 'REPROVADO':
       case 'REPROVADA':
         return 'Reprovada';
+      case 'VINCULADO':
       case 'VINCULADA':
         return 'Vinculada';
       case 'DOADO':
@@ -319,6 +614,42 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
+    const id = this.obterIdSolicitacaoValido();
+    if (!id) {
+      return;
+    }
+
+    const statusNormalizado = this.statusNormalizado(status);
+    const requisicao = statusNormalizado === 'REPROVADA' || statusNormalizado === 'REPROVADO'
+      ? this.serviceSolicitacao.reprovarSolicitacao(id)
+      : this.serviceSolicitacao.aprovarSolicitacao(id);
+    const modalCarregamento = this.abrirModalCarregamento(
+      'Atualizando solicitacao',
+      'Aguarde enquanto o status da solicitacao e atualizado.'
+    );
+
+    this.carregando = true;
+    requisicao.subscribe({
+      next: () => {
+        this.solicitacao = {
+          ...this.solicitacao,
+          status,
+          dataUltimaModificacao: this.obterDataAtual()
+        };
+        this.preencherFormulario();
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Status atualizado', mensagem, 'success');
+      },
+      error: (erro) => {
+        console.error('Erro ao alterar status da solicitacao:', erro);
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da solicitacao.', 'error');
+      }
+    });
+    return;
+
     if (!this.podeConcluirAnalise) {
       this.snackBar.open('Esta ação só pode ser feita quando a solicitação está pendente.', 'Fechar', {
         duration: 3500
@@ -373,13 +704,13 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   private preencherFormulario(): void {
     this.form.patchValue({
-      nome: this.solicitacao.nome,
+      nomeSolicitante: this.solicitacao.nomeSolicitante,
       grr: this.solicitacao.grr,
       curso: this.solicitacao.curso,
-      equipamentoSolicitado: this.solicitacao.equipamentoSolicitado,
-      justificativa: this.solicitacao.justificativa,
-      declaracaoComputador: this.solicitacao.declaracaoComputador,
-      declaracaoMatricula: this.solicitacao.declaracaoMatricula
+      equipamentoSolicitado: this.solicitacao.equipamento,
+      justificativa: this.solicitacao.motivo,
+      declaracaoComputador: this.solicitacao.sem_computador,
+      declaracaoMatricula: this.solicitacao.ativo
     });
   }
 
@@ -425,5 +756,55 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   private obterDataAtual(): string {
     return new Date().toLocaleDateString('pt-BR');
+  }
+
+  private obterIdSolicitacaoValido(): number | null {
+    const id = Number(this.solicitacao.id || this.idSolicitacao);
+
+    if (!id) {
+      this.abrirModalAviso('Solicitacao nao encontrada', 'Nao foi possivel identificar a solicitacao selecionada.', 'error');
+      return null;
+    }
+
+    return id;
+  }
+
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
+      }
+    });
+  }
+
+  private abrirModalCarregamento(titulo: string, mensagem: string) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo,
+        mensagem,
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
+  }
+
+  private obterDataUltimaModificacao(solicitacao: SolicitacaoResponseDTO): string {
+    const historico = solicitacao.historico ?? [];
+    const ultimoHistorico = historico
+      .filter((item) => !!item.dataAlteracao)
+      .sort((a, b) => new Date(b.dataAlteracao).getTime() - new Date(a.dataAlteracao).getTime())[0];
+
+    return this.formatarData(ultimoHistorico?.dataAlteracao ?? solicitacao.dataCadastro);
   }
 }
