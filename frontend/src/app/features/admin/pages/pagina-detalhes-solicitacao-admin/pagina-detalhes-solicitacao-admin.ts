@@ -493,7 +493,8 @@ export class PaginaDetalhesSolicitacaoAdmin {
   atribuirEquipamento(): void {
     this.router.navigate(['/admin/atribuir-equipamento'], {
       queryParams: {
-        solicitacaoId: this.solicitacao.id
+        solicitacaoId: this.solicitacao.id,
+        tipo: this.solicitacao.equipamento
       }
     });
   }

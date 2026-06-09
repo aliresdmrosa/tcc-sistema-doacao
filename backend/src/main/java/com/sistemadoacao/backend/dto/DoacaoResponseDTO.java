@@ -17,12 +17,13 @@ public record DoacaoResponseDTO(
         Status status,
         Conservacao statusConservacao,
         LocalDate dataCadastro,
+        LocalDate dataEntrega,
         List<ImagemDoacao> imagens
 ) {
         public DoacaoResponseDTO(Doacao doacao) {
                 this(doacao.getId(), doacao.getEquipamento(), doacao.getQuantidade(), doacao.getDescricao(),
                                 doacao.getStatus(), doacao.getStatusConservacao(), doacao.getDataCadastro(),
-                                doacao.getImagens());
+                                doacao.getDataEntrega(), doacao.getImagens());
         }
 
 }

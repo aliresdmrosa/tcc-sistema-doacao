@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.Pessoa;
+import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.service.DoacaoService;
 import com.sistemadoacao.backend.dto.AlterStatusDTO;
 import com.sistemadoacao.backend.dto.DashboardDTO;
@@ -87,6 +88,17 @@ public class DoacaoController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<List<Doacao>> listarDoacoesPorEquipamento(@PathVariable Equipamento equipamento) {
         return ResponseEntity.ok(doacaoService.listarDoacoesPorEquipamento(equipamento));
+    }
+
+    @GetMapping("status/{status}")
+    @Operation(summary = "Listar doacoes por status", description = "Retorna uma lista de doacoes filtradas pelo status informado.")
+    @ApiResponse(responseCode = "200", description = "Doacoes retornadas com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoesPorStatus(@PathVariable Status status) {
+        return ResponseEntity.ok(
+                doacaoService.listarDoacoesPorStatus(status).stream()
+                        .map(DoacaoResponseDTO::new)
+                        .toList());
     }
 
     @GetMapping("/{id}")

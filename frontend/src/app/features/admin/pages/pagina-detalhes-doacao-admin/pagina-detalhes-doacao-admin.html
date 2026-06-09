@@ -67,7 +67,7 @@
         <span>Reabrir análise</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarDoado()">
+      <button mat-menu-item *ngIf="podeMarcarDoado" (click)="marcarDoado()" [disabled]="doacao.status !== 'VINCULADO'" >
         <mat-icon>inventory_1</mat-icon>
         <span>Doado</span>
       </button>

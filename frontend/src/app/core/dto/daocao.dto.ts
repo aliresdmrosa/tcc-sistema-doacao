@@ -6,6 +6,7 @@ export interface DoacaoDTO {
     status?: string;
     statusConservacao?: string;
     dataCadastro : string;
+    dataEntrega?: string;
     nome?: string;
     email?: string;
     cpf?: string;

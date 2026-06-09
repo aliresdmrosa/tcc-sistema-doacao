@@ -42,6 +42,10 @@ export class DoacaoService {
       return this.http.get<DoacaoDTO[]>(`${this.apiUrl}`);
   }
 
+    listarDoacoesPorStatus(status: string): Observable<DoacaoDTO[]> {
+      return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/status/${status}`);
+  }
+
       listarDoacoesTecnico(): Observable<DoacaoDTO[]> {
         return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/tecnico`);
     }

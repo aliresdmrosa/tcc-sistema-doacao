@@ -1,5 +1,6 @@
 package com.sistemadoacao.backend.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -303,6 +304,7 @@ public class DoacaoService {
 
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.DOADO);
+            doacao.setDataEntrega(LocalDate.now());
 
             return repository.save(doacao);
         } catch (NotFoundException e) {

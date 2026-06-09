@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ViewChild, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
 type TipoEquipamento = 'COMPUTADOR' | 'NOTEBOOK' | 'MONITOR' | 'TECLADO' | 'MOUSE';
@@ -39,7 +42,7 @@ interface EquipamentoDisponivel {
   templateUrl: './pagina-atribuir-equipamento.html',
   styleUrls: ['./pagina-atribuir-equipamento.css']
 })
-export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
+export class PaginaAtribuirEquipamentoComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -47,7 +50,9 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private doacaoService: DoacaoService,
+    private solicitacaoService: SolicitacaoService
   ) {
     this.solicitacaoId = this.route.snapshot.queryParamMap.get('solicitacaoId');
     const tipo = this.route.snapshot.queryParamMap.get('tipo');
@@ -60,6 +65,7 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
   solicitacaoId: string | null = null;
   tipoSelecionado: TipoEquipamento = 'COMPUTADOR';
   equipamentoSelecionadoId: string | null = null;
+  carregando = false;
 
   tiposEquipamento: { valor: TipoEquipamento; label: string }[] = [
     { valor: 'COMPUTADOR', label: 'Computador' },
@@ -133,6 +139,30 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
   ngAfterViewInit(): void {
   }
 
+  ngOnInit(): void {
+    this.carregarEquipamentosEmEstoque();
+  }
+
+  carregarEquipamentosEmEstoque(): void {
+    this.carregando = true;
+    this.equipamentos = [];
+
+    this.doacaoService.listarDoacoesPorStatus('ESTOQUE').subscribe({
+      next: (doacoes) => {
+        this.equipamentos = doacoes.map((doacao) => this.mapearDoacaoParaEquipamento(doacao));
+        this.carregando = false;
+        this.cdr.detectChanges();
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar equipamentos em estoque:', erro);
+        this.equipamentos = [];
+        this.carregando = false;
+        this.snackBar.open('Nao foi possivel carregar os equipamentos em estoque.', 'Fechar', { duration: 3000 });
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   selecionarEquipamento(equipamento: EquipamentoDisponivel): void {
     if (this.temEquipamentoSelecionado) {
       this.snackBar.open('Cancele a seleção atual antes de escolher outro equipamento.', 'Fechar', { duration: 3000 });
@@ -157,14 +187,27 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
         return;
       }
 
-      this.equipamentoSelecionadoId = equipamento.id;
-      equipamento.status = 'VINCULADO';
-      this.salvarEquipamentoAtribuido(equipamento);
-      this.cdr.detectChanges();
-      console.log('Equipamento selecionado:', equipamento);
-      this.snackBar.open('Equipamento selecionado com sucesso!', 'Fechar', { duration: 3000 });
+      const solicitacaoId = Number(this.solicitacaoId);
+      const doacaoId = Number(equipamento.id);
 
-      // chamada api
+      if (!solicitacaoId || !doacaoId) {
+        this.snackBar.open('Nao foi possivel identificar a solicitacao ou a doacao.', 'Fechar', { duration: 3000 });
+        return;
+      }
+
+      this.solicitacaoService.vincularDoacaoSolicitacao(solicitacaoId, doacaoId).subscribe({
+        next: () => {
+          this.equipamentoSelecionadoId = equipamento.id;
+          equipamento.status = 'VINCULADO';
+          this.salvarEquipamentoAtribuido(equipamento);
+          this.cdr.detectChanges();
+          this.snackBar.open('Equipamento vinculado com sucesso!', 'Fechar', { duration: 3000 });
+        },
+        error: (erro) => {
+          console.error('Erro ao vincular equipamento:', erro);
+          this.snackBar.open('Nao foi possivel vincular o equipamento a solicitacao.', 'Fechar', { duration: 3000 });
+        }
+      });
     });
   }
 
@@ -205,6 +248,38 @@ export class PaginaAtribuirEquipamentoComponent implements AfterViewInit {
 
   private ehTipoEquipamento(tipo: string | null): tipo is TipoEquipamento {
     return this.tiposEquipamento.some((equipamento) => equipamento.valor === tipo);
+  }
+
+  private mapearDoacaoParaEquipamento(doacao: DoacaoDTO): EquipamentoDisponivel {
+    const equipamento = doacao.equipamento ?? null;
+    const tipo: TipoEquipamento = this.ehTipoEquipamento(equipamento) ? equipamento : 'COMPUTADOR';
+
+    return {
+      id: String(doacao.id),
+      nome: doacao.equipamento ?? 'Equipamento',
+      descricao: doacao.descricao ?? 'Sem descricao cadastrada.',
+      tipo,
+      imagem: this.montarImagemUrl(doacao.imagens?.[0]?.url ?? doacao.url) ?? 'https://placehold.co/160x100',
+      status: 'EM_ESTOQUE'
+    };
+  }
+
+  private montarImagemUrl(imagem?: string): string | null {
+    if (!imagem?.trim()) {
+      return null;
+    }
+
+    const valor = imagem.trim();
+
+    if (/^https?:\/\//.test(valor)) {
+      return valor;
+    }
+
+    if (valor.startsWith('/')) {
+      return `http://localhost:8080${valor}`;
+    }
+
+    return `http://localhost:8080/${valor}`;
   }
 
   private salvarEquipamentoAtribuido(equipamento: EquipamentoDisponivel): void {

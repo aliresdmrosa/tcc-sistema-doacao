@@ -268,7 +268,7 @@ public class SolicitacaoService {
             throw new IdNullException("Doação não encontrada com ID: " + doacaoId);
         }
 
-        List<Status> statusPermitidos = List.of(Status.APROVADO);
+        List<Status> statusPermitidos = List.of(Status.ESTOQUE);
         // Verifica se a doação está disponível para seleção
         if (!statusPermitidos.contains(doacaoEscolhida.getStatus())) {
             log.error("Doação com ID: {} não está disponível para seleção. Status atual: {}", doacaoId,
@@ -288,9 +288,11 @@ public class SolicitacaoService {
         historicoDoacao.setDoacao(doacaoEscolhida);
         doacaoEscolhida.getHistorico().add(historicoDoacao);
         doacaoEscolhida.setStatus(Status.VINCULADO);
+        doacaoEscolhida.setSolicitacao(solicitacao);
 
         // --- PARTE DA SOLICITAÇÃO ---
         solicitacao.getDoacoes().add(doacaoEscolhida);
+        solicitacao.setStatus(Status.VINCULADO);
 
         HistoricoSolicitacao h = new HistoricoSolicitacao();
         h.setDataAlteracao(LocalDateTime.now());
@@ -303,6 +305,7 @@ public class SolicitacaoService {
 
         solicitacao.getHistorico().add(h);
 
+        doacaoRepository.save(doacaoEscolhida);
         return solicitacaoRepository.save(solicitacao);
         } catch (Exception e) {
             throw new AprovarErroException("Erro ao vincular doacao a solicitacao");

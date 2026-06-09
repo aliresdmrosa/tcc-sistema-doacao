@@ -139,6 +139,11 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
     return this.statusNormalizado(this.doacao.status) !== 'PENDENTE';
   }
 
+  podeMarcarDoado(): boolean {
+    const status = this.statusNormalizado(this.doacao.status);
+    return status === 'VINCULADO' || status === 'VINCULADA';
+  }
+
   get imagemUrl(): string | null {
     const imagem = this.doacao.imagem?.trim();
 

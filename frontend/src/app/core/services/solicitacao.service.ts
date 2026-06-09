@@ -54,4 +54,8 @@ export class SolicitacaoService {
         return this.http.patch<void>(`${this.apiUrl}/pendente/${id}`, {});
     }
 
+    vincularDoacaoSolicitacao(solicitacaoId: number, doacaoId: number): Observable<SolicitacaoResponseDTO> {
+        return this.http.patch<SolicitacaoResponseDTO>(`${this.apiUrl}/${solicitacaoId}/selecionar-doacao`, doacaoId);
+    }
+
 }
