@@ -11,10 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { DoacaoService } from '../../../../core/services/doacao.service';
-import { ReparoService } from '../../../../core/services/reparo.service';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
@@ -40,10 +38,17 @@ interface DetalhesDoacaoAdmin {
   tipoItem: string;
   descricao: string;
   imagem: string;
+  imagensUrls: string[];
   estadoConservacao: string;
   status: StatusAnalise;
   dataCadastro: string;
   dataUltimaModificacao: string;
+}
+
+interface ImagemEdicao {
+  preview: string;
+  nome: string;
+  arquivo?: File;
 }
 
 @Component({
@@ -60,26 +65,19 @@ interface DetalhesDoacaoAdmin {
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatDialogModule
   ],
   templateUrl: './pagina-detalhes-doacao-admin.html',
   styleUrls: ['./pagina-detalhes-doacao-admin.css']
 })
 export class PaginaDetalhesDoacaoAdmin implements OnInit {
-marcarComoAprovadoReparo() {
-throw new Error('Method not implemented.');
-}
-marcarComoDoado() {
-throw new Error('Method not implemented.');
-}
+
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
   private doacaoService = inject(DoacaoService);
-  private reparoService = inject(ReparoService);
   private usuarioService = inject(UsuarioService);
 
   idDoacao = this.route.snapshot.paramMap.get('id');
@@ -103,11 +101,17 @@ throw new Error('Method not implemented.');
     tipoItem: '',
     descricao: '',
     imagem: '',
+    imagensUrls: [],
     estadoConservacao: '',
     status: 'PENDENTE',
     dataCadastro: '',
     dataUltimaModificacao: ''
   };
+
+  imagensEdicao: ImagemEdicao[] = [];
+  erroImagem = '';
+  private readonly tamanhoMaximoImagem = 5 * 1024 * 1024;
+  private readonly tiposImagemPermitidos = ['image/jpeg', 'image/png'];
 
   form = this.fb.group({
     nomeDoador: [{ value: this.doacao.nomeDoador, disabled: true }],
@@ -135,11 +139,6 @@ throw new Error('Method not implemented.');
     return this.statusNormalizado(this.doacao.status) !== 'PENDENTE';
   }
 
-  get podeMarcarEmEstoque(): boolean {
-    const status = this.statusNormalizado(this.doacao.status);
-    return status === 'APROVADO' || status === 'APROVADO_REPARO' || status === 'REPARO';
-  }
-
   get imagemUrl(): string | null {
     const imagem = this.doacao.imagem?.trim();
 
@@ -158,12 +157,21 @@ throw new Error('Method not implemented.');
     return `http://localhost:8080/${imagem}`;
   }
 
+  get imagensUrls(): string[] {
+    if (this.doacao.imagensUrls.length) {
+      return this.doacao.imagensUrls;
+    }
+
+    return this.imagemUrl ? [this.imagemUrl] : [];
+  }
+
   carregarDoacaoDaApi(): void {
     const id = Number(this.idDoacao);
 
     if (!id) {
-      this.snackBar.open('Doacao nao encontrada.', 'Fechar', { duration: 3000 });
-      this.voltar();
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error')
+        .afterClosed()
+        .subscribe(() => this.voltar());
       return;
     }
 
@@ -179,8 +187,9 @@ throw new Error('Method not implemented.');
       error: (erro) => {
         console.error('Erro ao carregar doacao:', erro);
         this.carregando = false;
-        this.snackBar.open('Erro ao carregar doacao.', 'Fechar', { duration: 3000 });
-        this.voltar();
+        // this.abrirModalAviso('Erro ao carregar doacao', 'Nao foi possivel carregar os dados da doacao.', 'error')
+        //   .afterClosed()
+        //   .subscribe(() => this.voltar());
       }
     });
   }
@@ -200,7 +209,7 @@ throw new Error('Method not implemented.');
     const cpf = this.doacao.cpf?.replace(/\D/g, '');
 
     if (!cpf) {
-      this.snackBar.open('CPF do doador nao encontrado.', 'Fechar', { duration: 3000 });
+      this.abrirModalAviso('CPF nao encontrado', 'Nao foi possivel identificar o CPF do doador.', 'warning');
       return;
     }
 
@@ -214,17 +223,68 @@ throw new Error('Method not implemented.');
       },
       error: (erro) => {
         console.error('Erro ao buscar doador por CPF:', erro);
-        this.snackBar.open('Doador nao encontrado pelo CPF.', 'Fechar', { duration: 3000 });
+        this.abrirModalAviso('Doador nao encontrado', 'Nao foi possivel encontrar o doador pelo CPF.', 'error');
       }
     });
   }
 
   editar(): void {
     this.dadosAntesDaEdicao = { ...this.doacao };
+    this.imagensEdicao = this.imagensUrls.map((url, indice) => ({
+      preview: url,
+      nome: `Imagem atual ${indice + 1}`
+    }));
+    this.erroImagem = '';
     this.modoEdicao = true;
     this.form.get('tipoItem')?.enable();
     this.form.get('descricao')?.enable();
     this.form.get('estadoConservacao')?.enable();
+  }
+
+  selecionarImagem(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const novosArquivos = Array.from(input.files);
+    this.erroImagem = '';
+
+    if (this.imagensEdicao.length + novosArquivos.length > 3) {
+      input.value = '';
+      this.erroImagem = 'Selecione no maximo 3 imagens.';
+      return;
+    }
+
+    if (novosArquivos.some((arquivo) => !this.tiposImagemPermitidos.includes(arquivo.type))) {
+      this.rejeitarImagem(input, 'Selecione imagens nos formatos JPG ou PNG.');
+      return;
+    }
+
+    if (novosArquivos.some((arquivo) => arquivo.size > this.tamanhoMaximoImagem)) {
+      this.rejeitarImagem(input, 'Selecione imagens de ate 5 MB cada.');
+      return;
+    }
+
+    novosArquivos.forEach((arquivo) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagensEdicao.push({
+          preview: reader.result as string,
+          nome: arquivo.name,
+          arquivo
+        });
+      };
+      reader.readAsDataURL(arquivo);
+    });
+
+    input.value = '';
+  }
+
+  removerImagem(indice: number): void {
+    this.imagensEdicao.splice(indice, 1);
+    this.erroImagem = '';
   }
 
   salvarEdicao(): void {
@@ -232,45 +292,81 @@ throw new Error('Method not implemented.');
     const id = Number(this.doacao.id);
 
     if (!id) {
-      this.snackBar.open('Doacao nao encontrada.', 'Fechar', { duration: 3000 });
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error');
       return;
     }
 
-    if (!this.imagemUrl) {
-      this.snackBar.open('Nao foi possivel atualizar: a API exige uma imagem.', 'Fechar', {
-        duration: 4000
-      });
+    if (!this.imagensEdicao.length) {
+      this.erroImagem = 'Mantenha ou selecione pelo menos uma imagem para atualizar.';
       return;
     }
+
+    const dialogCarregamento = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Atualizando doacao',
+        mensagem: 'Aguarde enquanto as alteracoes sao salvas.',
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
 
     this.acaoEmAndamento = true;
-    this.obterImagemAtualComoArquivo()
-      .then((imagem) => {
+    this.obterImagensEdicaoComoArquivos()
+      .then((imagens) => {
         this.doacaoService.atualizarDoacao(id, {
           equipamento: dados.tipoItem ?? '',
           descricao: dados.descricao ?? '',
           conservacao: dados.estadoConservacao ?? '',
-          imagem
+          imagens
         }).subscribe({
           next: () => {
             this.acaoEmAndamento = false;
             this.modoEdicao = false;
+            this.imagensEdicao = [];
             this.form.disable();
-            this.snackBar.open('Doacao atualizada com sucesso!', 'Fechar', { duration: 3000 });
+            dialogCarregamento.close();
+            this.dialog.open(DialogBaseComponent, {
+              width: '420px',
+              data: {
+                tipo: 'success',
+                titulo: 'Doacao atualizada',
+                mensagem: 'As informacoes da doacao foram atualizadas com sucesso.',
+                textoConfirmar: 'OK'
+              }
+            });
             this.carregarDoacaoDaApi();
           },
           error: (erro) => {
             console.error('Erro ao atualizar doacao:', erro);
             this.acaoEmAndamento = false;
-            this.snackBar.open('Erro ao atualizar doacao.', 'Fechar', { duration: 3000 });
+            dialogCarregamento.close();
+            this.dialog.open(DialogBaseComponent, {
+              width: '420px',
+              data: {
+                tipo: 'error',
+                titulo: 'Erro ao atualizar doacao',
+                mensagem: 'Nao foi possivel salvar as alteracoes. Tente novamente.',
+                textoConfirmar: 'OK'
+              }
+            });
           }
         });
       })
       .catch((erro) => {
         console.error('Erro ao carregar imagem atual:', erro);
         this.acaoEmAndamento = false;
-        this.snackBar.open('Nao foi possivel carregar a imagem atual para atualizar.', 'Fechar', {
-          duration: 4000
+        dialogCarregamento.close();
+        this.dialog.open(DialogBaseComponent, {
+          width: '420px',
+          data: {
+            tipo: 'error',
+            titulo: 'Erro ao preparar imagens',
+            mensagem: 'Nao foi possivel carregar as imagens selecionadas para atualizar.',
+            textoConfirmar: 'OK'
+          }
         });
       });
   }
@@ -282,16 +378,12 @@ throw new Error('Method not implemented.');
     }
 
     this.modoEdicao = false;
+    this.imagensEdicao = [];
+    this.erroImagem = '';
     this.form.disable();
   }
 
   marcarReparo(): void {
-    if (!this.podeMarcarReparo) {
-      this.snackBar.open('A doacao so pode ser marcada como reparo quando esta pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
 
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
@@ -299,7 +391,7 @@ throw new Error('Method not implemented.');
       data: {
         tipo: 'confirm',
         titulo: 'Enviar para reparo?',
-        mensagem: 'Confirme para criar um reparo e alterar o status desta doacao.',
+        mensagem: 'Confirme para alterar o status desta doacao para reparo.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -312,36 +404,29 @@ throw new Error('Method not implemented.');
       }
 
       this.acaoEmAndamento = true;
-      this.reparoService.salvarReparo(Number(this.doacao.id), 'Doacao enviada para reparo pelo administrador.').subscribe({
+      this.doacaoService.enviarDoacaoParaReparo(Number(this.doacao.id), 'Doacao enviada para reparo pelo administrador.').subscribe({
         next: () => {
           this.acaoEmAndamento = false;
-          this.snackBar.open('Doacao marcada como reparo.', 'Fechar', { duration: 3000 });
+          this.abrirModalAviso('Status alterado', 'A doacao foi enviada para reparo.', 'success');
           this.carregarDoacaoDaApi();
         },
         error: (erro) => {
-          console.error('Erro ao criar reparo:', erro);
+          console.error('Erro ao alterar status para reparo:', erro);
           this.acaoEmAndamento = false;
-          this.snackBar.open('Erro ao marcar doacao como reparo.', 'Fechar', { duration: 3000 });
+          this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel enviar a doacao para reparo.', 'error');
         }
       });
     });
   }
 
   marcarEmEstoque(): void {
-    if (!this.podeMarcarEmEstoque) {
-      this.snackBar.open('A doacao so pode ir para estoque depois de aprovada.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
         titulo: 'Mover para estoque?',
-        mensagem: 'Confirme para concluir o reparo aberto e mover a doacao para estoque.',
+        mensagem: 'Confirme para alterar o status desta doacao para estoque.',
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -353,7 +438,26 @@ throw new Error('Method not implemented.');
         return;
       }
 
-      this.concluirReparoAbertoComoEstoque();
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Movendo para estoque',
+        'Aguarde enquanto o status da doacao e atualizado.'
+      );
+
+      this.acaoEmAndamento = true;
+      this.doacaoService.enviarDoacaoParaEstoque(Number(this.doacao.id), 'Doacao enviada para estoque pelo administrador.').subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Doacao em estoque', 'A doacao foi movida para estoque.', 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status para estoque:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao mover doacao', 'Nao foi possivel mover a doacao para estoque.', 'error');
+        }
+      });
     });
   }
 
@@ -376,15 +480,76 @@ throw new Error('Method not implemented.');
   }
 
   reabrirAnalise(): void {
-    if (!this.podeReabrirAnalise) {
-      this.snackBar.open('A analise so pode ser reaberta quando a doacao nao esta pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Reabrir analise?',
+        mensagem: 'Confirme para alterar o status desta doacao para pendente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
 
-    this.snackBar.open('Nao existe endpoint para reabrir analise nesta tela.', 'Fechar', {
-      duration: 3500
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Reabrindo analise',
+        'Aguarde enquanto o status da doacao e atualizado.'
+      );
+
+      this.acaoEmAndamento = true;
+      this.doacaoService.enviarDoacaoParaPendente(Number(this.doacao.id), 'Analise reaberta pelo administrador.').subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Analise reaberta', 'A doacao voltou para o status pendente.', 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao reabrir analise:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao reabrir analise', 'Nao foi possivel alterar o status da doacao para pendente.', 'error');
+        }
+      });
+    });
+  }
+
+  marcarAprovadoReparo(): void {
+    this.confirmarAlteracaoStatusDireta({
+      tituloConfirmacao: 'Marcar como aprovado reparo?',
+      mensagemConfirmacao: 'Confirme para alterar o status desta doacao para aprovado reparo.',
+      tituloCarregamento: 'Atualizando status',
+      mensagemCarregamento: 'Aguarde enquanto a doacao e marcada como aprovado reparo.',
+      tituloSucesso: 'Doacao aprovada para reparo',
+      mensagemSucesso: 'A doacao foi marcada como aprovado reparo.',
+      mensagemErro: 'Nao foi possivel marcar a doacao como aprovado reparo.',
+      requisicao: (id) => this.doacaoService.enviarDoacaoParaAprovadoReparo(
+        id,
+        'Doacao marcada como aprovado reparo pelo administrador.'
+      )
+    });
+  }
+
+  marcarDoado(): void {
+    this.confirmarAlteracaoStatusDireta({
+      tituloConfirmacao: 'Marcar como doado?',
+      mensagemConfirmacao: 'Confirme para alterar o status desta doacao para doado.',
+      tituloCarregamento: 'Atualizando status',
+      mensagemCarregamento: 'Aguarde enquanto a doacao e marcada como doada.',
+      tituloSucesso: 'Doacao marcada como doada',
+      mensagemSucesso: 'A doacao foi marcada como doada.',
+      mensagemErro: 'Nao foi possivel marcar a doacao como doada.',
+      requisicao: (id) => this.doacaoService.enviarDoacaoParaDoado(
+        id,
+        'Doacao marcada como doada pelo administrador.'
+      )
     });
   }
 
@@ -409,12 +574,13 @@ throw new Error('Method not implemented.');
 
       this.doacaoService.deletarDoacao(Number(this.doacao.id)).subscribe({
         next: () => {
-          this.snackBar.open('Doacao excluida com sucesso!', 'Fechar', { duration: 3000 });
-          this.voltar();
+          this.abrirModalAviso('Doacao excluida', 'A doacao foi excluida com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.voltar());
         },
         error: (erro) => {
           console.error('Erro ao deletar doacao:', erro);
-          this.snackBar.open('Erro ao deletar doacao.', 'Fechar', { duration: 3000 });
+          this.abrirModalAviso('Erro ao excluir doacao', 'Nao foi possivel excluir a doacao.', 'error');
         }
       });
     });
@@ -449,8 +615,9 @@ throw new Error('Method not implemented.');
     switch (this.statusNormalizado(status)) {
       case 'APROVADA':
       case 'APROVADO':
-      case 'APROVADO_REPARO':
         return 'Aprovada';
+      case 'APROVADO_REPARO':
+        return 'Aprovada_Reparo'
       case 'REPROVADA':
       case 'REPROVADO':
         return 'Reprovada';
@@ -474,31 +641,35 @@ throw new Error('Method not implemented.');
   }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
-    if (!this.podeConcluirAnalise) {
-      this.snackBar.open('Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
     const id = Number(this.doacao.id);
+    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
     const requisicao =
-      this.statusNormalizado(status) === 'APROVADO'
+      statusAprovado
         ? this.doacaoService.aprovarDoacao(id, mensagem)
         : this.doacaoService.reprovarDoacao(id, mensagem);
+    const modalCarregamento = this.abrirModalCarregamento(
+      statusAprovado ? 'Aprovando doacao' : 'Reprovando doacao',
+      'Aguarde enquanto o status da doacao e atualizado.'
+    );
 
     this.acaoEmAndamento = true;
 
     requisicao.subscribe({
       next: () => {
         this.acaoEmAndamento = false;
-        this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
+        modalCarregamento.close();
+        this.abrirModalAviso(
+          statusAprovado ? 'Doacao aprovada' : 'Doacao reprovada',
+          mensagem,
+          'success'
+        );
         this.carregarDoacaoDaApi();
       },
       error: (erro) => {
         console.error('Erro ao alterar status da doacao:', erro);
         this.acaoEmAndamento = false;
-        this.snackBar.open('Erro ao alterar status da doacao.', 'Fechar', { duration: 3000 });
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da doacao.', 'error');
       }
     });
   }
@@ -509,10 +680,10 @@ throw new Error('Method not implemented.');
     status: StatusAnalise,
     mensagemSucesso: string
   ): void {
-    if (!this.podeConcluirAnalise) {
-      this.snackBar.open('Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'Fechar', {
-        duration: 3500
-      });
+    const statusAprovado = this.statusNormalizado(status) === 'APROVADO';
+
+    if (statusAprovado && !this.podeConcluirAnalise) {
+      this.abrirModalAviso('Acao indisponivel', 'Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'warning');
       return;
     }
 
@@ -538,6 +709,64 @@ throw new Error('Method not implemented.');
     });
   }
 
+  private confirmarAlteracaoStatusDireta(config: {
+    tituloConfirmacao: string;
+    mensagemConfirmacao: string;
+    tituloCarregamento: string;
+    mensagemCarregamento: string;
+    tituloSucesso: string;
+    mensagemSucesso: string;
+    mensagemErro: string;
+    requisicao: (id: number) => ReturnType<DoacaoService['enviarDoacaoParaDoado']>;
+  }): void {
+    const id = Number(this.doacao.id);
+
+    if (!id) {
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: config.tituloConfirmacao,
+        mensagem: config.mensagemConfirmacao,
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        config.tituloCarregamento,
+        config.mensagemCarregamento
+      );
+
+      this.acaoEmAndamento = true;
+      config.requisicao(id).subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso(config.tituloSucesso, config.mensagemSucesso, 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status da doacao:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao alterar status', config.mensagemErro, 'error');
+        }
+      });
+    });
+  }
+
   private preencherFormulario(): void {
     this.form.patchValue({
       nomeDoador: this.doacao.nomeDoador,
@@ -551,6 +780,9 @@ throw new Error('Method not implemented.');
 
   private mapearDoacaoApi(doacao: DoacaoDTO): DetalhesDoacaoAdmin {
     const primeiraImagem = doacao.imagens?.[0]?.url ?? doacao.url ?? '';
+    const imagensUrls = doacao.imagens
+      ?.map((imagem) => this.montarImagemUrl(imagem.url))
+      .filter((url): url is string => !!url) ?? [];
 
     return {
       id: String(doacao.id),
@@ -559,11 +791,30 @@ throw new Error('Method not implemented.');
       tipoItem: doacao.equipamento ?? '',
       descricao: doacao.descricao ?? '',
       imagem: primeiraImagem,
+      imagensUrls,
       estadoConservacao: doacao.statusConservacao ?? '',
       status: this.converterStatus(doacao.status),
       dataCadastro: this.formatarData(doacao.dataCadastro),
       dataUltimaModificacao: this.formatarData(doacao.dataAlteracaoStatus ?? doacao.dataCadastro)
     };
+  }
+
+  private montarImagemUrl(imagem: unknown): string | null {
+    if (typeof imagem !== 'string' || !imagem.trim()) {
+      return null;
+    }
+
+    const valor = imagem.trim();
+
+    if (/^https?:\/\//.test(valor)) {
+      return valor;
+    }
+
+    if (valor.startsWith('/')) {
+      return `http://localhost:8080${valor}`;
+    }
+
+    return `http://localhost:8080/${valor}`;
   }
 
   private converterStatus(status?: string): StatusAnalise {
@@ -615,13 +866,24 @@ throw new Error('Method not implemented.');
     return dataConvertida.toLocaleDateString('pt-BR');
   }
 
-  private async obterImagemAtualComoArquivo(): Promise<File> {
-    const url = this.imagemUrl;
+  private async obterImagensEdicaoComoArquivos(): Promise<File[]> {
+    const arquivos = await Promise.all(
+      this.imagensEdicao.map((imagem, indice) => this.obterImagemEdicaoComoArquivo(imagem, indice))
+    );
 
-    if (!url) {
-      throw new Error('Imagem atual nao encontrada.');
+    if (!arquivos.length || arquivos.length > 3) {
+      throw new Error('Quantidade de imagens invalida.');
     }
 
+    return arquivos;
+  }
+
+  private async obterImagemEdicaoComoArquivo(imagem: ImagemEdicao, indice: number): Promise<File> {
+    if (imagem.arquivo) {
+      return imagem.arquivo;
+    }
+
+    const url = imagem.preview;
     const resposta = await fetch(url);
 
     if (!resposta.ok) {
@@ -631,46 +893,44 @@ throw new Error('Method not implemented.');
     const blob = await resposta.blob();
     const extensao = blob.type.split('/')[1] || 'jpg';
 
-    return new File([blob], `doacao-${this.doacao.id}.${extensao}`, {
+    return new File([blob], `doacao-${this.doacao.id}-${indice + 1}.${extensao}`, {
       type: blob.type || 'image/jpeg'
     });
   }
 
-  private concluirReparoAbertoComoEstoque(): void {
-    this.acaoEmAndamento = true;
+  private rejeitarImagem(input: HTMLInputElement, mensagem: string): void {
+    input.value = '';
+    this.erroImagem = mensagem;
+  }
 
-    this.reparoService.listarReparosDoacao(Number(this.doacao.id)).subscribe({
-      next: (reparos) => {
-        const reparoAberto = [...reparos]
-          .reverse()
-          .find((reparo) => !reparo.dataFim);
-
-        if (!reparoAberto) {
-          this.acaoEmAndamento = false;
-          this.snackBar.open('Nao existe reparo aberto para concluir esta doacao.', 'Fechar', {
-            duration: 4000
-          });
-          return;
-        }
-
-        this.reparoService.concluirReparo(reparoAberto.id, 'Reparo concluido pelo administrador.').subscribe({
-          next: () => {
-            this.acaoEmAndamento = false;
-            this.snackBar.open('Doacao movida para estoque.', 'Fechar', { duration: 3000 });
-            this.carregarDoacaoDaApi();
-          },
-          error: (erro) => {
-            console.error('Erro ao concluir reparo:', erro);
-            this.acaoEmAndamento = false;
-            this.snackBar.open('Erro ao mover doacao para estoque.', 'Fechar', { duration: 3000 });
-          }
-        });
-      },
-      error: (erro) => {
-        console.error('Erro ao listar reparos da doacao:', erro);
-        this.acaoEmAndamento = false;
-        this.snackBar.open('Erro ao buscar reparos da doacao.', 'Fechar', { duration: 3000 });
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
       }
     });
   }
+
+  private abrirModalCarregamento(titulo: string, mensagem: string) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo,
+        mensagem,
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
+  }
+
 }

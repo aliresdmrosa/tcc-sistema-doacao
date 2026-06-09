@@ -67,6 +67,16 @@
         <span>Reabrir análise</span>
       </button>
 
+      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarDoado()">
+        <mat-icon>inventory_1</mat-icon>
+        <span>Doado</span>
+      </button>
+
+      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarAprovadoReparo()">
+        <mat-icon>check</mat-icon>
+        <span>Aprovado Reparo</span>
+      </button>
+
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
         <mat-icon>delete</mat-icon>
         <span>Deletar</span>
@@ -124,10 +134,81 @@
         <section class="bloco-formulario">
           <div class="titulo-bloco">
             <mat-icon>image</mat-icon>
-            <h2>Imagem do item</h2>
+            <h2>Imagens do item</h2>
           </div>
 
-          <div class="imagem-card">
+          <ng-container *ngIf="modoEdicao; else visualizacaoImagens">
+            <div class="upload-area">
+              <label class="botao-upload" [class.desabilitado]="imagensEdicao.length >= 3">
+                <input
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                  (change)="selecionarImagem($event)"
+                  [disabled]="imagensEdicao.length >= 3"
+                  hidden
+                />
+                <mat-icon>upload</mat-icon>
+                Adicionar imagens
+              </label>
+
+              <span class="nome-arquivo">
+                {{ imagensEdicao.length }} de 3 imagem(ns) selecionada(s)
+              </span>
+            </div>
+
+            <p class="texto-ajuda-upload">
+              Mantenha ou selecione de 1 a 3 imagens JPG ou PNG de ate 5 MB cada.
+            </p>
+
+            <div class="mensagem-erro" *ngIf="erroImagem">
+              {{ erroImagem }}
+            </div>
+
+            <div class="imagens-grid" *ngIf="imagensEdicao.length; else imagemPlaceholderAdminEdicao">
+              <div class="imagem-edicao" *ngFor="let imagem of imagensEdicao; let indice = index">
+                <img
+                  [src]="imagem.preview"
+                  [alt]="'Imagem ' + (indice + 1) + ' do item doado'"
+                  class="imagem-item"
+                />
+
+                <span class="nome-arquivo">{{ imagem.nome }}</span>
+
+                <button type="button" mat-stroked-button color="warn" (click)="removerImagem(indice)">
+                  <mat-icon>delete</mat-icon>
+                  Remover
+                </button>
+              </div>
+            </div>
+
+            <ng-template #imagemPlaceholderAdminEdicao>
+              <div class="imagem-preview">
+                <mat-icon>image</mat-icon>
+                <span>Nenhuma imagem selecionada</span>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-template #visualizacaoImagens>
+            <div class="imagens-grid" *ngIf="imagensUrls.length; else imagemPlaceholderAdmin">
+              <img
+                *ngFor="let imagemUrl of imagensUrls; let indice = index"
+                [src]="imagemUrl"
+                [alt]="'Imagem ' + (indice + 1) + ' do item doado'"
+                class="imagem-item"
+              />
+            </div>
+          </ng-template>
+
+          <ng-template #imagemPlaceholderAdmin>
+            <div class="imagem-preview">
+              <mat-icon>image</mat-icon>
+              <span>Imagem nÃ£o informada</span>
+            </div>
+          </ng-template>
+
+          <div class="imagem-card" *ngIf="false">
             <img
               *ngIf="imagemUrl; else imagemPlaceholderAdmin"
               [src]="imagemUrl"
@@ -135,7 +216,7 @@
               class="imagem-item"
             />
 
-            <ng-template #imagemPlaceholderAdmin>
+            <ng-template #imagemPlaceholderAdminAntigo>
               <div class="imagem-preview">
                 <mat-icon>image</mat-icon>
                 <span>Imagem não informada</span>

@@ -9,7 +9,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
@@ -46,8 +45,7 @@ interface TecnicoDetalhes {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule,
-    MatSnackBarModule
+    MatSelectModule
   ],
   templateUrl: './pagina-detalhes-tecnico.html',
   styleUrls: ['./pagina-detalhes-tecnico.css']
@@ -56,7 +54,6 @@ export class PaginaDetalhesTecnico implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private usuarioService = inject(UsuarioService);
 
@@ -186,9 +183,6 @@ export class PaginaDetalhesTecnico implements OnInit {
 
     console.log('Técnico atualizado:', this.tecnico);
 
-    this.snackBar.open('Aluno técnico atualizado com sucesso!', 'Fechar', {
-      duration: 3000
-    });
 
     this.carregando = false;
     this.modoEdicao = false;
@@ -228,12 +222,12 @@ export class PaginaDetalhesTecnico implements OnInit {
         next: () => {
           this.tecnico.ativo = false;
           this.buscarTecnicoDaApi();
-          this.snackBar.open('Perfil desativado com sucesso!', 'Fechar', { duration: 3000 });
+          this.abrirModalAviso('Perfil desativado', 'O perfil foi desativado com sucesso.', 'success');
           this.acaoPerfilEmAndamento = false;
         },
         error: (erro) => {
           console.error('Erro ao desativar perfil:', erro);
-          this.snackBar.open('Erro ao desativar perfil.', 'Fechar', { duration: 3000 });
+          this.abrirModalAviso('Erro ao desativar perfil', this.mensagemErroPerfil(erro, 'desativar'), 'error');
           this.acaoPerfilEmAndamento = false;
         }
       });
@@ -251,12 +245,12 @@ export class PaginaDetalhesTecnico implements OnInit {
       next: () => {
         this.tecnico.ativo = true;
         this.buscarTecnicoDaApi();
-        this.snackBar.open('Perfil reativado com sucesso!', 'Fechar', { duration: 3000 });
+        this.abrirModalAviso('Perfil reativado', 'O perfil foi reativado com sucesso.', 'success');
         this.acaoPerfilEmAndamento = false;
       },
       error: (erro) => {
         console.error('Erro ao reativar perfil:', erro);
-        this.snackBar.open('Erro ao reativar perfil.', 'Fechar', { duration: 3000 });
+        this.abrirModalAviso('Erro ao reativar perfil', this.mensagemErroPerfil(erro, 'reativar'), 'error');
         this.acaoPerfilEmAndamento = false;
       }
     });
@@ -290,18 +284,14 @@ export class PaginaDetalhesTecnico implements OnInit {
 
       this.usuarioService.desativarPerfil(this.tecnico.id).subscribe({
         next: () => {
-          this.snackBar.open('Perfil excluído permanentemente!', 'Fechar', {
-            duration: 3000
-          });
+          this.abrirModalAviso('Perfil desativado', 'O perfil foi desativado com sucesso.', 'success');
 
           this.tecnico.ativo = false;
           this.acaoPerfilEmAndamento = false;
         },
         error: (erro) => {
           console.error('Erro ao excluir perfil:', erro);
-          this.snackBar.open('Erro ao excluir perfil.', 'Fechar', {
-            duration: 3000
-          });
+          this.abrirModalAviso('Erro ao desativar perfil', 'Nao foi possivel desativar este perfil.', 'error');
           this.acaoPerfilEmAndamento = false;
         }
       });
@@ -325,5 +315,33 @@ export class PaginaDetalhesTecnico implements OnInit {
   aplicarMascaraGrr(): void {
     const campo = this.tecnicoForm.get('grr');
     campo?.setValue(normalizarGrr(campo.value), { emitEvent: false });
+  }
+
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
+      }
+    });
+  }
+
+  private mensagemErroPerfil(erro: any, acao: 'desativar' | 'reativar'): string {
+    if (erro?.status === 403) {
+      return 'Seu usuario nao tem permissao para alterar este perfil.';
+    }
+
+    if (erro?.error?.message) {
+      return erro.error.message;
+    }
+
+    return `Nao foi possivel ${acao} este perfil.`;
   }
 }
