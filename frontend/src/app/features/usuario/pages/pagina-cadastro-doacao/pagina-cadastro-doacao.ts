@@ -12,7 +12,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { Doacao } from '../../../../core/models/doacao.mode';
 import { DoacaoService } from '../../../../core/services/doacao.service';
-import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { abrirModalAviso, abrirModalCarregamento } from '../../../../shared/utils/modal-feedback';
 
 @Component({
   selector: 'app-pagina-cadastro-doacao',
@@ -119,11 +119,14 @@ export class PaginaCadastroDoacao {
   confirmar(formDirective: FormGroupDirective): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      abrirModalAviso(
+        this.dialog,
+        'Dados incompletos',
+        'Preencha os campos obrigatorios e selecione pelo menos uma imagem.',
+        'warning'
+      );
       return;
     }
-
-    const payload = this.form.value;
-    console.log('Dados da doação:', payload);
 
     const dadosDoacao: Doacao = {
       equipamento: this.form.value.tipoItem!,
@@ -132,32 +135,32 @@ export class PaginaCadastroDoacao {
       imagens: this.form.value.imagens!
     };
 
+    const modalCarregamento = abrirModalCarregamento(
+      this.dialog,
+      'Registrando doacao',
+      'Aguarde enquanto sua doacao e enviada para avaliacao.'
+    );
+
     this.doacaoService.cadastrarDoacao(dadosDoacao).subscribe({
-      next: (doacao) => {
-        console.log('Doação cadastrada com sucesso:', doacao);
-        this.dialog.open(DialogBaseComponent, {
-          width: '420px',
-          disableClose: true,
-          data: {
-            tipo: 'success',
-            titulo: 'Doação registrada com sucesso aguardando avaliação',
-            mensagem: '',
-            mostrarConfirmar: false
-          }
-        });
+      next: () => {
+        modalCarregamento.close();
+        abrirModalAviso(
+          this.dialog,
+          'Doacao registrada',
+          'Sua doacao foi registrada com sucesso e esta aguardando avaliacao.',
+          'success'
+        );
         this.resetarFormulario(formDirective);
       },
       error: (error) => {
         console.error('Erro ao cadastrar doação:', error);
-        this.dialog.open(DialogBaseComponent, {
-          width: '420px',
-          data: {
-            tipo: 'error',
-            titulo: 'Erro ao cadastrar doação',
-            mensagem: 'Não foi possível registrar sua doação. Tente novamente.',
-            textoConfirmar: 'OK'
-          }
-        });
+        modalCarregamento.close();
+        abrirModalAviso(
+          this.dialog,
+          'Erro ao cadastrar doacao',
+          'Nao foi possivel registrar sua doacao. Tente novamente.',
+          'error'
+        );
       }
     });
   }
