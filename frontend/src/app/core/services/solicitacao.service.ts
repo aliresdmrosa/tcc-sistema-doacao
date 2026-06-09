@@ -38,4 +38,16 @@ export class SolicitacaoService {
         return this.http.get<SolicitacaoResponseDTO>(`${this.apiUrl}/${id}`);
     }
 
+    atualizarSolicitacao(id: number, dados: SolicitacaoDTO): Observable<SolicitacaoResponseDTO> {
+        return this.http.patch<SolicitacaoResponseDTO>(`${this.apiUrl}/${id}`, dados);
+    }
+
+    aprovarSolicitacao(id: number): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovar/${id}`, {});
+    }
+
+    reprovarSolicitacao(id: number): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, {});
+    }
+
 }

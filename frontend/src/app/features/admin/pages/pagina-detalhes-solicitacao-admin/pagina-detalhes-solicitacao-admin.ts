@@ -13,12 +13,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
-import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
-import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
 
-type StatusAnalise = 'PENDENTE' | 'APROVADA' | 'REPROVADA' | 'VINCULADA' | 'DOADO';
+type StatusAnalise = 'PENDENTE' | 'APROVADO' | 'APROVADA' | 'REPROVADO' | 'REPROVADA' | 'VINCULADO' | 'VINCULADA' | 'DOADO';
 
 interface DetalhesSolicitacaoAdmin {
   id: number;
@@ -134,7 +135,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
     this.serviceSolicitacao.obterSolicitacaoPorId(id).subscribe({
       next: (solicitacao) => {
         this.solicitacao = this.mapearSolicitacaoApi(solicitacao);
-        console.log("solicitacao da api nome:", solicitacao)
         this.preencherFormulario();
         this.form.disable();
         this.carregando = false;
@@ -225,9 +225,54 @@ export class PaginaDetalhesSolicitacaoAdmin {
     this.dadosAntesDaEdicao = { ...this.solicitacao };
     this.modoEdicao = true;
     this.form.enable();
+    this.form.get('nomeSolicitante')?.disable();
   }
 
   salvarEdicao(): void {
+    const id = this.obterIdSolicitacaoValido();
+    if (!id) {
+      return;
+    }
+
+    const dadosAtualizacao = this.form.getRawValue();
+    const payload: SolicitacaoDTO = {
+      equipamento: dadosAtualizacao.equipamentoSolicitado ?? '',
+      curso: dadosAtualizacao.curso ?? '',
+      grr: dadosAtualizacao.grr ?? '',
+      motivo: dadosAtualizacao.justificativa ?? '',
+      semComputador: !!dadosAtualizacao.declaracaoComputador,
+      ativo: !!dadosAtualizacao.declaracaoMatricula
+    };
+
+    const modalCarregamento = this.abrirModalCarregamento(
+      'Salvando solicitacao',
+      'Aguarde enquanto as alteracoes sao salvas.'
+    );
+
+    this.carregando = true;
+    this.serviceSolicitacao.atualizarSolicitacao(id, payload).subscribe({
+      next: (solicitacaoAtualizada) => {
+        this.solicitacao = this.mapearSolicitacaoApi({
+          ...solicitacaoAtualizada,
+          nome: this.solicitacao.nomeSolicitante,
+          cpf: this.solicitacao.cpf
+        });
+        this.preencherFormulario();
+        this.modoEdicao = false;
+        this.form.disable();
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Solicitacao atualizada', 'A solicitacao foi atualizada com sucesso.', 'success');
+      },
+      error: (erro) => {
+        console.error('Erro ao atualizar solicitacao:', erro);
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao atualizar solicitacao', 'Nao foi possivel salvar as alteracoes.', 'error');
+      }
+    });
+    return;
+
     const dados = this.form.getRawValue();
 
     this.solicitacao = {
@@ -283,6 +328,40 @@ export class PaginaDetalhesSolicitacaoAdmin {
         return;
       }
 
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Aprovando solicitacao',
+        'Aguarde enquanto a solicitacao e aprovada.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.aprovarSolicitacao(id).subscribe({
+        next: () => {
+          this.solicitacao = {
+            ...this.solicitacao,
+            status: 'APROVADO',
+            dataUltimaModificacao: this.obterDataAtual()
+          };
+          this.preencherFormulario();
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Solicitacao aprovada', 'A solicitacao foi aprovada com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.atribuirEquipamento());
+        },
+        error: (erro) => {
+          console.error('Erro ao aprovar solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao aprovar solicitacao', 'Nao foi possivel aprovar a solicitacao.', 'error');
+        }
+      });
+      return;
+
       this.solicitacao = {
         ...this.solicitacao,
         status: 'APROVADA',
@@ -305,6 +384,13 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   reabrirAnalise(): void {
+    this.abrirModalAviso(
+      'Acao indisponivel',
+      'Ainda nao existe endpoint no backend para reabrir a analise da solicitacao.',
+      'warning'
+    );
+    return;
+
     if (!this.podeReabrirAnalise) {
       this.snackBar.open('A análise só pode ser reaberta quando a solicitação não está pendente.', 'Fechar', {
         duration: 3500
@@ -351,6 +437,53 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   deletar(): void {
+    const dialogConfirmacao = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Deseja excluir esta solicitacao?',
+        mensagem: 'Essa acao sera permanente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogConfirmacao.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Excluindo solicitacao',
+        'Aguarde enquanto a solicitacao e excluida.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.excluirSolicitacao(id).subscribe({
+        next: () => {
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Solicitacao excluida', 'A solicitacao foi excluida com sucesso.', 'success')
+            .afterClosed()
+            .subscribe(() => this.voltar());
+        },
+        error: (erro) => {
+          console.error('Erro ao excluir solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao excluir solicitacao', 'Nao foi possivel excluir a solicitacao.', 'error');
+        }
+      });
+    });
+    return;
+
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
@@ -394,10 +527,13 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   obterTextoStatus(status: string): string {
     switch (status?.toUpperCase()) {
+      case 'APROVADO':
       case 'APROVADA':
         return 'Aprovada';
+      case 'REPROVADO':
       case 'REPROVADA':
         return 'Reprovada';
+      case 'VINCULADO':
       case 'VINCULADA':
         return 'Vinculada';
       case 'DOADO':
@@ -410,6 +546,42 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
+    const id = this.obterIdSolicitacaoValido();
+    if (!id) {
+      return;
+    }
+
+    const statusNormalizado = this.statusNormalizado(status);
+    const requisicao = statusNormalizado === 'REPROVADA' || statusNormalizado === 'REPROVADO'
+      ? this.serviceSolicitacao.reprovarSolicitacao(id)
+      : this.serviceSolicitacao.aprovarSolicitacao(id);
+    const modalCarregamento = this.abrirModalCarregamento(
+      'Atualizando solicitacao',
+      'Aguarde enquanto o status da solicitacao e atualizado.'
+    );
+
+    this.carregando = true;
+    requisicao.subscribe({
+      next: () => {
+        this.solicitacao = {
+          ...this.solicitacao,
+          status,
+          dataUltimaModificacao: this.obterDataAtual()
+        };
+        this.preencherFormulario();
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Status atualizado', mensagem, 'success');
+      },
+      error: (erro) => {
+        console.error('Erro ao alterar status da solicitacao:', erro);
+        this.carregando = false;
+        modalCarregamento.close();
+        this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da solicitacao.', 'error');
+      }
+    });
+    return;
+
     if (!this.podeConcluirAnalise) {
       this.snackBar.open('Esta ação só pode ser feita quando a solicitação está pendente.', 'Fechar', {
         duration: 3500
@@ -516,6 +688,47 @@ export class PaginaDetalhesSolicitacaoAdmin {
 
   private obterDataAtual(): string {
     return new Date().toLocaleDateString('pt-BR');
+  }
+
+  private obterIdSolicitacaoValido(): number | null {
+    const id = Number(this.solicitacao.id || this.idSolicitacao);
+
+    if (!id) {
+      this.abrirModalAviso('Solicitacao nao encontrada', 'Nao foi possivel identificar a solicitacao selecionada.', 'error');
+      return null;
+    }
+
+    return id;
+  }
+
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
+      }
+    });
+  }
+
+  private abrirModalCarregamento(titulo: string, mensagem: string) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo,
+        mensagem,
+        mostrarConfirmar: false,
+        carregando: true
+      }
+    });
   }
 
   private obterDataUltimaModificacao(solicitacao: SolicitacaoResponseDTO): string {
