@@ -59,6 +59,11 @@
         <span>Reabrir análise</span>
       </button>
 
+      <button mat-menu-item [disabled]="modoEdicao || !podeVincular" (click)="atribuirEquipamento()">
+        <mat-icon>link</mat-icon>
+        <span>Vincular</span>
+      </button>
+
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
         <mat-icon>delete</mat-icon>
         <span>Deletar</span>
