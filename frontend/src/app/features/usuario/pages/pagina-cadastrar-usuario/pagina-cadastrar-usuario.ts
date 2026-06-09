@@ -1,13 +1,13 @@
 ﻿import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
 import { SENHA_FORTE_REGEX, apenasNumeros, formatarCpf } from '../../../../shared/utils/form-validations';
@@ -33,6 +33,7 @@ export class PaginaCadastrarUsuario {
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuarioService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   carregando = false;
   ocultarSenha = true;
@@ -44,7 +45,7 @@ export class PaginaCadastrarUsuario {
     senha: ['', [Validators.required, Validators.pattern(SENHA_FORTE_REGEX)]]
   });
 
-  salvar(): void {
+  salvar(formDirective: FormGroupDirective): void {
     if (this.cadastroForm.invalid) {
       this.cadastroForm.markAllAsTouched();
       return;
@@ -64,8 +65,9 @@ export class PaginaCadastrarUsuario {
         this.snackBar.open('Usuário cadastrado com sucesso!', 'Fechar', {
           duration: 3000
         });
-        this.cadastroForm.reset();
+        formDirective.resetForm();
         this.carregando = false;
+        this.router.navigate(['/']);
       },
       error: (erro) => {
         console.error('Erro ao cadastrar usuário:', erro);

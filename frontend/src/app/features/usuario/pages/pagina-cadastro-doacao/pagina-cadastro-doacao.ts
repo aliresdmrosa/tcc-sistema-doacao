@@ -1,6 +1,6 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -37,6 +37,7 @@ export class PaginaCadastroDoacao {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private doacaoService = inject(DoacaoService);
+  private changeDetector = inject(ChangeDetectorRef);
 
   imagensPreview: string[] = [];
   nomesArquivos: string[] = [];
@@ -96,7 +97,10 @@ export class PaginaCadastroDoacao {
     this.nomesArquivos = imagens.map((arquivo) => arquivo.name);
     novosArquivos.forEach((arquivo) => {
       const reader = new FileReader();
-      reader.onload = () => this.imagensPreview.push(reader.result as string);
+      reader.onload = () => {
+        this.imagensPreview = [...this.imagensPreview, reader.result as string];
+        this.changeDetector.detectChanges();
+      };
       reader.readAsDataURL(arquivo);
     });
     input.value = '';
@@ -112,7 +116,7 @@ export class PaginaCadastroDoacao {
     this.form.get('imagens')?.setErrors(imagens.length ? null : { required: true });
   }
 
-  confirmar(): void {
+  confirmar(formDirective: FormGroupDirective): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -141,7 +145,7 @@ export class PaginaCadastroDoacao {
             mostrarConfirmar: false
           }
         });
-        this.resetarFormulario();
+        this.resetarFormulario(formDirective);
       },
       error: (error) => {
         console.error('Erro ao cadastrar doação:', error);
@@ -158,8 +162,8 @@ export class PaginaCadastroDoacao {
     });
   }
 
-  private resetarFormulario(): void {
-    this.form.reset({
+  private resetarFormulario(formDirective: FormGroupDirective): void {
+    formDirective.resetForm({
       tipoItem: '',
       descricao: '',
       estadoConservacao: 'USADO',
@@ -170,8 +174,8 @@ export class PaginaCadastroDoacao {
     this.erroImagem = '';
   }
 
-  cancelar(): void {
-    this.resetarFormulario();
+  cancelar(formDirective: FormGroupDirective): void {
+    this.resetarFormulario(formDirective);
   }
 
   get tipoItem() {

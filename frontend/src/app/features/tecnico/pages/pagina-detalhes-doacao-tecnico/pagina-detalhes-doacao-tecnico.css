@@ -28,6 +28,10 @@
 .topo-pagina {
   max-width: 600px;
   margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .topo-pagina h1 {
@@ -154,9 +158,18 @@ mat-form-field {
   background: #ede4fb;
 }
 
+.acao-perigo mat-icon,
+.acao-perigo span {
+  color: #b42318;
+}
+
 @media (max-width: 768px) {
   .pagina-doacao {
     padding: 20px;
+  }
+
+  .topo-pagina {
+    flex-direction: column;
   }
 
   .acoes-formulario {

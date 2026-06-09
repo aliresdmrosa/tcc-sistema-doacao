@@ -15,6 +15,8 @@ import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise =
   | 'PENDENTE'
@@ -128,6 +130,10 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
 
   get podeMarcarReparo(): boolean {
     return this.statusNormalizado(this.doacao.status) === 'PENDENTE';
+  }
+
+  get podeMarcarReparo(): boolean {
+    return this.podeAprovarParaReparo;
   }
 
   get podeConcluirAnalise(): boolean {
@@ -484,6 +490,31 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
     );
   }
 
+  aprovarParaReparo(): void {
+    this.confirmarAlteracaoStatus(
+      'Aprovar para reparo?',
+      'Confirme para alterar o status desta doacao para aprovada para reparo.',
+      'APROVADO_REPARO',
+      'Doacao aprovada para reparo com sucesso!'
+    );
+  }
+
+  entregar(): void {
+    if (!this.podeMarcarEntregue) {
+      this.snackBar.open('A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.', 'Fechar', {
+        duration: 3500
+      });
+      return;
+    }
+
+    this.confirmarAlteracaoStatus(
+      'Marcar como entregue?',
+      'Confirme que o equipamento foi entregue.',
+      'ENTREGUE',
+      'Doacao marcada como entregue!'
+    );
+  }
+
   reabrirAnalise(): void {
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
@@ -608,6 +639,7 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       case 'VINCULADA':
       case 'VINCULADO':
       case 'DOADO':
+      case 'ENTREGUE':
         return 'status-entregue';
       case 'PENDENTE':
         return 'status-pendente';
@@ -631,6 +663,8 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       case 'EM_ESTOQUE':
       case 'ESTOQUE':
         return 'Em estoque';
+      case 'ENTREGUE':
+        return 'Entregue';
       case 'VINCULADA':
       case 'VINCULADO':
         return 'Vinculada';
@@ -643,6 +677,14 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
       default:
         return status;
     }
+  }
+
+  private podeExecutarAlteracaoStatus(status: StatusAnalise): boolean {
+    if (status === 'ENTREGUE') {
+      return this.podeMarcarEntregue;
+    }
+
+    return this.podeConcluirAnalise;
   }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
@@ -677,6 +719,21 @@ export class PaginaDetalhesDoacaoAdmin implements OnInit {
         this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da doacao.', 'error');
       }
     });
+  }
+
+  private obterRequisicaoAlteracaoStatus(id: number, status: StatusAnalise, motivo: string) {
+    switch (status) {
+      case 'APROVADO':
+        return this.doacaoService.aprovarDoacao(id, motivo);
+      case 'APROVADO_REPARO':
+        return this.doacaoService.aprovarDoacaoParaReparo(id, motivo);
+      case 'REPROVADO':
+        return this.doacaoService.reprovarDoacao(id, motivo);
+      case 'ENTREGUE':
+        return this.doacaoService.entregarDoacao(id, motivo);
+      default:
+        return null;
+    }
   }
 
   private confirmarAlteracaoStatus(

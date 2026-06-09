@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { timeout } from 'rxjs';
 import { ReparoService } from '../../../../core/services/reparo.service';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 interface HistoricoReparo {
   id: string;
@@ -43,6 +44,7 @@ interface HistoricoReparo {
 })
 export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private reparoService = inject(ReparoService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -60,6 +62,7 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   termoPesquisa = '';
   carregando = false;
   erroAoCarregar = false;
+  idTecnicoAdmin = Number(this.route.snapshot.paramMap.get('id'));
   private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -77,7 +80,11 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
     this.erroAoCarregar = false;
     this.iniciarTimeoutCarregamento();
 
-    this.reparoService.listarReparoTecnico().pipe(timeout(5000)).subscribe({
+    const requisicao = this.idTecnicoAdmin
+      ? this.reparoService.listarReparoTecnicoPorId(this.idTecnicoAdmin)
+      : this.reparoService.listarReparoTecnico();
+
+    requisicao.pipe(timeout(5000)).subscribe({
       next: (dados) => {
         this.limparTimeoutCarregamento();
         console.log('Dados do historico de reparos:', dados);
@@ -118,6 +125,10 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   limparPesquisa(): void {
     this.termoPesquisa = '';
     this.dataSource.filter = '';
+  }
+
+  formatarData(data: unknown): string {
+    return formatarDataBr(data);
   }
 
   verDetalhes(historico: HistoricoReparo): void {

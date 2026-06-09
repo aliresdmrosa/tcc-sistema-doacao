@@ -10,7 +10,7 @@ export const perfilGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const perfisPermitidos = route.data['perfisPermitidos'] as string[] | undefined;
 
   if (!perfilUsuario) {
-    router.navigate(['/login']);
+    router.navigate(['/']);
     return false;
   }
 

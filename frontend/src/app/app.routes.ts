@@ -52,6 +52,7 @@ export const routes: Routes = [
     path: '',
     component: LayoutAutenticacao,
     children: [
+      { path: '', component: PaginaLogin, pathMatch: 'full' },
       { path: 'login', component: PaginaLogin },
       { path: 'cadastro', component: PaginaCadastrarUsuario },
       { path: 'redefinir-senha', component: PaginaRedefinirSenha },
@@ -86,6 +87,12 @@ export const routes: Routes = [
       {
         path: 'admin/usuarios/:id',
         component: PaginaDetalhesUsuario,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/tecnicos/:id/historico',
+        component: PaginaHistoricoReparosComponent,
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },

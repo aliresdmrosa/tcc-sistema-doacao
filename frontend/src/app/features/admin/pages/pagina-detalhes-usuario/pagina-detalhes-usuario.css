@@ -33,6 +33,12 @@
   color: #2f2347;
 }
 
+.topo-pagina p {
+  margin: 12px 0 0;
+  color: #6f6487;
+  font-size: 0.95rem;
+}
+
 .conteudo {
   max-width: 1080px;
   margin: 0 auto;
@@ -205,10 +211,6 @@ mat-form-field {
   color: #7a718f;
   display: flex;
   align-items: center;
-}
-
-.campo-data {
-  margin-bottom: 0;
 }
 
 @media (max-width: 1100px) {

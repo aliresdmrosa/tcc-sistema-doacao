@@ -1,6 +1,6 @@
 ﻿import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -53,7 +53,7 @@ export class PaginaCadastrarTecnico {
     this.router.navigate(['/admin/usuarios']);
   }
 
-  salvar(): void {
+  salvar(formDirective: FormGroupDirective): void {
     if (this.tecnicoForm.invalid) {
       this.tecnicoForm.markAllAsTouched();
       return;
@@ -76,7 +76,7 @@ export class PaginaCadastrarTecnico {
           duration: 3000
         });
 
-        this.tecnicoForm.reset();
+        this.resetarFormulario(formDirective);
         this.definirCarregando(false);
 
         this.router.navigate(['/admin/usuarios']);
@@ -103,10 +103,12 @@ export class PaginaCadastrarTecnico {
     });
   }
 
-  cancelar(): void {
-    this.tecnicoForm.reset();
-    this.tecnicoForm.markAsPristine();
-    this.tecnicoForm.markAsUntouched();
+  cancelar(formDirective: FormGroupDirective): void {
+    this.resetarFormulario(formDirective);
+  }
+
+  private resetarFormulario(formDirective: FormGroupDirective): void {
+    formDirective.resetForm();
     this.ocultarSenha = true;
   }
 

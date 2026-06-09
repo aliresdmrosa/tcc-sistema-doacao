@@ -58,6 +58,10 @@ export class DoacaoService {
         return this.http.patch<void>(`${this.apiUrl}/aprovar/${id}`, { motivo });
     }
 
+    aprovarDoacaoParaReparo(id: number, motivo: string): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/aprovar-reparo/${id}`, { motivo });
+    }
+
     reprovarDoacao(id: number, motivo: string): Observable<void> {
         return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, { motivo });
     }

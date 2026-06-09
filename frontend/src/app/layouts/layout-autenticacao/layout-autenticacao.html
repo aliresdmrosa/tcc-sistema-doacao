@@ -1,5 +1,8 @@
-<div class="layout-auth">
-  <main class="auth-content">
-    <router-outlet></router-outlet>
-  </main>
+<div class="layout-auth" [class.layout-auth--lateral]="usarLayoutLateral()">
+  <section class="auth-body">
+    <aside class="auth-visual" aria-hidden="true"></aside>
+    <main class="auth-content">
+      <router-outlet></router-outlet>
+    </main>
+  </section>
 </div>

@@ -8,8 +8,8 @@
       <h1>Detalhes da doação #{{ doacao.id }}</h1>
 
       <div class="datas">
-        <p>Data do cadastro: {{ doacao.dataCadastro }}</p>
-        <p>Última modificação em: {{ doacao.dataUltimaModificacao }}</p>
+        <p>Data do cadastro: {{ formatarData(doacao.dataCadastro) }}</p>
+        <p>Última modificação em: {{ formatarData(doacao.dataUltimaModificacao) }}</p>
         <span class="badge-status" [ngClass]="obterClasseStatus(doacao.status)">
           {{ obterTextoStatus(doacao.status) }}
         </span>
@@ -17,7 +17,6 @@
     </div>
 
     <button mat-raised-button color="primary" [matMenuTriggerFor]="menuAcoes">
-      <mat-icon>more_vert</mat-icon>
       Ações
     </button>
 
@@ -40,7 +39,7 @@
       <!-- [disabled]="modoEdicao || !podeMarcarReparo" -->
       <button mat-menu-item  (click)="marcarReparo()">
         <mat-icon>build</mat-icon>
-        <span>Reparo</span>
+        <span>Aprovar para reparo</span>
       </button>
 
       <!-- [disabled]="modoEdicao || !podeConcluirAnalise" -->
@@ -58,7 +57,7 @@
       <!-- [disabled]="modoEdicao || !podeMarcarEmEstoque" -->
       <button mat-menu-item  (click)="marcarEmEstoque()">
         <mat-icon>inventory_2</mat-icon>
-        <span>Em estoque</span>
+        <span>Entregue</span>
       </button>
 
       <!-- [disabled]="modoEdicao || !podeReabrirAnalise" -->
@@ -243,3 +242,4 @@
   </mat-card>
 
 </div>
+

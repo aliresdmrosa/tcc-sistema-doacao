@@ -5,6 +5,7 @@
 
   <div class="topo-pagina">
     <h1>Detalhes do Usuário #{{ usuario.id }}</h1>
+    <p>Data do cadastro: {{ formatarDataCadastro(usuario.dataCadastro) }}</p>
   </div>
 
   <div class="conteudo">
@@ -172,17 +173,6 @@
               <p>{{ solicitacao.equipamento }} • {{ solicitacao.status }} • {{ solicitacao.data }}</p>
             </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="card-relacionado">
-        <mat-card-content>
-          <h2>Data do cadastramento</h2>
-
-          <mat-form-field class="campo-data">
-            <mat-label>Data</mat-label>
-            <input matInput [value]="usuario.dataCadastro" disabled />
-          </mat-form-field>
         </mat-card-content>
       </mat-card>
 

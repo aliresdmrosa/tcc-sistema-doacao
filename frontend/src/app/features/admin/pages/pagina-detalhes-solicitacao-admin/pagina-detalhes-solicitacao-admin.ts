@@ -18,6 +18,7 @@ import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.respons
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { CURSOS } from '../../../../shared/utils/form-validations';
+import { formatarDataBr } from '../../../../shared/utils/date-format';
 
 type StatusAnalise = 'PENDENTE' | 'APROVADO' | 'APROVADA' | 'REPROVADO' | 'REPROVADA' | 'VINCULADO' | 'VINCULADA' | 'DOADO';
 
@@ -213,6 +214,10 @@ export class PaginaDetalhesSolicitacaoAdmin {
     }
 
     return dataConvertida.toLocaleDateString('pt-BR');
+  }
+
+  formatarData(data: unknown): string {
+    return formatarDataBr(data);
   }
 
   voltar(): void {

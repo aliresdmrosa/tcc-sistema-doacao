@@ -20,6 +20,10 @@ export class ReparoService {
     return this.http.get<any[]>(`${this.apiUrl}/${idDoacao}`);
   }
 
+  listarReparoTecnicoPorId(idTecnico: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tecnico/${idTecnico}`);
+  }
+
   salvarReparo(idDoacao: number, descricao: string): Observable<any> {
     const params = new HttpParams()
       .set('id_doacao', idDoacao)
@@ -37,6 +41,13 @@ export class ReparoService {
   concluirReparo(id: number, motivo: string): Observable<void> {
     const motivoReparo = motivo.trim() || 'Reparo concluido';
     return this.http.patch<void>(`${this.apiUrl}/concluir/${id}`, motivoReparo, {
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+
+  concluirReparoDescarte(id: number, motivo: string): Observable<void> {
+    const motivoReparo = motivo.trim() || 'Doacao enviada para descarte';
+    return this.http.patch<void>(`${this.apiUrl}/descarte/${id}`, motivoReparo, {
       headers: { 'Content-Type': 'text/plain' }
     });
   }

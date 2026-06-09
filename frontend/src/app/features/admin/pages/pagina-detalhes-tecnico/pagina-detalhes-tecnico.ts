@@ -11,10 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { UsuarioService } from '../../../../core/services/usuario.service';
+import { ReparoService } from '../../../../core/services/reparo.service';
 import { CURSOS, apenasNumeros, formatarCpf, normalizarGrr } from '../../../../shared/utils/form-validations';
 
 interface ReparoResumo {
   id: number;
+  doacaoId: number;
   equipamento: string;
   status: string;
   data: string;
@@ -56,6 +58,7 @@ export class PaginaDetalhesTecnico implements OnInit {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private usuarioService = inject(UsuarioService);
+  private reparoService = inject(ReparoService);
 
   idTecnico = Number(this.route.snapshot.paramMap.get('id'));
 
@@ -76,6 +79,7 @@ export class PaginaDetalhesTecnico implements OnInit {
     reparosConcluidos: [
       {
         id: 1,
+        doacaoId: 1,
         equipamento: 'Notebook',
         status: 'FINALIZADO',
         data: '01/05/2025'
@@ -84,6 +88,7 @@ export class PaginaDetalhesTecnico implements OnInit {
     reparosEmAndamento: [
       {
         id: 2,
+        doacaoId: 2,
         equipamento: 'Computador',
         status: 'EM ANDAMENTO',
         data: '03/05/2025'
@@ -102,6 +107,7 @@ export class PaginaDetalhesTecnico implements OnInit {
   ngOnInit(): void {
     this.carregarDadosMock();
     this.buscarTecnicoDaApi();
+    this.buscarReparosDoTecnico();
   }
 
   carregarDadosMock(): void {
@@ -130,6 +136,29 @@ export class PaginaDetalhesTecnico implements OnInit {
       },
       error: (erro) => {
         console.error('Erro ao buscar técnico:', erro);
+      }
+    });
+  }
+
+  buscarReparosDoTecnico(): void {
+    this.reparoService.listarReparoTecnicoPorId(this.idTecnico).subscribe({
+      next: (reparos) => {
+        const reparosMapeados: ReparoResumo[] = reparos.map((reparo) => ({
+          id: Number(reparo.id),
+          doacaoId: Number(reparo.idDoacao),
+          equipamento: String(reparo.equipamentoDoacao ?? '--'),
+          status: reparo.dataFim ? 'FINALIZADO' : 'EM ANDAMENTO',
+          data: this.formatarDataCadastro(reparo.dataFim ?? reparo.dataInicio)
+        }));
+
+        this.tecnico = {
+          ...this.tecnico,
+          reparosConcluidos: reparosMapeados.filter((reparo) => reparo.status === 'FINALIZADO'),
+          reparosEmAndamento: reparosMapeados.filter((reparo) => reparo.status === 'EM ANDAMENTO')
+        };
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar reparos do técnico:', erro);
       }
     });
   }
@@ -298,8 +327,27 @@ export class PaginaDetalhesTecnico implements OnInit {
     });
   }
 
-  abrirReparo(id: number): void {
-    this.router.navigate(['/admin/reparos', id]);
+  abrirReparoEmAndamento(idDoacao: number): void {
+    this.router.navigate(['/tecnico/doacoes', idDoacao, 'reparo']);
+  }
+
+  formatarDataCadastro(data?: string): string {
+    if (!data) {
+      return '--';
+    }
+
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
+      return data;
+    }
+
+    const partesDataIso = data.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    if (partesDataIso) {
+      const [, ano, mes, dia] = partesDataIso;
+      return `${dia}/${mes}/${ano}`;
+    }
+
+    return data;
   }
 
   campoTemErro(nomeCampo: string, erro: string): boolean {

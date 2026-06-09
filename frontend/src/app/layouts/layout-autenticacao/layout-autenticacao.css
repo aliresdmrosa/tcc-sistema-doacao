@@ -1,14 +1,73 @@
 .layout-auth {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   background: #f7f4fb;
   padding: 24px;
   box-sizing: border-box;
 }
 
-.auth-content {
+.auth-body {
   width: 100%;
   max-width: 600px;
+}
+
+.auth-visual {
+  display: none;
+}
+
+.auth-content {
+  width: 100%;
+}
+
+.layout-auth--lateral {
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  background: #ffffff;
+}
+
+.layout-auth--lateral .auth-body {
+  flex: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 600px;
+  background: #ffffff;
+}
+
+.layout-auth--lateral .auth-visual {
+  display: block;
+  background: #ffffff;
+}
+
+.layout-auth--lateral .auth-content {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.layout-auth--lateral .auth-content > * {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+}
+
+@media (max-width: 900px) {
+  .layout-auth--lateral .auth-body {
+    grid-template-columns: 1fr;
+  }
+
+  .layout-auth--lateral .auth-visual {
+    display: none;
+  }
+
+  .layout-auth--lateral .auth-content {
+    padding: 24px;
+  }
 }
