@@ -50,4 +50,8 @@ export class SolicitacaoService {
         return this.http.patch<void>(`${this.apiUrl}/reprovar/${id}`, {});
     }
 
+    reabrirAnaliseSolicitacao(id: number): Observable<void> {
+        return this.http.patch<void>(`${this.apiUrl}/pendente/${id}`, {});
+    }
+
 }

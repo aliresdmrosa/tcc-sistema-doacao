@@ -226,6 +226,27 @@ public class SolicitacaoService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public void reabrirAnaliseSolicitacao(Long id) {
+        try {
+            Solicitacao existente = findById(id);
+
+            HistoricoSolicitacao historico = new HistoricoSolicitacao();
+            historico.setDataAlteracao(LocalDateTime.now());
+            historico.setObservacao("Analise da solicitacao reaberta.");
+            historico.setExecutor(getNomeUsuarioLogado());
+            historico.setStatus(Status.PENDENTE);
+            historico.setSolicitacao(existente);
+
+            existente.getHistorico().add(historico);
+            existente.setStatus(Status.PENDENTE);
+            solicitacaoRepository.save(existente);
+        } catch (Exception e) {
+            log.error("Erro ao reabrir analise da solicitacao ID {}: {}", id, e.getMessage());
+            throw new ErroCadastoException("Erro ao reabrir analise da solicitacao");
+        }
+    }
+
     // @PreAuthorize("hasRole('ADMINISTRADOR')")
     public Solicitacao selecionarDoacaoSolicitacao(@NonNull Long solicitacaoId, @NonNull Long doacaoId) {
 

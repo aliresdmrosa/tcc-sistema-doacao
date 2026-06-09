@@ -119,6 +119,11 @@ export class PaginaDetalhesSolicitacaoAdmin {
     return this.solicitacao.status !== 'PENDENTE';
   }
 
+  get podeVincular(): boolean {
+    const status = this.statusNormalizado(this.solicitacao.status);
+    return status === 'APROVADO' || status === 'APROVADA';
+  }
+
   ngOnInit(): void {
 
     this.carregarSolicitacaoDaApi();
@@ -384,6 +389,63 @@ export class PaginaDetalhesSolicitacaoAdmin {
   }
 
   reabrirAnalise(): void {
+    if (!this.podeReabrirAnalise) {
+      this.abrirModalAviso('Acao indisponivel', 'A analise so pode ser reaberta quando a solicitacao nao esta pendente.', 'warning');
+      return;
+    }
+
+    const dialogReabrir = this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo: 'Reabrir analise?',
+        mensagem: 'Confirme para voltar esta solicitacao para pendente.',
+        textoConfirmar: 'Confirmar',
+        textoCancelar: 'Cancelar',
+        mostrarCancelar: true
+      }
+    });
+
+    dialogReabrir.afterClosed().subscribe((confirmou) => {
+      if (!confirmou) {
+        return;
+      }
+
+      const id = this.obterIdSolicitacaoValido();
+      if (!id) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        'Reabrindo analise',
+        'Aguarde enquanto a solicitacao volta para pendente.'
+      );
+
+      this.carregando = true;
+      this.serviceSolicitacao.reabrirAnaliseSolicitacao(id).subscribe({
+        next: () => {
+          this.solicitacao = {
+            ...this.solicitacao,
+            status: 'PENDENTE',
+            dataUltimaModificacao: this.obterDataAtual()
+          };
+          this.limparEquipamentoAtribuido();
+          this.preencherFormulario();
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Analise reaberta', 'A solicitacao voltou para pendente.', 'success');
+        },
+        error: (erro) => {
+          console.error('Erro ao reabrir analise da solicitacao:', erro);
+          this.carregando = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao reabrir analise', 'Nao foi possivel alterar a solicitacao para pendente.', 'error');
+        }
+      });
+    });
+    return;
+
     this.abrirModalAviso(
       'Acao indisponivel',
       'Ainda nao existe endpoint no backend para reabrir a analise da solicitacao.',

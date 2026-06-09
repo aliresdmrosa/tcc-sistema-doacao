@@ -118,6 +118,16 @@ public class SolicitacaoController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/pendente/{id}")
+    @Operation(summary = "Reabre a analise de uma solicitacao pelo ID", description = "Marca a solicitacao como pendente pelo ID fornecido.")
+    @ApiResponse(responseCode = "200", description = "Analise da solicitacao reaberta com sucesso")
+    @ApiResponse(responseCode = "403", description = "Usuario nao autenticado", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<Void> reabrirAnaliseSolicitacao(@PathVariable Long id) {
+        service.reabrirAnaliseSolicitacao(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{solicitacaoId}/selecionar-doacao")
     @Operation(summary = "Seleciona uma doação para a solicitação", description = "Associa uma doação aprovada à solicitação pelo ID fornecido.")
     @ApiResponse(responseCode = "200", description = "Doação selecionada com sucesso")
