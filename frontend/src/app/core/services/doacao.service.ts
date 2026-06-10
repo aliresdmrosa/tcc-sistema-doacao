@@ -4,6 +4,7 @@ import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { Dashboard } from "../models/dashboard.model";
 import { DoacaoDTO } from "../dto/daocao.dto";
+import { HistoricoDoacao } from "../models/doacao.model";
 
 
 @Injectable({
@@ -16,14 +17,14 @@ export class DoacaoService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/doacao';
 
-    cadastrarDoacao(dados: Doacao): Observable<FormData> {
+    cadastrarDoacao(dados: Doacao): Observable<DoacaoDTO> {
         const formData = new FormData();
         formData.append('equipamento', dados.equipamento);
         formData.append('quantidade', '1');
         formData.append('descricao', dados.descricao);
         formData.append('conservacao', dados.conservacao);
         dados.imagens.forEach((imagem) => formData.append('imagens', imagem));
-    return this.http.post<FormData>(this.apiUrl, formData);
+    return this.http.post<DoacaoDTO>(this.apiUrl, formData);
     }
 
     obterDadosDashboard(): Observable<Dashboard> {
@@ -116,6 +117,9 @@ export class DoacaoService {
       return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
+    obterAvaliacaoIa(id: number) : Observable<HistoricoDoacao> {
+        return this.http.get<HistoricoDoacao>(`${this.apiUrl}/avaliacao/${id}`);
+    }
 
 
 

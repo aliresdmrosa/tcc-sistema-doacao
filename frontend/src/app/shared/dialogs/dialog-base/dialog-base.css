@@ -48,6 +48,7 @@
 
   font-size: 0.98rem;
   line-height: 1.6;
+  white-space: pre-line;
 
   max-width: 360px;
 }

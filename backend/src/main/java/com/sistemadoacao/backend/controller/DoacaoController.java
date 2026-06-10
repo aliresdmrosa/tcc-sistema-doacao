@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
+import com.sistemadoacao.backend.model.HistoricoDoacao;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.service.DoacaoService;
@@ -32,6 +33,8 @@ import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 import com.sistemadoacao.backend.dto.DoacaoTDTO;
+
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -59,6 +62,11 @@ public class DoacaoController {
     }
 
     // TODO: Implementar função para imprimir etiqueta de doação
+
+    @GetMapping("avaliacao/{id}")
+    public ResponseEntity<HistoricoDoacao> avaliacaoIA(@PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.avaliacaoIA(id));
+    }
 
     @GetMapping()
     @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")

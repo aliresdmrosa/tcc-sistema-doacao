@@ -10,7 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { Doacao } from '../../../../core/models/doacao.mode';
+import { HistoricoDoacao } from '../../../../core/models/doacao.model';
 import { DoacaoService } from '../../../../core/services/doacao.service';
 import { abrirModalAviso, abrirModalCarregamento } from '../../../../shared/utils/modal-feedback';
 
@@ -142,15 +144,27 @@ export class PaginaCadastroDoacao {
     );
 
     this.doacaoService.cadastrarDoacao(dadosDoacao).subscribe({
-      next: () => {
-        modalCarregamento.close();
-        abrirModalAviso(
-          this.dialog,
-          'Doacao registrada',
-          'Sua doacao foi registrada com sucesso e esta aguardando avaliacao.',
-          'success'
-        );
-        this.resetarFormulario(formDirective);
+      next: (doacaoCriada) => {
+        if (!doacaoCriada.id) {
+          modalCarregamento.close();
+          this.abrirModalCadastroConcluido(doacaoCriada);
+          this.resetarFormulario(formDirective);
+          return;
+        }
+
+        this.doacaoService.obterAvaliacaoIa(doacaoCriada.id).subscribe({
+          next: (avaliacao) => {
+            modalCarregamento.close();
+            this.abrirModalCadastroConcluido(doacaoCriada, avaliacao);
+            this.resetarFormulario(formDirective);
+          },
+          error: (error) => {
+            console.error('Erro ao buscar avaliacao da IA:', error);
+            modalCarregamento.close();
+            this.abrirModalCadastroConcluido(doacaoCriada);
+            this.resetarFormulario(formDirective);
+          }
+        });
       },
       error: (error) => {
         console.error('Erro ao cadastrar doação:', error);
@@ -163,6 +177,22 @@ export class PaginaCadastroDoacao {
         );
       }
     });
+  }
+
+  private abrirModalCadastroConcluido(doacao: DoacaoDTO, avaliacao?: HistoricoDoacao): void {
+    const status = avaliacao?.status ?? doacao.status ?? 'PENDENTE';
+    const observacao = avaliacao?.observacao || 'A avaliacao foi registrada, mas nao retornou uma observacao.';
+
+    abrirModalAviso(
+      this.dialog,
+      'Doacao avaliada',
+      `Status da doacao: ${this.formatarStatus(status)}\n\nAvaliacao da IA: ${observacao}`,
+      'success'
+    );
+  }
+
+  private formatarStatus(status: string): string {
+    return status.replace(/_/g, ' ');
   }
 
   private resetarFormulario(formDirective: FormGroupDirective): void {

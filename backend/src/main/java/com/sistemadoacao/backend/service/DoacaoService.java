@@ -38,8 +38,10 @@ import com.sistemadoacao.backend.model.ImagemDoacao;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
+import com.sistemadoacao.backend.repository.HistoricoDoacaoRepository;
 import com.sistemadoacao.backend.repository.PessoaRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
+
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +57,10 @@ public class DoacaoService {
     private final Utils utils;
     private final EmailService emailService;
     private final PessoaRepository pessoaRepository;
+    private final HistoricoDoacaoRepository historicoRepository;
 
     public DoacaoService(DoacaoRepository repository, UsuarioRepository usuarioRepository, FileService fileService,
-            OpenAIService openAIService, Utils utils, EmailService emailService, PessoaRepository pessoaRepository) {
+            OpenAIService openAIService, Utils utils, EmailService emailService, PessoaRepository pessoaRepository, HistoricoDoacaoRepository historico) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
         this.fileService = fileService;
@@ -65,6 +68,7 @@ public class DoacaoService {
         this.utils = utils;
         this.emailService = emailService;
         this.pessoaRepository = pessoaRepository;
+        this.historicoRepository = historico;
     }
 
     public Doacao atualizarHistoricoDoacao(@NonNull Doacao novaDoacao, String observacao) {
@@ -578,5 +582,9 @@ public class DoacaoService {
     public List<DoacaoResponseUserDTO> listarDoacoesUser() {
         return repository.buscarTodasUser();
 
+    }
+
+    public HistoricoDoacao avaliacaoIA(Long id) {
+        return historicoRepository.findTopByDoacao_IdOrderByDataAlteracaoDesc(id);
     }
 }

@@ -8,4 +8,8 @@ public record AnaliseIAResponse(
     String recomendacao
 ) {
 
+    public String resumo() {
+        return "Doacao status" + status + ":" + descricao + " - " + recomendacao;
+    }
+
 }
