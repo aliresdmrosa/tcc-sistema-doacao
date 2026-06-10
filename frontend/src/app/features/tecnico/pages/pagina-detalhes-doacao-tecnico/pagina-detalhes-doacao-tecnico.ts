@@ -24,27 +24,6 @@ interface ReparoHistorico {
   dataFim?: string | null;
 }
 
-const STATUS_ANALISE_CONCLUIDA: StatusDoacaoTecnico[] = [
-  'APROVADO',
-  'APROVADA',
-  'APROVADO_REPARO',
-  'REPROVADO',
-  'REPROVADA',
-  'DESCARTE'
-];
-
-const STATUS_DOACAO_APROVADA: StatusDoacaoTecnico[] = [
-  'REPARO',
-  'APROVADO',
-  'APROVADO_REPARO',
-  'PENDENTE'
-];
-
-const STATUS_ENTREGAVEL: StatusDoacaoTecnico[] = [
-  'APROVADO',
-  'APROVADO_REPARO'
-];
-
 @Component({
   selector: 'app-pagina-detalhes-doacao-tecnico',
   standalone: true,
@@ -100,49 +79,47 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     this.carregarDoacaoDaApi();
   }
 
-  get doacaoAprovada(): boolean {
-    return this.statusEstaEm(STATUS_DOACAO_APROVADA);
+
+  get podeAprovar(): boolean {
+    return this.statusNormalizado === 'PENDENTE';
+  }
+
+  get podeReprovar(): boolean {
+    return this.statusNormalizado === 'PENDENTE';
+  }
+
+  get podeMarcarReparo(): boolean {
+    return this.statusNormalizado === 'APROVADO_REPARO' || this.statusNormalizado === 'PENDENTE';
   }
 
   get podeAprovarParaReparo(): boolean {
-    return !!this.doacao && !this.statusBloqueiaConclusaoAnalise(this.statusNormalizado);
+    return this.podeMarcarReparo;
   }
 
   get podeConcluirAnalise(): boolean {
-    return !!this.doacao && !this.statusBloqueiaConclusaoAnalise(this.statusNormalizado);
+    return this.podeAprovar;
   }
 
   get podeMarcarEntregue(): boolean {
-    return this.statusEstaEm(STATUS_ENTREGAVEL);
+    return this.statusNormalizado === 'APROVADO';
   }
 
   get podeReabrirAnalise(): boolean {
-    return this.deveExibirReabrirAnalise;
+    return !!this.doacao;
   }
 
   get deveExibirReabrirAnalise(): boolean {
-    return this.statusEhAnaliseConcluida(this.statusNormalizado) || this.statusNormalizado === 'REPARO';
+    return this.podeReabrirAnalise;
   }
 
   get podeDescartar(): boolean {
-    return !!this.obterUltimoReparo() && this.statusNormalizado === 'REPARO';
+    const status = this.statusNormalizado;
+    return status === 'REPARO';
   }
+
 
   private get statusNormalizado(): StatusDoacaoTecnico | undefined {
     return this.doacao?.status?.toUpperCase() as StatusDoacaoTecnico | undefined;
-  }
-
-  private statusEhAnaliseConcluida(status?: StatusDoacaoTecnico): boolean {
-    return !!status && STATUS_ANALISE_CONCLUIDA.includes(status);
-  }
-
-  private statusBloqueiaConclusaoAnalise(status?: StatusDoacaoTecnico): boolean {
-    return this.statusEhAnaliseConcluida(status) || status === 'REPARO';
-  }
-
-  private statusEstaEm(statusPermitidos: StatusDoacaoTecnico[]): boolean {
-    const status = this.statusNormalizado;
-    return !!status && statusPermitidos.includes(status);
   }
 
   carregarDoacaoDaApi(): void {
@@ -190,8 +167,12 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     this.router.navigate(['/tecnico/doacoes']);
   }
 
+  editar(): void {
+    
+  }
+
   aprovar(): void {
-    if (!this.podeConcluirAnalise || !this.doacao) {
+    if (!this.podeAprovar || !this.doacao) {
       this.exibirMensagem('Esta doacao nao pode ser aprovada neste status.');
       return;
     }
@@ -213,7 +194,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   }
 
   reprovar(): void {
-    if (!this.podeConcluirAnalise || !this.doacao) {
+    if (!this.podeReprovar || !this.doacao) {
       this.exibirMensagem('Esta doacao nao pode ser reprovada neste status.');
       return;
     }
@@ -235,7 +216,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   }
 
   enviarParaReparo(): void {
-    if (!this.doacaoAprovada) {
+    if (!this.podeMarcarReparo) {
       return;
     }
 
@@ -259,7 +240,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   entregar(): void {
     if (!this.podeMarcarEntregue || !this.doacao) {
-      this.exibirMensagem('A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.');
+      this.exibirMensagem('A doacao so pode ser entregue quando estiver aprovada.');
       return;
     }
 
@@ -273,6 +254,11 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   descartar(): void {
     const ultimoReparo = this.obterUltimoReparo();
+
+    if (!this.podeDescartar) {
+      this.exibirMensagem('Esta doacao nao pode ser enviada para descarte neste status.');
+      return;
+    }
 
     if (!ultimoReparo) {
       this.exibirMensagem('E necessario existir um reparo para enviar a doacao para descarte.');
@@ -296,7 +282,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
 
   reabrirAnalise(): void {
     if (!this.podeReabrirAnalise || !this.doacao) {
-      this.exibirMensagem('A analise so pode ser reaberta quando a doacao nao esta pendente.');
+      this.exibirMensagem('Carregue a doacao antes de reabrir a analise.');
       return;
     }
 
@@ -305,6 +291,12 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
       'Confirme para voltar esta doacao para pendente.',
       () => this.finalizarAlteracaoStatus('PENDENTE', 'Analise reaberta com sucesso!')
     );
+  }
+
+  deletar(): void {
+    if (!this.doacao) {
+      return;
+    }
   }
 
   private confirmarAlteracaoStatus(

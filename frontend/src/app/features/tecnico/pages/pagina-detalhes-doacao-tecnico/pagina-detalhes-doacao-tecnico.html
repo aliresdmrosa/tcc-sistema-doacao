@@ -20,22 +20,22 @@
     </button>
 
     <mat-menu #menuAcoes="matMenu">
-      <button mat-menu-item [disabled]="!podeAprovarParaReparo" (click)="aprovarParaReparo()">
-        <mat-icon>build</mat-icon>
-        <span>Aprovar para reparo</span>
+      <button mat-menu-item (click)="editar()">
+        <mat-icon>edit</mat-icon>
+        <span>Editar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeConcluirAnalise" (click)="aprovar()">
+      <button mat-menu-item [disabled]="!podeAprovar" (click)="aprovar()">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeConcluirAnalise" (click)="reprovar()">
+      <button mat-menu-item [disabled]="!podeReprovar" (click)="reprovar()">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!doacaoAprovada" (click)="enviarParaReparo()">
+      <button mat-menu-item [disabled]="!podeMarcarReparo" (click)="enviarParaReparo()">
         <mat-icon>chevron_right</mat-icon>
         <span>Reparo</span>
       </button>
@@ -50,9 +50,14 @@
         <span>Descarte</span>
       </button>
 
-      <button mat-menu-item *ngIf="deveExibirReabrirAnalise" (click)="reabrirAnalise()">
+      <button mat-menu-item [disabled]="!podeReabrirAnalise" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
+      </button>
+
+      <button mat-menu-item  (click)="deletar()">
+        <mat-icon>delete</mat-icon>
+        <span>Deletar</span>
       </button>
     </mat-menu>
   </div>
