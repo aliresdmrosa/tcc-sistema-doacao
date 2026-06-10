@@ -8,9 +8,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Usuario, UsuarioAtualizacaoRequest } from '../../../../core/models/usuario.model';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
+import { abrirModalAviso, abrirModalCarregamento } from '../../../../shared/utils/modal-feedback';
 import { apenasNumeros, formatarCpf } from '../../../../shared/utils/form-validations';
 
 @Component({
@@ -24,8 +25,7 @@ import { apenasNumeros, formatarCpf } from '../../../../shared/utils/form-valida
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatSnackBarModule
+    MatInputModule
   ],
   templateUrl: './pagina-configuracao-perfil.html',
   styleUrl: './pagina-configuracao-perfil.css'
@@ -33,18 +33,13 @@ import { apenasNumeros, formatarCpf } from '../../../../shared/utils/form-valida
 export class PaginaConfiguracaoPerfil implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private usuarioService = inject(UsuarioService);
 
   salvando = false;
+  carregando = false;
   editando = false;
-
-  private dadosMockados = {
-    nome: 'Maria da Luz',
-    cpf: '12345678900',
-    email: 'maria.luz@email.com'
-  };
+  private usuarioLogado: Usuario | null = null;
 
   perfilForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
@@ -53,8 +48,42 @@ export class PaginaConfiguracaoPerfil implements OnInit {
   });
 
   ngOnInit(): void {
-    this.preencherFormulario();
     this.perfilForm.disable();
+    this.carregarUsuarioLogado();
+  }
+
+  carregarUsuarioLogado(): void {
+    const idUsuario = this.obterIdUsuarioLogado();
+
+    if (!idUsuario) {
+      abrirModalAviso(
+        this.dialog,
+        'Usuario nao identificado',
+        'Nao foi possivel carregar seus dados porque o usuario logado nao foi identificado.',
+        'error'
+      );
+      return;
+    }
+
+    this.carregando = true;
+
+    this.usuarioService.buscarPorId(idUsuario).subscribe({
+      next: (usuario) => {
+        this.carregando = false;
+        this.usuarioLogado = usuario;
+        this.preencherFormulario(usuario);
+      },
+      error: (erro) => {
+        console.error('Erro ao carregar perfil:', erro);
+        this.carregando = false;
+        abrirModalAviso(
+          this.dialog,
+          'Erro ao carregar perfil',
+          'Nao foi possivel carregar seus dados. Tente novamente.',
+          'error'
+        );
+      }
+    });
   }
 
   salvar(): void {
@@ -63,22 +92,63 @@ export class PaginaConfiguracaoPerfil implements OnInit {
       return;
     }
 
-    this.salvando = true;
+    const idUsuario = this.obterIdUsuarioLogado();
 
-    this.dadosMockados = {
-      nome: this.perfilForm.value.nome ?? '',
-      cpf: apenasNumeros(this.perfilForm.value.cpf),
-      email: this.perfilForm.value.email ?? ''
+    if (!idUsuario) {
+      abrirModalAviso(
+        this.dialog,
+        'Usuario nao identificado',
+        'Nao foi possivel identificar o usuario logado.',
+        'error'
+      );
+      return;
+    }
+
+    const valores = this.perfilForm.getRawValue();
+    const dadosAtualizados: UsuarioAtualizacaoRequest = {
+      nome: valores.nome ?? '',
+      cpf: apenasNumeros(valores.cpf),
+      email: valores.email ?? ''
     };
 
-    setTimeout(() => {
-      this.salvando = false;
-      this.editando = false;
-      this.perfilForm.disable();
-      this.snackBar.open('Perfil atualizado com sucesso!', 'Fechar', {
-        duration: 3000
-      });
-    }, 500);
+    this.salvando = true;
+
+    const modalCarregamento = abrirModalCarregamento(
+      this.dialog,
+      'Atualizando perfil',
+      'Aguarde enquanto seus dados sao salvos.'
+    );
+
+    this.usuarioService.atualizarUsuario(idUsuario, dadosAtualizados).subscribe({
+      next: (usuarioAtualizado) => {
+        modalCarregamento.close();
+        this.salvando = false;
+        this.editando = false;
+        this.usuarioLogado = usuarioAtualizado;
+        this.preencherFormulario(usuarioAtualizado);
+        this.perfilForm.disable();
+        this.perfilForm.markAsPristine();
+        this.perfilForm.markAsUntouched();
+        this.atualizarDadosLocais(usuarioAtualizado);
+        abrirModalAviso(
+          this.dialog,
+          'Perfil atualizado',
+          'Seus dados foram atualizados com sucesso.',
+          'success'
+        );
+      },
+      error: (erro) => {
+        console.error('Erro ao atualizar perfil:', erro);
+        modalCarregamento.close();
+        this.salvando = false;
+        abrirModalAviso(
+          this.dialog,
+          'Erro ao atualizar perfil',
+          'Nao foi possivel atualizar seus dados. Tente novamente.',
+          'error'
+        );
+      }
+    });
   }
 
   editar(): void {
@@ -88,7 +158,9 @@ export class PaginaConfiguracaoPerfil implements OnInit {
 
   cancelarEdicao(): void {
     this.editando = false;
-    this.preencherFormulario();
+    if (this.usuarioLogado) {
+      this.preencherFormulario(this.usuarioLogado);
+    }
     this.perfilForm.disable();
     this.perfilForm.markAsPristine();
     this.perfilForm.markAsUntouched();
@@ -112,7 +184,7 @@ export class PaginaConfiguracaoPerfil implements OnInit {
   }
 
   botaoPrincipalDesabilitado(): boolean {
-    return this.salvando || (this.editando && this.perfilForm.invalid);
+    return this.carregando || this.salvando || (this.editando && this.perfilForm.invalid);
   }
 
   voltar(): void {
@@ -128,7 +200,7 @@ export class PaginaConfiguracaoPerfil implements OnInit {
       width: '460px',
       data: {
         titulo: 'Deletar perfil',
-        mensagem: 'Tem certeza que deseja deletar perfil? Essa ação será permanente.',
+        mensagem: 'Tem certeza que deseja deletar perfil? Essa acao sera permanente.',
         tipo: 'warning',
         textoConfirmar: 'Deletar',
         textoCancelar: 'Cancelar',
@@ -137,43 +209,62 @@ export class PaginaConfiguracaoPerfil implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((confirmado) => {
-      if (confirmado) {
-        const idUsuario = this.obterIdUsuarioLogado();
-
-        if (!idUsuario) {
-          this.snackBar.open('Não foi possível identificar o usuário logado.', 'Fechar', {
-            duration: 4000
-          });
-          return;
-        }
-
-        this.usuarioService.desativarPerfil(idUsuario).subscribe({
-          next: () => {
-            localStorage.clear();
-            this.snackBar.open('Perfil desativado com sucesso.', 'Fechar', {
-              duration: 3000
-            });
-            this.router.navigate(['/']);
-          },
-          error: (erro) => {
-            console.error('Erro ao desativar perfil:', erro);
-            this.snackBar.open('Erro ao desativar perfil.', 'Fechar', {
-              duration: 3000
-            });
-          }
-        });
+      if (!confirmado) {
+        return;
       }
+
+      const idUsuario = this.obterIdUsuarioLogado();
+
+      if (!idUsuario) {
+        abrirModalAviso(
+          this.dialog,
+          'Usuario nao identificado',
+          'Nao foi possivel identificar o usuario logado.',
+          'error'
+        );
+        return;
+      }
+
+      const modalCarregamento = abrirModalCarregamento(
+        this.dialog,
+        'Desativando perfil',
+        'Aguarde enquanto seu perfil e desativado.'
+      );
+
+      this.usuarioService.desativarPerfil(idUsuario).subscribe({
+        next: () => {
+          modalCarregamento.close();
+          localStorage.clear();
+          abrirModalAviso(
+            this.dialog,
+            'Perfil desativado',
+            'Seu perfil foi desativado com sucesso.',
+            'success'
+          ).afterClosed().subscribe(() => {
+            this.router.navigate(['/']);
+          });
+        },
+        error: (erro) => {
+          console.error('Erro ao desativar perfil:', erro);
+          modalCarregamento.close();
+          abrirModalAviso(
+            this.dialog,
+            'Erro ao desativar perfil',
+            'Nao foi possivel desativar seu perfil. Tente novamente.',
+            'error'
+          );
+        }
+      });
     });
   }
 
-  preencherFormulario(): void {
+  preencherFormulario(usuario: Usuario): void {
     this.perfilForm.patchValue({
-      nome: this.dadosMockados.nome,
-      cpf: formatarCpf(this.dadosMockados.cpf),
-      email: this.dadosMockados.email
+      nome: usuario.nome,
+      cpf: formatarCpf(usuario.cpf),
+      email: usuario.email
     });
   }
-
   campoTemErro(nomeCampo: string, erro: string): boolean {
     const campo = this.perfilForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
@@ -183,6 +274,15 @@ export class PaginaConfiguracaoPerfil implements OnInit {
     const campo = this.perfilForm.get('cpf');
     const valorFormatado = formatarCpf(campo?.value);
     campo?.setValue(valorFormatado, { emitEvent: false });
+  }
+
+  private atualizarDadosLocais(usuario: Usuario): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem('email', usuario.email);
+    localStorage.setItem('nomeUsuario', usuario.nome);
   }
 
   private obterIdUsuarioLogado(): number | null {
