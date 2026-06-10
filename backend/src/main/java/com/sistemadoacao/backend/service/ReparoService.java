@@ -64,6 +64,9 @@ public class ReparoService {
 
             Reparo salvo = reparoRepository.save(novoReparo);
 
+            doacaoRepository.save(doacao);
+
+
             log.debug("Reparo salvo {}", salvo);
 
             return new ReparoResponseDTO(salvo);
