@@ -2,11 +2,13 @@ package com.sistemadoacao.backend.service;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sistemadoacao.backend.dto.SolicitacaoDTO;
 import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
@@ -227,14 +229,32 @@ public class SolicitacaoService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @Transactional
     public void reabrirAnaliseSolicitacao(Long id) {
         try {
             Solicitacao existente = findById(id);
+            String executor = getNomeUsuarioLogado();
+
+            for (Doacao doacao : new ArrayList<>(existente.getDoacoes())) {
+                HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+                historicoDoacao.setDataAlteracao(LocalDateTime.now());
+                historicoDoacao.setObservacao("Doacao voltou para estoque apos reabertura da solicitacao ID " + id);
+                historicoDoacao.setExecutor(executor);
+                historicoDoacao.setStatus(Status.ESTOQUE);
+                historicoDoacao.setDoacao(doacao);
+
+                doacao.getHistorico().add(historicoDoacao);
+                doacao.setStatus(Status.ESTOQUE);
+                doacao.setSolicitacao(null);
+                doacaoRepository.save(doacao);
+            }
+
+            existente.getDoacoes().clear();
 
             HistoricoSolicitacao historico = new HistoricoSolicitacao();
             historico.setDataAlteracao(LocalDateTime.now());
             historico.setObservacao("Analise da solicitacao reaberta.");
-            historico.setExecutor(getNomeUsuarioLogado());
+            historico.setExecutor(executor);
             historico.setStatus(Status.PENDENTE);
             historico.setSolicitacao(existente);
 
