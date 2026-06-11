@@ -36,31 +36,26 @@
         <span>Cancelar edicao</span>
       </button>
 
-      <!-- [disabled]="modoEdicao || !podeMarcarReparo" -->
-      <button mat-menu-item  (click)="marcarReparo()">
+      <button mat-menu-item  (click)="marcarReparo()" [disabled]="doacao.status !== 'PENDENTE'">
         <mat-icon>build</mat-icon>
         <span>Aprovar para reparo</span>
       </button>
 
-      <!-- [disabled]="modoEdicao || !podeConcluirAnalise" -->
-      <button mat-menu-item  (click)="aprovar()">
+      <button mat-menu-item  (click)="aprovar()" [disabled]="doacao.status !== 'PENDENTE'">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <!-- [disabled]="modoEdicao || !podeConcluirAnalise" -->
-      <button mat-menu-item  (click)="reprovar()">
+      <button mat-menu-item  (click)="reprovar()" [disabled]="doacao.status !== 'PENDENTE'">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
 
-      <!-- [disabled]="modoEdicao || !podeMarcarEmEstoque" -->
-      <button mat-menu-item  (click)="marcarEmEstoque()">
+      <button mat-menu-item  (click)="marcarEmEstoque()" [disabled]="!['APROVADO', 'APROVADO_REPARO'].includes(doacao.status)">
         <mat-icon>inventory_2</mat-icon>
         <span>Entregue</span>
       </button>
 
-      <!-- [disabled]="modoEdicao || !podeReabrirAnalise" -->
       <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
