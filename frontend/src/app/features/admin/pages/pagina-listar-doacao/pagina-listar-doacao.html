@@ -102,8 +102,8 @@
                   mat-icon-button
                   type="button"
                   matTooltip="Excluir"
-                  class="botao-excluir"
-                  (click)="excluir(doacao)">
+                  (click)="excluir(doacao)"
+                  [disabled]="doacao.status !== 'PENDENTE'">
                   <mat-icon>delete</mat-icon>
                 </button>
 

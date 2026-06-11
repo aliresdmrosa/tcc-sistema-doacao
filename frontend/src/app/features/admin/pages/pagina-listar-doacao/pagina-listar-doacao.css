@@ -175,3 +175,6 @@
     max-width: none;
   }
 }
+.mat-mdc-icon-button.mat-mdc-button-disabled {
+  opacity: 0.4;
+}
