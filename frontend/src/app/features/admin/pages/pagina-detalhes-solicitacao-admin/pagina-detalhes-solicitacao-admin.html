@@ -43,27 +43,27 @@
         <span>Cancelar edicao</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="aprovar()">
+      <button mat-menu-item  (click)="aprovar()" [disabled]="solicitacao.status !== 'PENDENTE'">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeConcluirAnalise" (click)="reprovar()">
+      <button mat-menu-item [disabled]="solicitacao.status !== 'PENDENTE'" (click)="reprovar()">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" [disabled]="modoEdicao" (click)="reabrirAnalise()">
+      <button mat-menu-item [disabled]="solicitacao.status === 'PENDENTE'" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
 
-      <button mat-menu-item [disabled]="modoEdicao || !podeVincular" (click)="atribuirEquipamento()">
+      <button mat-menu-item [disabled]="solicitacao.status !== 'APROVADA'" (click)="atribuirEquipamento()">
         <mat-icon>link</mat-icon>
         <span>Vincular</span>
       </button>
 
-      <button mat-menu-item class="acao-perigo" (click)="deletar()">
+      <button mat-menu-item class="acao-perigo" (click)="deletar()" [disabled]="solicitacao.status !== 'PENDENTE'">
         <mat-icon>delete</mat-icon>
         <span>Deletar</span>
       </button>
