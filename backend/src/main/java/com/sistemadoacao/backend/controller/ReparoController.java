@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -57,6 +58,7 @@ public class ReparoController {
     }
 
     @GetMapping("/tecnico")
+    @PreAuthorize("hasRole('TECNICO')")
     @Operation(summary = "Lista todos os reparos de um tecnico", description = "Retorna uma lista de todos os reparos cadastrado no sistema.")
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
     @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
@@ -70,7 +72,30 @@ public class ReparoController {
         }
     }
 
+    @GetMapping("/tecnico/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @Operation(summary = "Lista todos os reparos de um tecnico por id", description = "Retorna uma lista de todos os reparos de um tecnico especifico.")
+    @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
+    @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<ReparoResponseDTO>> listarTodosReparosTecnicoPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(reparoService.listarReparosTecnico(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/item/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @Operation(summary = "Busca um reparo por id", description = "Retorna os dados de um reparo especifico.")
+    public ResponseEntity<ReparoResponseDTO> buscarReparoPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(reparoService.buscarReparoPorId(id));
+    }
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
     @Operation(summary = "Lista todos os reparos de uma doacao", description = "Retorna uma lista de todos os reparos de uma doacao.")
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
     @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
@@ -85,6 +110,7 @@ public class ReparoController {
     }
 
     @PostMapping()
+    @PreAuthorize("hasRole('TECNICO')")
     @Operation(summary = "Cadastra novo reparo", description = "Retorna um novo reparo cadastrado no sistema.")
     @ApiResponse(responseCode = "201", description = "Reparos cadastrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Doacao nao encontrada.")
@@ -103,6 +129,7 @@ public class ReparoController {
     }
 
     @PatchMapping("{id}/descricao")
+    @PreAuthorize("hasRole('TECNICO')")
     @Operation(summary = "Atualizar descricao do reparo", description = "Atualiza apenas a descricao de um reparo.")
     @ApiResponse(responseCode = "200", description = "Descricao do reparo atualizada com sucesso")
     @ApiResponse(responseCode = "404", description = "Reparo nao encontrado", content = @Content)
@@ -121,6 +148,7 @@ public class ReparoController {
     @Operation(summary = "Concluir reparo", description = "Altera o status da doação para Aprovado e adiciona data de fim de reparo.")
     @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
     @PatchMapping("concluir/{id}")
+    @PreAuthorize("hasRole('TECNICO')")
     public ResponseEntity<Void> concluirReparo(@RequestBody String motivo, @PathVariable Long id) {
         try {
             reparoService.concluirReparo(id, motivo);
@@ -137,6 +165,7 @@ public class ReparoController {
     @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
     @PatchMapping("descarte/{id}")
+    @PreAuthorize("hasRole('TECNICO')")
     public ResponseEntity<Void> concluirReparoDescarte(@RequestBody String motivo, @PathVariable Long id) {
         try {
             reparoService.concluirReparoDescarte(id, motivo);
@@ -149,6 +178,7 @@ public class ReparoController {
     }
 
     @PatchMapping("concluir-item/{id}")
+    @PreAuthorize("hasRole('TECNICO')")
     @Operation(summary = "Concluir item de reparo", description = "Altera o status do item de reparo para Concluido e adiciona data de fim do item.")
     @ApiResponse(responseCode = "200", description = "Item de reparo concluido com sucesso")
     @ApiResponse(responseCode = "404", description = "Item de reparo não encontrado", content = @Content)

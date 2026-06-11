@@ -12,9 +12,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { CURSOS_USUARIO } from '../../../../core/enums/curso-usuario.enums';
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
-import { CURSOS, normalizarGrr } from '../../../../shared/utils/form-validations';
+import { normalizarGrr } from '../../../../shared/utils/form-validations';
 
 @Component({
   selector: 'app-pagina-cadastro-solicitacao',
@@ -40,7 +41,7 @@ export class PaginaCadastroSolicitacao {
   private router = inject(Router);
   private solicitacaoService = inject(SolicitacaoService);
   private dialog = inject(MatDialog);
-  cursos = CURSOS;
+  cursos = CURSOS_USUARIO;
 
   tiposEquipamento = [
     { valor: 'COMPUTADOR', label: 'Computador' },

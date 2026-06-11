@@ -15,9 +15,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
 import { SolicitacaoResponseDTO } from '../../../../core/dto/solicitacao.response';
+import { CURSOS_USUARIO } from '../../../../core/enums/curso-usuario.enums';
 import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
-import { CURSOS } from '../../../../shared/utils/form-validations';
 
 type StatusAnalise = 'PENDENTE' | 'APROVADO' | 'APROVADA' | 'REPROVADO' | 'REPROVADA' | 'VINCULADO' | 'VINCULADA' | 'DOADO';
 
@@ -75,7 +75,7 @@ export class PaginaDetalhesSolicitacaoAdmin {
   modoEdicao = false;
   equipamentoAtribuido: EquipamentoAtribuido | null = this.buscarEquipamentoAtribuido();
   private dadosAntesDaEdicao?: DetalhesSolicitacaoAdmin;
-  cursos = CURSOS;
+  cursos = CURSOS_USUARIO;
   tiposEquipamento = [
     { valor: 'COMPUTADOR', label: 'Computador' },
     { valor: 'NOTEBOOK', label: 'Notebook' },

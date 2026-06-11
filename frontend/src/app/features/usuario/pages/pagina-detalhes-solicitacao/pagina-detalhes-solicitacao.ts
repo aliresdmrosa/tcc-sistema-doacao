@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CURSOS } from '../../../../shared/utils/form-validations';
+import { CURSOS_USUARIO } from '../../../../core/enums/curso-usuario.enums';
 
 type StatusSolicitacao = 'PENDENTE' | 'REPARO' | 'EM_ANALISE' | 'APROVADA' | 'APROVADO' | 'REPROVADA' | 'REPROVADO' | 'VINCULADA' | 'DOADO';
 
@@ -35,7 +35,7 @@ export class PaginaDetalhesSolicitacao {
 
   idSolicitacao = this.route.snapshot.paramMap.get('id') ?? '001';
   private solicitacaoNavegacao = typeof history !== 'undefined' ? history.state?.solicitacao : null;
-  cursos = CURSOS;
+  cursos = CURSOS_USUARIO;
   tiposEquipamento = [
     { valor: 'COMPUTADOR', label: 'Computador' },
     { valor: 'NOTEBOOK', label: 'Notebook' },

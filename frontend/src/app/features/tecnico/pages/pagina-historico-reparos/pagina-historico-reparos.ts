@@ -128,11 +128,24 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
     this.dataSource.filter = '';
   }
 
-  verDetalhes(historico: HistoricoReparo): void {
-    console.log('Ver detalhes do reparo:', historico);
-    const idDoacao = historico.idDoacao ?? Number(historico.id);
+  voltarParaDetalhesTecnico(): void {
+    if (this.idTecnicoAdmin) {
+      this.router.navigate(['/admin/tecnicos', this.idTecnicoAdmin]);
+    }
+  }
 
-    this.router.navigate(['/tecnico/doacoes', idDoacao, 'reparo'], {
+  verDetalhes(historico: HistoricoReparo): void {
+    if (this.idTecnicoAdmin) {
+      this.router.navigate([
+        '/admin/tecnicos',
+        this.idTecnicoAdmin,
+        'reparos',
+        historico.id
+      ]);
+      return;
+    }
+
+    this.router.navigate(['/tecnico/doacoes', historico.idDoacao, 'reparo'], {
       state: { historico }
     });
   }

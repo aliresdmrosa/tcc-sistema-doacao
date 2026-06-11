@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { Subject, takeUntil } from 'rxjs';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { ReparoService } from '../../../../core/services/reparo.service';
@@ -20,6 +21,7 @@ interface ReparoResumo {
   equipamento: string;
   status: string;
   data: string;
+  dataOrdenacao: number;
 }
 
 interface TecnicoDetalhes {
@@ -52,15 +54,17 @@ interface TecnicoDetalhes {
   templateUrl: './pagina-detalhes-tecnico.html',
   styleUrls: ['./pagina-detalhes-tecnico.css']
 })
-export class PaginaDetalhesTecnico implements OnInit {
+export class PaginaDetalhesTecnico implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private usuarioService = inject(UsuarioService);
   private reparoService = inject(ReparoService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
-  idTecnico = Number(this.route.snapshot.paramMap.get('id'));
+  idTecnico = 0;
 
   modoEdicao = false;
   carregando = false;
@@ -76,24 +80,8 @@ export class PaginaDetalhesTecnico implements OnInit {
     curso: '--',
     dataCadastro: '09/07/2025',
     ativo: true,
-    reparosConcluidos: [
-      {
-        id: 1,
-        doacaoId: 1,
-        equipamento: 'Notebook',
-        status: 'FINALIZADO',
-        data: '01/05/2025'
-      }
-    ],
-    reparosEmAndamento: [
-      {
-        id: 2,
-        doacaoId: 2,
-        equipamento: 'Computador',
-        status: 'EM ANDAMENTO',
-        data: '03/05/2025'
-      }
-    ]
+    reparosConcluidos: [],
+    reparosEmAndamento: []
   };
 
   tecnicoForm = this.fb.group({
@@ -106,8 +94,19 @@ export class PaginaDetalhesTecnico implements OnInit {
 
   ngOnInit(): void {
     this.carregarDadosMock();
-    this.buscarTecnicoDaApi();
-    this.buscarReparosDoTecnico();
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((parametros) => {
+        this.idTecnico = Number(parametros.get('id'));
+        this.limparReparos();
+        this.buscarTecnicoDaApi();
+        this.buscarReparosDoTecnico();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   carregarDadosMock(): void {
@@ -118,7 +117,9 @@ export class PaginaDetalhesTecnico implements OnInit {
   }
 
   buscarTecnicoDaApi(): void {
-    this.usuarioService.buscarPorId(this.idTecnico).subscribe({
+    this.usuarioService.buscarPorId(this.idTecnico)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (tecnico) => {
         this.tecnico = {
           ...this.tecnico,
@@ -133,22 +134,27 @@ export class PaginaDetalhesTecnico implements OnInit {
         };
         this.preencherFormulario();
         this.tecnicoForm.disable();
+        this.cdr.detectChanges();
       },
       error: (erro) => {
         console.error('Erro ao buscar técnico:', erro);
+        this.cdr.detectChanges();
       }
-    });
+      });
   }
 
   buscarReparosDoTecnico(): void {
-    this.reparoService.listarReparoTecnicoPorId(this.idTecnico).subscribe({
+    this.reparoService.listarReparoTecnicoPorId(this.idTecnico)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (reparos) => {
         const reparosMapeados: ReparoResumo[] = reparos.map((reparo) => ({
           id: Number(reparo.id),
           doacaoId: Number(reparo.idDoacao),
           equipamento: String(reparo.equipamentoDoacao ?? '--'),
           status: reparo.dataFim ? 'FINALIZADO' : 'EM ANDAMENTO',
-          data: this.formatarDataCadastro(reparo.dataFim ?? reparo.dataInicio)
+          data: this.formatarDataCadastro(reparo.dataFim ?? reparo.dataInicio),
+          dataOrdenacao: new Date(reparo.dataFim ?? reparo.dataInicio).getTime() || 0
         }));
 
         this.tecnico = {
@@ -156,11 +162,35 @@ export class PaginaDetalhesTecnico implements OnInit {
           reparosConcluidos: reparosMapeados.filter((reparo) => reparo.status === 'FINALIZADO'),
           reparosEmAndamento: reparosMapeados.filter((reparo) => reparo.status === 'EM ANDAMENTO')
         };
+        this.cdr.detectChanges();
       },
       error: (erro) => {
         console.error('Erro ao buscar reparos do técnico:', erro);
+        this.limparReparos();
+        this.cdr.detectChanges();
       }
-    });
+      });
+  }
+
+  private limparReparos(): void {
+    this.tecnico = {
+      ...this.tecnico,
+      reparosConcluidos: [],
+      reparosEmAndamento: []
+    };
+  }
+
+  get reparosRecentes(): ReparoResumo[] {
+    return [
+      ...this.tecnico.reparosConcluidos,
+      ...this.tecnico.reparosEmAndamento
+    ]
+      .sort((a, b) => b.dataOrdenacao - a.dataOrdenacao || b.id - a.id)
+      .slice(0, 5);
+  }
+
+  get totalReparos(): number {
+    return this.tecnico.reparosConcluidos.length + this.tecnico.reparosEmAndamento.length;
   }
 
   preencherFormulario(): void {
@@ -178,6 +208,10 @@ export class PaginaDetalhesTecnico implements OnInit {
   }
 
   ativarEdicao(): void {
+    if (this.tecnico.ativo === false) {
+      return;
+    }
+
     this.modoEdicao = true;
     this.tecnicoForm.enable();
   }
@@ -327,8 +361,12 @@ export class PaginaDetalhesTecnico implements OnInit {
     });
   }
 
-  abrirReparoEmAndamento(idDoacao: number): void {
-    this.router.navigate(['/tecnico/doacoes', idDoacao, 'reparo']);
+  abrirReparo(reparo: ReparoResumo): void {
+    this.router.navigate(['/admin/tecnicos', this.idTecnico, 'reparos', reparo.id]);
+  }
+
+  abrirHistoricoReparos(): void {
+    this.router.navigate(['/admin/tecnicos', this.idTecnico, 'historico']);
   }
 
   formatarDataCadastro(data?: string): string {

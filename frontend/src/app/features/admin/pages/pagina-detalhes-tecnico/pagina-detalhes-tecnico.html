@@ -80,7 +80,7 @@
               color="primary"
               type="button"
               class="botao-editar"
-              [disabled]="acaoPerfilEmAndamento"
+              [disabled]="acaoPerfilEmAndamento || tecnico.ativo === false"
               (click)="ativarEdicao()">
               <mat-icon>edit</mat-icon>
               Editar
@@ -136,45 +136,34 @@
 
       <mat-card class="card-relacionado">
         <mat-card-content>
-          <h2>Reparos Concluídos</h2>
+          <h2>Reparos</h2>
 
-          <div *ngIf="tecnico.reparosConcluidos.length === 0" class="estado-vazio">
-            Nenhum reparo concluído.
+          <div *ngIf="totalReparos === 0" class="estado-vazio">
+            Nenhum reparo registrado.
           </div>
 
           <div
-            *ngFor="let reparo of tecnico.reparosConcluidos"
-            class="item-relacionado">
-
-            <div>
-              <p class="destaque">Reparo #{{ reparo.id }}</p>
-              <p>{{ reparo.equipamento }} • {{ reparo.status }} • {{ reparo.data }}</p>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="card-relacionado">
-        <mat-card-content>
-          <h2>Reparos em Andamento</h2>
-
-          <div *ngIf="tecnico.reparosEmAndamento.length === 0" class="estado-vazio">
-            Nenhum reparo em andamento.
-          </div>
-
-          <div
-            *ngFor="let reparo of tecnico.reparosEmAndamento"
+            *ngFor="let reparo of reparosRecentes"
             class="item-relacionado"
             role="button"
             tabindex="0"
-            (click)="abrirReparoEmAndamento(reparo.doacaoId)"
-            (keydown.enter)="abrirReparoEmAndamento(reparo.doacaoId)">
+            (click)="abrirReparo(reparo)"
+            (keydown.enter)="abrirReparo(reparo)">
 
             <div>
               <p class="destaque">Reparo #{{ reparo.id }}</p>
               <p>{{ reparo.equipamento }} • {{ reparo.status }} • {{ reparo.data }}</p>
             </div>
           </div>
+
+          <button
+            *ngIf="totalReparos > 0"
+            mat-stroked-button
+            type="button"
+            class="botao-historico"
+            (click)="abrirHistoricoReparos()">
+            Ver histórico completo
+          </button>
         </mat-card-content>
       </mat-card>
 

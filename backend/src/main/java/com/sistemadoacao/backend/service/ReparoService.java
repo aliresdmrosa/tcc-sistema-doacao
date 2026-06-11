@@ -83,6 +83,12 @@ public class ReparoService {
         return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
     }
 
+    public ReparoResponseDTO buscarReparoPorId(Long id) {
+        Reparo reparo = reparoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reparo nao encontrado"));
+        return new ReparoResponseDTO(reparo);
+    }
+
     public ReparoResponseDTO atualizarDescricaoReparo(@NonNull Long id, String descricao) {
         Reparo reparo = reparoRepository.findById(id).orElseThrow();
 

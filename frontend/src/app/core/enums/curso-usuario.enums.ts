@@ -1,0 +1,25 @@
+export enum CursoUsuario {
+  TADS = 'TADS',
+  BCC = 'BCC',
+  GI = 'GI',
+  DESIGN_GRAFICO = 'DESIGN_GRAFICO',
+  DESIGN_DE_PRODUTO = 'DESIGN_DE_PRODUTO',
+  ENGENHARIA_CIVIL = 'ENGENHARIA_CIVIL',
+  ENGENHARIA_ELETRICA = 'ENGENHARIA_ELETRICA',
+  ENGENHARIA_MECANICA = 'ENGENHARIA_MECANICA',
+  ENGENHARIA_CARTOGRAFICA = 'ENGENHARIA_CARTOGRAFICA',
+  ARQUITETURA_E_URBANISMO = 'ARQUITETURA_E_URBANISMO'
+}
+
+export const CURSOS_USUARIO = [
+  { valor: CursoUsuario.TADS, label: 'TADS' },
+  { valor: CursoUsuario.BCC, label: 'BCC' },
+  { valor: CursoUsuario.GI, label: 'GI' },
+  { valor: CursoUsuario.DESIGN_GRAFICO, label: 'DESIGN GRÁFICO' },
+  { valor: CursoUsuario.DESIGN_DE_PRODUTO, label: 'DESIGN DE PRODUTO' },
+  { valor: CursoUsuario.ENGENHARIA_CIVIL, label: 'ENGENHARIA CIVIL' },
+  { valor: CursoUsuario.ENGENHARIA_ELETRICA, label: 'ENGENHARIA ELÉTRICA' },
+  { valor: CursoUsuario.ENGENHARIA_MECANICA, label: 'ENGENHARIA MECÂNICA' },
+  { valor: CursoUsuario.ENGENHARIA_CARTOGRAFICA, label: 'ENGENHARIA CARTOGRÁFICA' },
+  { valor: CursoUsuario.ARQUITETURA_E_URBANISMO, label: 'ARQUITETURA E URBANISMO' }
+];

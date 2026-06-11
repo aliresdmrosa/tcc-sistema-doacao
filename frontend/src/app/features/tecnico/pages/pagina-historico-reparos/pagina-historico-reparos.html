@@ -1,5 +1,16 @@
 ﻿<div class="pagina-historico-reparos">
 
+  <div
+    *ngIf="idTecnicoAdmin"
+    class="botao-voltar"
+    role="button"
+    tabindex="0"
+    aria-label="Voltar para detalhes do técnico"
+    (click)="voltarParaDetalhesTecnico()"
+    (keydown.enter)="voltarParaDetalhesTecnico()">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+
   <div class="cabecalho-pagina">
     <h1>Histórico de Reparos</h1>
     <p>{{ idTecnicoAdmin ? 'Visualize os equipamentos avaliados ou reparados por este técnico.' : 'Visualize os equipamentos avaliados ou reparados por você.' }}</p>

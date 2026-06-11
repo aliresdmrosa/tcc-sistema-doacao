@@ -20,6 +20,10 @@ export class ReparoService {
     return this.http.get<any[]>(`${this.apiUrl}/${idDoacao}`);
   }
 
+  buscarReparoPorId(idReparo: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/item/${idReparo}`);
+  }
+
   listarReparoTecnicoPorId(idTecnico: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/tecnico/${idTecnico}`);
   }

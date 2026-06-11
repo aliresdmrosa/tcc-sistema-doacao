@@ -80,7 +80,7 @@
               color="primary"
               type="button"
               class="botao-editar"
-              [disabled]="acaoPerfilEmAndamento"
+              [disabled]="acaoPerfilEmAndamento || usuario.ativo === false"
               (click)="ativarEdicao()">
               <mat-icon>edit</mat-icon>
               Editar

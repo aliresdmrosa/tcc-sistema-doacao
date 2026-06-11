@@ -181,6 +181,26 @@ public class DoacaoController {
     }
 
     
+    @Operation(summary = "Aprovar doacao para reparo", description = "Altera o status da doacao para APROVADO_REPARO.")
+    @ApiResponse(responseCode = "200", description = "Doacao aprovada para reparo com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("aprovar-reparo/{id}")
+    public ResponseEntity<Void> aprovarDoacaoParaReparo(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        doacaoService.aprovarDoacaoParaReparo(id, body.motivo());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Entregar doacao", description = "Altera o status da doacao para ENTREGUE.")
+    @ApiResponse(responseCode = "200", description = "Doacao entregue com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("entregar/{id}")
+    public ResponseEntity<Void> entregarDoacao(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        doacaoService.entregarDoacao(id, body.motivo());
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Reprovar doação", description = "Altera o status da doação para REPROVADO.")
     @ApiResponse(responseCode = "200", description = "Doação reprovada com sucesso")
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -37,8 +39,10 @@ public class Solicitacao {
     private Equipamento equipamento;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 50)
     @Schema(example = "TADS", description = "Curso do solicitante")
-    private Curso curso;
+    private CursoUsuario curso;
 
     @Schema(example = "20210001", description = "GRR do solicitante")
     private String grr;
@@ -68,7 +72,7 @@ public class Solicitacao {
     @JsonManagedReference
     private List<Doacao> doacoes = new ArrayList<>();
 
-    public Solicitacao(Equipamento equipamento, Curso curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
+    public Solicitacao(Equipamento equipamento, CursoUsuario curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,
             boolean sem_computador, List<HistoricoSolicitacao> historico, List<Doacao> doacoes) {
         this.equipamento = equipamento;
         this.curso = curso;
@@ -82,7 +86,7 @@ public class Solicitacao {
         this.doacoes = doacoes;
     }
 
-    public Solicitacao(Long id, Long usuarioId, Equipamento equipamento, Curso curso, String grr, String motivo, LocalDate dataCadastro,
+    public Solicitacao(Long id, Long usuarioId, Equipamento equipamento, CursoUsuario curso, String grr, String motivo, LocalDate dataCadastro,
             Status status, boolean ativo, boolean sem_computador, List<HistoricoSolicitacao> historico,
             List<Doacao> doacoes) {
         this.id = id;
@@ -126,11 +130,11 @@ public class Solicitacao {
         this.equipamento = equipamento;
     }
 
-    public Curso getCurso() {
+    public CursoUsuario getCurso() {
         return curso;
     }
 
-    public void setCurso(Curso curso) {
+    public void setCurso(CursoUsuario curso) {
         this.curso = curso;
     }
 

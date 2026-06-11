@@ -93,14 +93,20 @@ export const routes: Routes = [
       {
         path: 'admin/tecnicos/:id/historico',
         component: PaginaHistoricoReparosComponent,
-        //canActivate: [perfilGuard],
+        canActivate: [authGuard, perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/tecnicos/:id/reparos/:idReparo',
+        component: PaginaReparoDoacaoComponent,
+        canActivate: [authGuard, perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'], somenteLeitura: true }
       },
         
       {
         path: 'admin/tecnicos/:id',
         component: PaginaDetalhesTecnico,
-        //canActivate: [perfilGuard],
+        canActivate: [authGuard, perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
 
@@ -156,13 +162,13 @@ export const routes: Routes = [
       {
         path: 'tecnico/historico',
         component: PaginaHistoricoReparosComponent,
-        // canActivate: [perfilGuard],
+        canActivate: [authGuard, perfilGuard],
         data: { perfisPermitidos: ['TECNICO'] }
       },
       {
         path: 'tecnico/doacoes/:id/reparo',
         component: PaginaReparoDoacaoComponent,
-        // canActivate: [perfilGuard],
+        canActivate: [authGuard, perfilGuard],
         data: { perfisPermitidos: ['TECNICO'] }
       },
       {

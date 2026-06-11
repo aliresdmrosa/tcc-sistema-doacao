@@ -36,7 +36,11 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   private route = inject(ActivatedRoute);
   private reparoService = inject(ReparoService);
 
-  idDoacao = this.route.snapshot.paramMap.get('id') ?? '1234';
+  somenteLeitura = this.route.snapshot.data['somenteLeitura'] === true;
+  idTecnicoAdmin = Number(this.route.snapshot.paramMap.get('id'));
+  idReparoAdmin = Number(this.route.snapshot.paramMap.get('idReparo'));
+  idDoacao = this.route.snapshot.paramMap.get('id') ?? '';
+  equipamentoDoacao = '--';
   statusDoacao = 'REPARO';
 
   displayedColumns: string[] = [
@@ -90,11 +94,12 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
+    if (this.somenteLeitura) {
+      this.displayedColumns = this.displayedColumns.filter((coluna) => coluna !== 'acoes');
+      this.buscarReparoPorId();
+      return;
+    }
 
-    // mock
-    // this.carregarDadosMock();
-
-    // chamada api
     this.buscarHistoricoDaApi();
   }
 
@@ -120,10 +125,28 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
       next: (dados) => {
         console.log('Dados do historico de reparos da doacao:', dados);
         this.dataSource.data = dados;
+        this.equipamentoDoacao = dados[0]?.equipamentoDoacao ?? '--';
       },
       error: (erro) => {
         console.error('Erro ao buscar historico de reparos:', erro);
       }
+    });
+  }
+
+  buscarReparoPorId(): void {
+    if (!Number.isFinite(this.idReparoAdmin)) {
+      console.error('Id do reparo invalido:', this.idReparoAdmin);
+      return;
+    }
+
+    this.reparoService.buscarReparoPorId(this.idReparoAdmin).subscribe({
+      next: (reparo) => {
+        this.dataSource.data = [reparo];
+        this.idDoacao = String(reparo.idDoacao);
+        this.equipamentoDoacao = reparo.equipamentoDoacao ?? '--';
+        this.statusDoacao = reparo.dataFim ? 'FINALIZADO' : 'EM ANDAMENTO';
+      },
+      error: (erro) => console.error('Erro ao buscar reparo:', erro)
     });
   }
 
@@ -227,6 +250,11 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   }
   
   voltar(): void {
+    if (this.somenteLeitura) {
+      this.router.navigate(['/admin/tecnicos', this.idTecnicoAdmin]);
+      return;
+    }
+
     this.router.navigate(['/tecnico/doacoes']);
   }
 

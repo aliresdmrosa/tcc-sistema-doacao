@@ -168,6 +168,60 @@ public class DoacaoService {
         }
     }
 
+    public Doacao aprovarDoacaoParaReparo(@NonNull Long id, String motivo) {
+        if (id == null) {
+            throw new IdNullException("ID da doacao nao pode ser nulo.");
+        }
+
+        try {
+            Doacao doacao = findByiD(id);
+            doacao.setStatus(Status.APROVADO_REPARO);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao aprovada para reparo: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.APROVADO_REPARO);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            repository.save(doacao);
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO_REPARO");
+            return doacao;
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada para aprovacao para reparo com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao aprovar doacao para reparo");
+            throw new AprovarErroException("Erro ao aprovar doacao para reparo");
+        }
+    }
+
+    public Doacao entregarDoacao(@NonNull Long id, String motivo) {
+        if (id == null) {
+            throw new IdNullException("ID da doacao nao pode ser nulo.");
+        }
+
+        Doacao doacao = findByiD(id);
+
+        if (doacao.getStatus() != Status.APROVADO && doacao.getStatus() != Status.APROVADO_REPARO) {
+            throw new AprovarErroException("Doacao so pode ser entregue quando esta aprovada ou aprovada para reparo.");
+        }
+
+        HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+        historicoDoacao.setDataAlteracao(LocalDateTime.now());
+        historicoDoacao.setObservacao("Doacao entregue: " + motivo);
+        historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+        historicoDoacao.setStatus(Status.ENTREGUE);
+        historicoDoacao.setDoacao(doacao);
+
+        doacao.setStatus(Status.ENTREGUE);
+        doacao.getHistorico().add(historicoDoacao);
+
+        return repository.save(doacao);
+    }
+
     public Doacao reprovarDoacao(@NonNull Long id, String motivo) {
 
         try {
@@ -481,13 +535,7 @@ public class DoacaoService {
             try {
                 analise = openAIService.analisarImagens(doacaoRequest.imagens());
                 log.debug("Resposta da IA: {}", analise);
-                if (analise.status().equals(Status.APROVADO)) {
-                    novaDoacao.setStatus(Status.APROVADO_REPARO);
-                } else if (analise.status().equals(Status.REPARO)) {
-                    novaDoacao.setStatus(Status.REPARO);
-                } else {
-                    novaDoacao.setStatus(Status.REPROVADO);
-                }
+                novaDoacao.setStatus(Status.PENDENTE);
                 observacaoHistorico = analise.descricao() + " - " + analise.recomendacao();
             } catch (RequestImageIaException e) {
                 log.error("Erro na analise da IA. Doacao sera cadastrada como PENDENTE: {}", e.getMessage());

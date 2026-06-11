@@ -1,5 +1,6 @@
 # JVM crash logs
 hs_err_pid*.log
+replay_pid*.log
 
 # Local secrets
 .env

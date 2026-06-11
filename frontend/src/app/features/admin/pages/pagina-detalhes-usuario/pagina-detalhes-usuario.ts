@@ -188,6 +188,10 @@ export class PaginaDetalhesUsuario implements OnInit {
   }
 
   ativarEdicao(): void {
+    if (this.usuario.ativo === false) {
+      return;
+    }
+
     this.modoEdicao = true;
     this.usuarioForm.enable();
   }

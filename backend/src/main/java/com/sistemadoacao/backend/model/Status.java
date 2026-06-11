@@ -6,6 +6,7 @@ public enum Status {
     REPROVADO,
     REPARO,
     DOADO,
+    ENTREGUE,
     DESCARTE,
     PENDENTE,
     ESTOQUE,
