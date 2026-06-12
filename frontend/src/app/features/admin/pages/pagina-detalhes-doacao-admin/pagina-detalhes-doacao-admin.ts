@@ -72,6 +72,9 @@ interface ImagemEdicao {
   styleUrls: ['./pagina-detalhes-doacao-admin.css']
 })
 export class PaginaDetalhesDoacaoAdmin implements OnInit {
+marcarDescarte() {
+  console.log("deve alterar para descarte")
+}
 
 
   private router = inject(Router);

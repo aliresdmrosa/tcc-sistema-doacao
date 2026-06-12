@@ -107,7 +107,8 @@
                   type="button"
                   matTooltip="Excluir"
                   class="botao-excluir"
-                  (click)="excluir(solicitacao)">
+                  (click)="excluir(solicitacao)"
+                  [disabled]="solicitacao.status !== 'PENDENTE'">
                   <mat-icon>delete</mat-icon>
                 </button>
 

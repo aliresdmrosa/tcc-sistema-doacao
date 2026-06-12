@@ -56,7 +56,7 @@
         <span>Entregue</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="reabrirAnalise()">
+      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="reabrirAnalise()" [disabled]="doacao.status === 'PENDENTE'">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
@@ -66,9 +66,14 @@
         <span>Doado</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarAprovadoReparo()">
+      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarAprovadoReparo()" [disabled]="doacao.status !== 'PENDENTE'">
         <mat-icon>check</mat-icon>
         <span>Reparo</span>
+      </button>
+
+      <button mat-menu-item class="acao-perigo" (click)="marcarDescarte()">
+        <mat-icon>delete</mat-icon>
+        <span>Descarte</span>
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="deletar()">

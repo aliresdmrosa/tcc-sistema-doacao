@@ -163,3 +163,6 @@
     max-width: none;
   }
 }
+button:disabled mat-icon {
+  opacity: 0.4;
+}
