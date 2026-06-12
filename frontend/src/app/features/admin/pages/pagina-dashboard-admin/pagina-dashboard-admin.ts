@@ -142,7 +142,7 @@ export class PaginaDashboardAdmin {
       }
     },
     xaxis: {
-      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun']
+      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     },
     yaxis: {
       title: {

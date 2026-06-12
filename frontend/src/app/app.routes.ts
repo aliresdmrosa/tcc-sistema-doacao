@@ -94,7 +94,7 @@ export const routes: Routes = [
         path: 'admin/tecnicos/:id/historico',
         component: PaginaHistoricoReparosComponent,
         canActivate: [authGuard, perfilGuard],
-        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+        data: { perfisPermitidos: ['ADMINISTRADOR', 'TECNICO'] }
       },
       {
         path: 'admin/tecnicos/:id/reparos/:idReparo',

@@ -93,7 +93,7 @@ export class PaginaDashboardTecnico implements OnInit {
       height: 280
     },
     xaxis: {
-      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun']
+      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     },
     yaxis: {
       title: {

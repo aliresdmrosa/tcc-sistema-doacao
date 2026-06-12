@@ -58,7 +58,7 @@ public class ReparoController {
     }
 
     @GetMapping("/tecnico")
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     @Operation(summary = "Lista todos os reparos de um tecnico", description = "Retorna uma lista de todos os reparos cadastrado no sistema.")
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
     @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
@@ -73,7 +73,7 @@ public class ReparoController {
     }
 
     @GetMapping("/tecnico/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','TECNICO')")
     @Operation(summary = "Lista todos os reparos de um tecnico por id", description = "Retorna uma lista de todos os reparos de um tecnico especifico.")
     @ApiResponse(responseCode = "200", description = "Reparos encontrados com sucesso")
     @ApiResponse(responseCode = "403", description = "Acesso negado, nao possui permissao", content = @Content)
