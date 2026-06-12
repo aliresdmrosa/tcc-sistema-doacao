@@ -25,37 +25,37 @@
         <span>Editar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeAprovar" (click)="aprovar()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'PENDENTE'" (click)="aprovar()">
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeReprovar" (click)="reprovar()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'PENDENTE'" (click)="reprovar()">
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeMarcarReparo" (click)="enviarParaReparo()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'APROVADO_REPARO'" (click)="enviarParaReparo()">
         <mat-icon>chevron_right</mat-icon>
         <span>Reparo</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeMarcarEntregue" (click)="entregar()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'APROVADO' && doacao?.status !== 'APROVADO_REPARO'" (click)="entregar()">
         <mat-icon>inventory_2</mat-icon>
         <span>Entregue</span>
       </button>
 
-      <button mat-menu-item class="acao-perigo" [disabled]="!podeDescartar" (click)="descartar()">
+      <button mat-menu-item class="acao-perigo" [disabled]="doacao?.status !== 'PENDENTE'"  (click)="descartar()">
         <mat-icon>delete_sweep</mat-icon>
         <span>Descarte</span>
       </button>
 
-      <button mat-menu-item [disabled]="!podeReabrirAnalise" (click)="reabrirAnalise()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'PENDENTE'" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
 
-      <button mat-menu-item  (click)="deletar()">
+      <button mat-menu-item  (click)="deletar()" [disabled]="doacao?.status !== 'PENDENTE'">
         <mat-icon>delete</mat-icon>
         <span>Deletar</span>
       </button>
