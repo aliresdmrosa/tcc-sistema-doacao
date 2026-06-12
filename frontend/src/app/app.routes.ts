@@ -151,25 +151,25 @@ export const routes: Routes = [
         path: 'tecnico/doacoes',
         component: PaginaDoacoesTecnicoComponent,
         // canActivate: [perfilGuard],
-        data: { perfisPermitidos: ['TECNICO'] }
+        data: { perfisPermitidos: ['TECNICO', 'ADMINISTRADOR'] }
       },
       {
         path: 'tecnico/doacoes/:id',
         component: PaginaDetalhesDoacaoTecnico,
         // canActivate: [perfilGuard],
-        data: { perfisPermitidos: ['TECNICO'] }
+        data: { perfisPermitidos: ['TECNICO', 'ADMINISTRADOR'] }
       },
       {
         path: 'tecnico/historico',
         component: PaginaHistoricoReparosComponent,
         canActivate: [authGuard, perfilGuard],
-        data: { perfisPermitidos: ['TECNICO'] }
+        data: { perfisPermitidos: ['TECNICO', 'ADMINISTRADOR'] }
       },
       {
         path: 'tecnico/doacoes/:id/reparo',
         component: PaginaReparoDoacaoComponent,
         canActivate: [authGuard, perfilGuard],
-        data: { perfisPermitidos: ['TECNICO'] }
+        data: { perfisPermitidos: ['TECNICO', 'ADMINISTRADOR'] }
       },
       {
         path: 'usuario',

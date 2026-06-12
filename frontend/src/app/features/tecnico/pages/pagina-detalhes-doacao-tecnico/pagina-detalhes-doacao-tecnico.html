@@ -50,7 +50,7 @@
         <span>Descarte</span>
       </button>
 
-      <button mat-menu-item [disabled]="doacao?.status !== 'PENDENTE'" (click)="reabrirAnalise()">
+      <button mat-menu-item [disabled]="doacao?.status === 'PENDENTE'" (click)="reabrirAnalise()">
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
