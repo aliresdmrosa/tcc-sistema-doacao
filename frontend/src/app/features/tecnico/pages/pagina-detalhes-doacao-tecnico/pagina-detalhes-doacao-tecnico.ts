@@ -131,9 +131,9 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
           cpf: doacao.cpf ?? '',
           equipamento: doacao.equipamento ?? '',
           descricao: doacao.descricao ?? '',
-  
           estadoConservacao: doacao.statusConservacao ?? ''
         });
+        console.log(doacao);
         this.imagens = doacao.imagens?.map(
           imagem => `http://localhost:8080${imagem.url}`
         ) ?? [];

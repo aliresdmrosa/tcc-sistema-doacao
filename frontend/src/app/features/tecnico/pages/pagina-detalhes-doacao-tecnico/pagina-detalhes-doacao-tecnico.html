@@ -35,7 +35,7 @@
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item [disabled]="doacao?.status !== 'APROVADO_REPARO'" (click)="enviarParaReparo()">
+      <button mat-menu-item [disabled]="doacao?.status !== 'PENDENTE' && doacao?.status !== 'APROVADO_REPARO'" (click)="enviarParaReparo()">
         <mat-icon>chevron_right</mat-icon>
         <span>Reparo</span>
       </button>
