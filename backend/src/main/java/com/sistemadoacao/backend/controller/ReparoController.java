@@ -110,7 +110,7 @@ public class ReparoController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     @Operation(summary = "Cadastra novo reparo", description = "Retorna um novo reparo cadastrado no sistema.")
     @ApiResponse(responseCode = "201", description = "Reparos cadastrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Doacao nao encontrada.")
@@ -129,7 +129,7 @@ public class ReparoController {
     }
 
     @PatchMapping("{id}/descricao")
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     @Operation(summary = "Atualizar descricao do reparo", description = "Atualiza apenas a descricao de um reparo.")
     @ApiResponse(responseCode = "200", description = "Descricao do reparo atualizada com sucesso")
     @ApiResponse(responseCode = "404", description = "Reparo nao encontrado", content = @Content)
@@ -148,7 +148,7 @@ public class ReparoController {
     @Operation(summary = "Concluir reparo", description = "Altera o status da doação para Aprovado e adiciona data de fim de reparo.")
     @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
     @PatchMapping("concluir/{id}")
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     public ResponseEntity<Void> concluirReparo(@RequestBody String motivo, @PathVariable Long id) {
         try {
             reparoService.concluirReparo(id, motivo);
@@ -165,7 +165,7 @@ public class ReparoController {
     @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
     @PatchMapping("descarte/{id}")
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     public ResponseEntity<Void> concluirReparoDescarte(@RequestBody String motivo, @PathVariable Long id) {
         try {
             reparoService.concluirReparoDescarte(id, motivo);
@@ -178,7 +178,7 @@ public class ReparoController {
     }
 
     @PatchMapping("concluir-item/{id}")
-    @PreAuthorize("hasRole('TECNICO')")
+    @PreAuthorize("hasAnyRole('TECNICO', 'ADMINISTRADOR')")
     @Operation(summary = "Concluir item de reparo", description = "Altera o status do item de reparo para Concluido e adiciona data de fim do item.")
     @ApiResponse(responseCode = "200", description = "Item de reparo concluido com sucesso")
     @ApiResponse(responseCode = "404", description = "Item de reparo não encontrado", content = @Content)
