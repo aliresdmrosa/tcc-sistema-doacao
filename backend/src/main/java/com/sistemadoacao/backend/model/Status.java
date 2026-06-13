@@ -7,7 +7,7 @@ public enum Status {
     REPARO,
     DOADO,
     ENTREGUE,
-    DESCARTE,
+    RECICLAGEM,
     PENDENTE,
     ESTOQUE,
     VINCULADO,

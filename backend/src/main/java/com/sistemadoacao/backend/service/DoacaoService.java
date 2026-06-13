@@ -219,6 +219,8 @@ public class DoacaoService {
         doacao.setStatus(Status.ENTREGUE);
         doacao.getHistorico().add(historicoDoacao);
 
+        emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "ENTREGUE");
+
         return repository.save(doacao);
     }
 
@@ -267,6 +269,8 @@ public class DoacaoService {
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.REPARO);
 
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "REPARO");
+
             return repository.save(doacao);
         } catch (NotFoundException e) {
             log.error("Doacao nao encontrada para envio ao reparo com ID {}", id);
@@ -290,6 +294,8 @@ public class DoacaoService {
 
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.ESTOQUE);
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "ESTOQUE");
 
             return repository.save(doacao);
         } catch (NotFoundException e) {
@@ -315,6 +321,7 @@ public class DoacaoService {
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.PENDENTE);
 
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "PENDENTE");
             return repository.save(doacao);
         } catch (NotFoundException e) {
             log.error("Doacao nao encontrada para envio a pendente com ID {}", id);
@@ -338,6 +345,8 @@ public class DoacaoService {
 
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.APROVADO_REPARO);
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO REPARO");
 
             return repository.save(doacao);
         } catch (NotFoundException e) {
@@ -363,6 +372,8 @@ public class DoacaoService {
             doacao.getHistorico().add(historicoDoacao);
             doacao.setStatus(Status.DOADO);
             doacao.setDataEntrega(LocalDate.now());
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "DOADO");
 
             return repository.save(doacao);
         } catch (NotFoundException e) {
@@ -486,6 +497,8 @@ public class DoacaoService {
         // O CascadeType.ALL salvará a imagem automaticamente
         existente = atualizarHistoricoDoacao(existente, analise.descricao() + " - " + analise.recomendacao());
         log.debug("Doação cadastrada com ID {}", existente.getId());
+
+        emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), existente.getStatus().toString());
 
         return repository.save(existente);
     }
@@ -634,5 +647,32 @@ public class DoacaoService {
 
     public HistoricoDoacao avaliacaoIA(Long id) {
         return historicoRepository.findTopByDoacao_IdOrderByDataAlteracaoDesc(id);
+    }
+
+    public Doacao doacaoReciclagem(Long id, String motivo) {
+        try {
+            Doacao doacao = findByiD(id);
+
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao marcada como reciclagem: " + motivo);
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.RECICLAGEM);
+            historicoDoacao.setDoacao(doacao);
+
+            doacao.getHistorico().add(historicoDoacao);
+            doacao.setStatus(Status.RECICLAGEM);
+            doacao.setDataEntrega(LocalDate.now());
+
+            emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "RECICLAGEM");
+
+            return repository.save(doacao);
+        } catch (NotFoundException e) {
+            log.error("Doacao nao encontrada com ID {}", id);
+            throw e;
+        } catch (Exception e) {
+            log.error("Erro ao enviar doacao  {}", e.getMessage());
+            throw new RuntimeException("Erro ao enviar doacao para reciclagem", e);
+        }
     }
 }

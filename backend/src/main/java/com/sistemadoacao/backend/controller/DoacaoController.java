@@ -1,10 +1,5 @@
 package com.sistemadoacao.backend.controller;
-
-
 import java.util.List;
-
-
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
-
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.HistoricoDoacao;
@@ -33,15 +27,11 @@ import com.sistemadoacao.backend.dto.DoacaoResponseDTO;
 import com.sistemadoacao.backend.dto.DoacaoResponseUserDTO;
 import com.sistemadoacao.backend.dto.DoacaoReverDTO;
 import com.sistemadoacao.backend.dto.DoacaoTDTO;
-
-
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-
 
 
 @Slf4j
@@ -53,15 +43,9 @@ public class DoacaoController {
 
     private final DoacaoService doacaoService;
     
-
-
     public DoacaoController(DoacaoService doacaoService) {
         this.doacaoService = doacaoService;
-        
-
     }
-
-    // TODO: Implementar função para imprimir etiqueta de doação
 
     @GetMapping("avaliacao/{id}")
     public ResponseEntity<HistoricoDoacao> avaliacaoIA(@PathVariable Long id) {
@@ -132,7 +116,6 @@ public class DoacaoController {
     }
 
     @DeleteMapping("/{id}")
-    //TODO : ENVIAR EMAIL PARA USUÁRIO INFORMANDO QUE SUA DOAÇÃO FOI DELETADA, COM O MOTIVO DA DELEÇÃO
     @Operation(summary = "Deletar doacao pelo ID")
     @ApiResponse(responseCode = "204", description = "Doação deletado com sucesso")
     @ApiResponse(responseCode = "400", description = "Requisição inválida")
@@ -143,7 +126,6 @@ public class DoacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    // TODO : ENVIAR EMAIL PARA USUÁRIO INFORMANDO QUE SUA DOAÇÃO FOI ATUALIZADA, COM O MOTIVO DA ATUALIZAÇÃO
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Atualização parcial", description = "Altera apenas os campos enviados no formulário.")
     @ApiResponse(responseCode = "201", description = "Doação criada com sucesso")
@@ -253,6 +235,15 @@ public class DoacaoController {
     @PatchMapping("doado/{id}")
     public ResponseEntity<Doacao> enviarDoacaoParaDoado(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
         return ResponseEntity.ok(doacaoService.enviarDoacaoParaDoado(id, body.motivo()));
+    }
+
+    @Operation(summary = "Marcar doacao como reciclagem", description = "Altera apenas o status da doacao para RECICLAGEM.")
+    @ApiResponse(responseCode = "200", description = "Doacao marcada como reciclagem com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doacao nao encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("reciclagem/{id}")
+    public ResponseEntity<Doacao> doacaoReciclagem(@RequestBody AlterStatusDTO body, @PathVariable Long id) {
+        return ResponseEntity.ok(doacaoService.doacaoReciclagem(id, body.motivo()));
     }
 
     @GetMapping("/aprovada")
