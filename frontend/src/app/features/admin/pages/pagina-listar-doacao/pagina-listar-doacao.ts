@@ -16,15 +16,6 @@ import { DoacaoService } from '../../../../core/services/doacao.service';
 import { DoacaoDTO } from '../../../../core/dto/daocao.dto';
 import { abrirJanelaEtiquetaVazia, imprimirEtiquetaDoacao } from '../../../../shared/utils/etiqueta-doacao';
 
-interface DoacaoAdmin {
-  id: string;
-  cpf: string;
-  nome: string;
-  equipamento: string;
-  dataCadastro: Date;
-  dataUltimaAtualizacao: Date;
-  status: string;
-}
 
 @Component({
   selector: 'app-pagina-listar-doacao-admin',
