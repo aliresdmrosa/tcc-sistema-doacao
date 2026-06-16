@@ -159,11 +159,11 @@ public class ReparoService {
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao("Doacao para descarte");
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.DESCARTE);
+            historicoDoacao.setStatus(Status.RECICLAGEM);
 
             historicoDoacao.setDoacao(doacao);
 
-            doacao.setStatus(Status.DESCARTE);
+            doacao.setStatus(Status.RECICLAGEM);
             doacao.getHistorico().add(historicoDoacao);
 
             reparoConcluir.setDataFim(LocalDateTime.now());

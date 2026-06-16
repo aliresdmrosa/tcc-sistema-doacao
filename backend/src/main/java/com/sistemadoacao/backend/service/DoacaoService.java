@@ -146,14 +146,14 @@ public class DoacaoService {
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao("Doacao aprovada: " + motivo.replace("{}", motivo));
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.APROVADO);
+            historicoDoacao.setStatus(Status.APROVADA);
 
             historicoDoacao.setDoacao(doacaoAprovar);
 
             doacaoAprovar.getHistorico().add(historicoDoacao);
 
             Doacao doacao = repository.findById(id).orElseThrow();
-            doacao.setStatus(Status.APROVADO);
+            doacao.setStatus(Status.APROVADA);
             repository.save(doacao);
 
             emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
@@ -175,13 +175,13 @@ public class DoacaoService {
 
         try {
             Doacao doacao = findByiD(id);
-            doacao.setStatus(Status.APROVADO_REPARO);
+            doacao.setStatus(Status.APROVADA_REPARO);
 
             HistoricoDoacao historicoDoacao = new HistoricoDoacao();
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao("Doacao aprovada para reparo: " + motivo);
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.APROVADO_REPARO);
+            historicoDoacao.setStatus(Status.APROVADA_REPARO);
             historicoDoacao.setDoacao(doacao);
 
             doacao.getHistorico().add(historicoDoacao);
@@ -205,7 +205,7 @@ public class DoacaoService {
 
         Doacao doacao = findByiD(id);
 
-        if (doacao.getStatus() != Status.APROVADO && doacao.getStatus() != Status.APROVADO_REPARO) {
+        if (doacao.getStatus() != Status.APROVADA && doacao.getStatus() != Status.APROVADA_REPARO) {
             throw new AprovarErroException("Doacao so pode ser entregue quando esta aprovada ou aprovada para reparo.");
         }
 
@@ -234,17 +234,17 @@ public class DoacaoService {
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao(motivo);
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.REPROVADO);
+            historicoDoacao.setStatus(Status.REPROVADA);
 
             historicoDoacao.setDoacao(doacaoReprovar);
 
             doacaoReprovar.getHistorico().add(historicoDoacao);
 
-            doacaoReprovar.setStatus(Status.REPROVADO);
+            doacaoReprovar.setStatus(Status.REPROVADA);
             repository.save(doacaoReprovar);
 
             emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(),
-                    "REPROVADO");
+                    "REPROVADA");
             return doacaoReprovar;
         } catch (NotFoundException e) {
             log.error("Doação não encontrada para reprovação com ID {}", id);
@@ -340,11 +340,11 @@ public class DoacaoService {
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao("Doacao aprovada para reparo: " + motivo);
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.APROVADO_REPARO);
+            historicoDoacao.setStatus(Status.APROVADA_REPARO);
             historicoDoacao.setDoacao(doacao);
 
             doacao.getHistorico().add(historicoDoacao);
-            doacao.setStatus(Status.APROVADO_REPARO);
+            doacao.setStatus(Status.APROVADA_REPARO);
 
             emailService.enviarEmailStatusDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), "APROVADO REPARO");
 
@@ -472,14 +472,14 @@ public class DoacaoService {
             analise = openAIService.analisarImagens(atualizado.imagens());
             log.debug("Resposta da IA: {}", analise);
             switch (analise.status()) {
-                case APROVADO:
-                    existente.setStatus(Status.APROVADO);
+                case APROVADA:
+                    existente.setStatus(Status.APROVADA);
                     break;
                 case REPARO:
                     existente.setStatus(Status.REPARO);
                     break;
                 default:
-                    existente.setStatus(Status.REPROVADO);
+                    existente.setStatus(Status.REPROVADA);
                     break;
             }
         } catch (Exception e) {
@@ -520,9 +520,9 @@ public class DoacaoService {
                 usuarioRepository.count(),
                 repository.count(),
                 repository.countByStatus(Status.DOADO),
-                repository.countByStatus(Status.APROVADO),
-                repository.countByStatus(Status.APROVADO_REPARO),
-                repository.countByStatus(Status.REPROVADO),
+                repository.countByStatus(Status.APROVADA),
+                repository.countByStatus(Status.APROVADA_REPARO),
+                repository.countByStatus(Status.REPROVADA),
                 repository.countByStatus(Status.REPARO),
                 grafico,
                 graficoEquipamento);
@@ -561,7 +561,7 @@ public class DoacaoService {
             Doacao salva = atualizarHistoricoDoacao(novaDoacao, observacaoHistorico);
             log.debug("Doação cadastrada com ID {}", salva.getId());
 
-            if (analise != null && analise.status().equals(Status.REPROVADO)) {
+            if (analise != null && analise.status().equals(Status.REPROVADA)) {
                 emailService.enviarEmailAvaliacaoIA(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), analise
                         .descricao() + " - STATUS: " + analise.status()
                         + " -  \nInfelizmente sua doação foi avaliada pela IA como REPROVADA. \n Caso queira uma reavaliação, por favor, solicite uma revisao pelo tecnico");
@@ -607,7 +607,7 @@ public class DoacaoService {
         return imagensSalvas;
     }
 
-    // TODO: Melhorias futuras - usuario poderia pedir para revisar analise de ia
+    // Melhorias futuras - usuario poderia pedir para revisar analise de ia
 
     // public Doacao reverDoacao(Long id) {
     // return repository.findById(id).map(doacao -> {
@@ -633,7 +633,7 @@ public class DoacaoService {
     }
 
     public DoacaoReverDTO listarDoacaoReverReparoPorId(Long id) {
-        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADO_REPARO))
+        return repository.buscarDoacoesComDoador(Arrays.asList(Status.PENDENTE, Status.REPARO, Status.APROVADA_REPARO))
                 .stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()

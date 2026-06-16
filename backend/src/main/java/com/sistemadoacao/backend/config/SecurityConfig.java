@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Permite requisições OPTIONS para CORS
-                    req.requestMatchers("/login").permitAll(); // Login é aberto
+                    req.requestMatchers("/login", "/login/**").permitAll(); // Login e recuperação de senha são abertos
                     req.requestMatchers("/usuarios").permitAll(); // Cadastro de usuário é aberto
                     req.requestMatchers("/reparo/**").permitAll();
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto   

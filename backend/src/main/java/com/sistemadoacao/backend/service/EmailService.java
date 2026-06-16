@@ -80,4 +80,17 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
             logger.error("Erro ao enviar email de atualização de status da doação para " + email + ": " + e.getMessage());
         }
     }
+
+    public void enviarEmailRecuperacaoSenha(String email, String nome, String link) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Recuperação de senha");
+            message.setText("Olá " + nome + ",\n\nRecebemos uma solicitação para redefinir sua senha.\n\nAcesse o link abaixo para criar uma nova senha:\n" + link + "\n\nEste link expira em 30 minutos.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            mailSender.send(message);
+            logger.info("Email de recuperação de senha enviado com sucesso para " + email);
+        } catch (MailException e) {
+            logger.error("Erro ao enviar email de recuperação de senha para " + email + ": " + e.getMessage());
+        }
+    }
 }

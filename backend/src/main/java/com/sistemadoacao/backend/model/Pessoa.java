@@ -1,6 +1,7 @@
 package com.sistemadoacao.backend.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +59,12 @@ public class Pessoa implements UserDetails {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDate dataCadastro;
+
+    @Column(name = "token_recuperacao")
+    private String tokenRecuperacao;
+
+    @Column(name = "token_expiracao")
+    private LocalDateTime tokenExpiracao;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

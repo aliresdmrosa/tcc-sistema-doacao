@@ -9,3 +9,17 @@ export interface LoginResponse {
   email: string;
   perfil: string;
 }
+
+export interface RecuperarSenhaRequest {
+  email: string;
+}
+
+export interface RedefinirSenhaRequest {
+  token: string;
+  novaSenha: string;
+  confirmarSenha: string;
+}
+
+export interface MensagemResponse {
+  mensagem: string;
+}

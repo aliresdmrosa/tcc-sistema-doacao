@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AuthService } from '../../../../core/services/auth.service';
 import { SENHA_FORTE_REGEX } from '../../../../shared/utils/form-validations';
 
 @Component({
@@ -19,7 +21,8 @@ import { SENHA_FORTE_REGEX } from '../../../../shared/utils/form-validations';
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatSnackBarModule
   ],
   templateUrl: './pagina-nova-senha.html',
   styleUrl: './pagina-nova-senha.css',
@@ -27,6 +30,9 @@ import { SENHA_FORTE_REGEX } from '../../../../shared/utils/form-validations';
 export class PaginaNovaSenha {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+  private snackBar = inject(MatSnackBar);
 
   carregando = false;
   ocultarSenha = true;
@@ -45,11 +51,31 @@ export class PaginaNovaSenha {
 
     this.carregando = true;
 
-    // chamar api
-    setTimeout(() => {
+    const token = this.route.snapshot.queryParamMap.get('token') ?? '';
+    if (!token) {
+      this.snackBar.open('Token de recuperação não encontrado.', 'Fechar', {
+        duration: 4000
+      });
       this.carregando = false;
-      this.router.navigate(['/sucesso-redefinir-senha']);
-    }, 800);
+      return;
+    }
+
+    this.authService.redefinirSenha({
+      token,
+      novaSenha: this.form.value.senha ?? '',
+      confirmarSenha: this.form.value.confirmarSenha ?? ''
+    }).subscribe({
+      next: () => {
+        this.carregando = false;
+        this.router.navigate(['/sucesso-redefinir-senha']);
+      },
+      error: () => {
+        this.snackBar.open('Não foi possível redefinir a senha.', 'Fechar', {
+          duration: 4000
+        });
+        this.carregando = false;
+      }
+    });
   }
 
   voltarLogin(): void {

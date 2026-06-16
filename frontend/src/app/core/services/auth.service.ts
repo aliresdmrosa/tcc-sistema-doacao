@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { LoginRequest, LoginResponse } from '../models/auth.model';
+import {
+  LoginRequest,
+  LoginResponse,
+  MensagemResponse,
+  RedefinirSenhaRequest
+} from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -63,5 +68,13 @@ export class AuthService {
       .toUpperCase()
       .replace('ROLE_', '')
       .trim();
+  }
+
+  solicitarRecuperacaoSenha(email: string): Observable<MensagemResponse> {
+    return this.http.post<MensagemResponse>(`${this.apiUrl}/recuperar-senha`, { email });
+  }
+
+  redefinirSenha(dados: RedefinirSenhaRequest): Observable<MensagemResponse> {
+    return this.http.post<MensagemResponse>(`${this.apiUrl}/redefinir-senha`, dados);
   }
 }

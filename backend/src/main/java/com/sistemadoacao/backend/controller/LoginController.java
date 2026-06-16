@@ -17,8 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sistemadoacao.backend.dto.LoginDTO;
 import com.sistemadoacao.backend.dto.LoginRequestDTO;
+import com.sistemadoacao.backend.dto.RecuperarSenhaDTO;
+import com.sistemadoacao.backend.dto.RedefinirSenhaDTO;
+import com.sistemadoacao.backend.exception.NotFoundException;
 import com.sistemadoacao.backend.repository.PessoaRepository;
+import com.sistemadoacao.backend.service.LoginService;
 import com.sistemadoacao.backend.service.TokenService;
+
+import java.util.Map;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,6 +45,9 @@ public class LoginController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private LoginService loginService;
 
     @PostMapping
     public ResponseEntity<LoginDTO> efetuarLogin(@RequestBody @Valid LoginRequestDTO dados) {
@@ -73,6 +82,34 @@ public class LoginController {
         } catch (Exception e) {
             log.error("Erro ao autenticar: {}", e.getMessage());
             return ResponseEntity.status(401).build();
+        }
+    }
+
+    @PostMapping("/recuperar-senha")
+    public ResponseEntity<Map<String, String>> recuperarSenha(@RequestBody RecuperarSenhaDTO dados) {
+        try {
+            loginService.solicitarRecuperacaoSenha(dados.email());
+            return ResponseEntity.ok(Map.of("mensagem", "E-mail de recuperação enviado."));
+        } catch (NotFoundException e) {
+            log.warn("Solicitação de recuperação para e-mail não encontrado: {}", dados.email());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensagem", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            log.warn("Dados inválidos para recuperação de senha: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("mensagem", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<Map<String, String>> redefinirSenha(@RequestBody RedefinirSenhaDTO dados) {
+        try {
+            loginService.redefinirSenha(dados);
+            return ResponseEntity.ok(Map.of("mensagem", "Senha redefinida com sucesso."));
+        } catch (NotFoundException e) {
+            log.warn("Tentativa de redefinição com token inválido.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("mensagem", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            log.warn("Dados inválidos para redefinição de senha: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("mensagem", e.getMessage()));
         }
     }
 }

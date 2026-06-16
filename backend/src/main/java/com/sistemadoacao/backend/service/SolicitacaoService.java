@@ -124,7 +124,7 @@ public class SolicitacaoService {
         h.setDataAlteracao(LocalDateTime.now());
         h.setObservacao("Solicitacao deletada");
         h.setExecutor(getNomeUsuarioLogado());
-        h.setStatus(Status.DESCARTE);
+        h.setStatus(Status.DELETADA);
         // Adicionar id_solicitacao no historico
         try {
             Solicitacao s = findById(id);
@@ -190,12 +190,12 @@ public class SolicitacaoService {
             historico.setDataAlteracao(LocalDateTime.now());
             historico.setObservacao("Solicitação aprovada.");
             historico.setExecutor(getNomeUsuarioLogado());
-            historico.setStatus(Status.APROVADO);
+            historico.setStatus(Status.APROVADA);
 
             historico.setSolicitacao(existente);
 
             existente.getHistorico().add(historico);
-            existente.setStatus(Status.APROVADO);
+            existente.setStatus(Status.APROVADA);
             solicitacaoRepository.save(existente);
 
             log.info("Solicitacao aprovado - ", id);
@@ -216,12 +216,12 @@ public class SolicitacaoService {
             historico.setDataAlteracao(LocalDateTime.now());
             historico.setObservacao("Solicitação reprovada.");
             historico.setExecutor(getNomeUsuarioLogado());
-            historico.setStatus(Status.REPROVADO);
+            historico.setStatus(Status.REPROVADA);
 
             historico.setSolicitacao(existente);
             // Atualizar histórico da solicitação
             existente.getHistorico().add(historico);
-            existente.setStatus(Status.REPROVADO);
+            existente.setStatus(Status.REPROVADA);
             solicitacaoRepository.save(existente);
         } catch (Exception e) {
             log.error("Erro ao reprovar solicitação ID {}: {}", id, e.getMessage());
@@ -278,7 +278,7 @@ public class SolicitacaoService {
                     .orElseThrow(() -> new Exception("Doação não encontrada com ID: " + doacaoId));
         
 
-        if (solicitacao.getStatus() != Status.APROVADO) {
+        if (solicitacao.getStatus() != Status.APROVADA) {
             log.error("Solicitação com ID: {} não está aprovada. Status atual: {}", solicitacaoId,
                     solicitacao.getStatus());
             throw new AprovarErroException("Solicitação com ID: " + solicitacaoId + " não está aprovada.");

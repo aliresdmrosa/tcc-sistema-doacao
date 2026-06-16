@@ -14,6 +14,8 @@ public interface PessoaRepository  extends JpaRepository<Pessoa, Long> {
 
     Optional<Pessoa> findByEmail(String email);
 
+    Optional<Pessoa> findByTokenRecuperacao(String token);
+
     Optional<Pessoa> findByCpf(String cpf);
 
 
