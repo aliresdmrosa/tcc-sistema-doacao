@@ -553,7 +553,7 @@ public class DoacaoService {
             } catch (RequestImageIaException e) {
                 log.error("Erro na analise da IA. Doacao sera cadastrada como PENDENTE: {}", e.getMessage());
                 novaDoacao.setStatus(Status.PENDENTE);
-                observacaoHistorico = "Analise da IA nao realizada: " + e.getMessage();
+                observacaoHistorico = "erro na analise, aguardar avaliação do Administrador ou Tecnico. ";
             }
             novaDoacao.setImagens(novasImagens);
 

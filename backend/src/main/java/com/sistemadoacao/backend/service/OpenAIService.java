@@ -50,13 +50,13 @@ public class OpenAIService {
         Map<String, Object> textContent = new HashMap<>();
         textContent.put("type", "input_text");
         textContent.put("text",
-                "Analise a imagem e se nao for de um computador ou periférico status deve ser REPROVADO caso contrario determine seu estado:\n" +
-                "- APROVADO: funcionando normalmente\n" +
-                "- REPARO: possui defeitos, mas pode ser consertado\n" +
-                "- REPROVADO: não tem conserto\n\n" +
+                "Analise a imagem e se nao for de um computador ou periférico O status deve ser REPROVADA caso contrario determine seu estado:\n" +
+                "- APROVADA: funcionando normalmente\n" +
+                "- APROVADA_REPARO: possui defeitos, mas pode ser consertado\n" +
+                "- REPROVADA: não tem conserto\n\n" +
                 "Responda formato com no maximo 20 caracteres:\n" +
                 "{\n" +
-                "  \"status\": \"APROVADO | REPARO | REPROVADO\",\n" +
+                "  \"status\": \"APROVADA | APROVADA_REPAROARO | REPROVADA\",\n" +
                 "  \"descricao\": \"Descreva o problema ou estado de forma resumida\",\n" +
                 "  \"recomendacao\": \"escreva o que deve ser feito de forma resumida\"\n" +
                 "}"
