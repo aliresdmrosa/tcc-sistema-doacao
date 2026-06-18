@@ -138,12 +138,10 @@ body :is(
 }
 
 body .pagina-listar-usuarios {
-  --listagem-max-width: 1320px;
   --listagem-tabela-min-width: 1120px;
 }
 
 body .pagina-reparo-doacao {
-  --listagem-max-width: 880px;
   --listagem-tabela-min-width: 760px;
 }
 
@@ -198,6 +196,10 @@ body :is(
   .pagina-doacoes-tecnico,
   .pagina-historico-reparos
 ) .barra-filtros {
+  width: min(100%, var(--listagem-max-width));
+  max-width: var(--listagem-max-width);
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
