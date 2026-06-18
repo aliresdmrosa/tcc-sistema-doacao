@@ -1,14 +1,3 @@
-.pagina-doacoes-tecnico {
-  padding: 32px;
-  background: transparent;
-  min-height: 100vh;
-}
-
-.cabecalho-pagina {
-  max-width: 1200px;
-  margin: 0 auto 24px;
-}
-
 .cabecalho-pagina h1 {
   margin: 0;
   font-size: 2rem;
@@ -21,91 +10,16 @@
   color: #6f6487;
 }
 
-.card-listagem {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.barra-filtros {
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  margin-bottom: 36px;
-}
-
-.campo-busca {
-  width: 100%;
-  max-width: 360px;
-}
-
-.tabela-container {
-  overflow-x: auto;
-}
-
-.tabela-doacoes {
-  width: 100%;
-  background: #ffffff;
-}
-
-.mat-mdc-header-row {
-  background: #f6f2fb;
-}
-
-.mat-mdc-header-cell {
-  color: #3b2f57;
-  font-weight: 500;
-  font-size: 0.92rem;
-}
-
-.mat-mdc-cell {
-  color: #4c4560;
-  font-size: 0.92rem;
-}
-
 .botao-acoes {
   width: 32px;
   height: 32px;
   padding: 0;
 }
 
-.acoes-tabela {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.estado-tela {
-  min-height: 220px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #6f6487;
-}
-
-.estado-tela.erro {
-  color: #b42318;
-}
-
 mat-paginator {
   border-top: 1px solid #eeeeee;
 }
 
-@media (max-width: 768px) {
-  .pagina-doacoes-tecnico {
-    padding: 20px;
-  }
-
-  .barra-filtros {
-    align-items: stretch;
-  }
-
-  .campo-busca {
-    max-width: none;
-    width: 100%;
-  }
-}
 .status-aprovado {
   background: #e8f7ee;
   color: #1f7a45;

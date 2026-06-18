@@ -3,6 +3,16 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --listagem-padding: clamp(20px, 2.4vw, 32px);
+  --listagem-max-width: 1200px;
+  --listagem-tabela-min-width: 900px;
+}
+
 .mat-20 {
   margin-top: 20px;
 }
@@ -110,4 +120,298 @@ table.mat-mdc-table button.mat-mdc-icon-button mat-icon,
 table.mat-mdc-table .acoes-tabela button.mat-mdc-icon-button,
 table.mat-mdc-table .acoes-tabela button.mat-mdc-icon-button mat-icon {
   color: #6f6f6f !important;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) {
+  padding: var(--listagem-padding);
+  background: transparent;
+  min-height: 100%;
+}
+
+body .pagina-listar-usuarios {
+  --listagem-max-width: 1320px;
+  --listagem-tabela-min-width: 1120px;
+}
+
+body .pagina-reparo-doacao {
+  --listagem-max-width: 880px;
+  --listagem-tabela-min-width: 760px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) :is(.topo-pagina, .cabecalho-pagina, .card-listagem) {
+  width: min(100%, var(--listagem-max-width));
+  max-width: var(--listagem-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) :is(.topo-pagina, .cabecalho-pagina) {
+  margin-bottom: 24px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes
+) .topo-pagina {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) .barra-filtros {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 36px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) .campo-busca {
+  width: 100%;
+  max-width: 360px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) .tabela-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) :is(.tabela-usuarios, .tabela-doacoes, .tabela-solicitacoes, .tabela-historico, .tabela-reparos) {
+  width: 100%;
+  min-width: var(--listagem-tabela-min-width);
+  background: #ffffff;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) .mat-mdc-header-row {
+  background: #f6f2fb;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) .mat-mdc-header-cell {
+  color: #3b2f57;
+  font-weight: 500;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos,
+  .pagina-reparo-doacao
+) .mat-mdc-cell {
+  color: #4c4560;
+  font-size: 0.92rem;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-doacoes-tecnico
+) .acoes-tabela {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) .estado-tela,
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes
+) .sem-registros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6f6487;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) .estado-tela {
+  min-height: 220px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes
+) .sem-registros {
+  min-height: 180px;
+}
+
+body :is(
+  .pagina-listar-usuarios,
+  .pagina-listar-doacao-admin,
+  .pagina-listar-solicitacao,
+  .pagina-listar-doacoes,
+  .pagina-listar-solicitacoes,
+  .pagina-doacoes-tecnico,
+  .pagina-historico-reparos
+) .estado-tela.erro {
+  color: #b42318;
+}
+
+@media (max-width: 768px) {
+  body :is(
+    .pagina-listar-usuarios,
+    .pagina-listar-doacao-admin,
+    .pagina-listar-solicitacao,
+    .pagina-listar-doacoes,
+    .pagina-listar-solicitacoes,
+    .pagina-doacoes-tecnico,
+    .pagina-historico-reparos,
+    .pagina-reparo-doacao
+  ) {
+    --listagem-padding: 20px;
+  }
+
+  body :is(
+    .pagina-listar-usuarios,
+    .pagina-listar-doacao-admin,
+    .pagina-listar-solicitacao,
+    .pagina-listar-doacoes,
+    .pagina-listar-solicitacoes
+  ) .topo-pagina {
+    align-items: stretch;
+  }
+
+  body .pagina-listar-usuarios .topo-pagina button {
+    width: 100%;
+  }
+
+  body :is(
+    .pagina-listar-usuarios,
+    .pagina-listar-doacao-admin,
+    .pagina-listar-solicitacao,
+    .pagina-listar-doacoes,
+    .pagina-listar-solicitacoes,
+    .pagina-doacoes-tecnico,
+    .pagina-historico-reparos
+  ) .barra-filtros {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  body :is(
+    .pagina-listar-usuarios,
+    .pagina-listar-doacao-admin,
+    .pagina-listar-solicitacao,
+    .pagina-listar-doacoes,
+    .pagina-listar-solicitacoes,
+    .pagina-doacoes-tecnico,
+    .pagina-historico-reparos
+  ) .campo-busca {
+    max-width: none;
+  }
 }

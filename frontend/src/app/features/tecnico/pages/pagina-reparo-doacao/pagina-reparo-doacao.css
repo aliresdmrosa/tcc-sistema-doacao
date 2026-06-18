@@ -1,9 +1,3 @@
-.pagina-reparo-doacao {
-  padding: 32px;
-  background: transparent;
-  min-height: 100vh;
-}
-
 .botao-voltar {
   width: 40px;
   height: 40px;
@@ -59,36 +53,10 @@
 }
 
 .card-listagem {
-  max-width: 880px;
-  margin: 0 auto 40px;
+  margin-bottom: 40px;
   border-radius: 12px;
   border: 1px solid #ece3f8;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.tabela-container {
-  overflow-x: auto;
-}
-
-.tabela-reparos {
-  min-width: 760px;
-  width: 100%;
-  background: #ffffff;
-}
-
-.mat-mdc-header-row {
-  background: #f6f2fb;
-}
-
-.mat-mdc-header-cell {
-  color: #3b2f57;
-  font-weight: 500;
-  font-size: 0.92rem;
-}
-
-.mat-mdc-cell {
-  color: #4c4560;
-  font-size: 0.92rem;
 }
 
 .mat-column-acoes {
@@ -161,10 +129,6 @@ mat-form-field {
 }
 
 @media (max-width: 768px) {
-  .pagina-reparo-doacao {
-    padding: 20px;
-  }
-
   .acoes-formulario {
     flex-direction: column;
   }
