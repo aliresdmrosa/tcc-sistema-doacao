@@ -57,9 +57,6 @@ export class PaginaLogin {
 
     this.authService.login(dados).subscribe({
       next: () => {
-        this.snackBar.open('Login realizado com sucesso!', 'Fechar', {
-          duration: 3000
-        });
 
         const perfil = this.authService.getPerfil();
 
