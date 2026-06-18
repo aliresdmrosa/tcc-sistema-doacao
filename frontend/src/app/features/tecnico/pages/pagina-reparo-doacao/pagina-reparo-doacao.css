@@ -15,9 +15,27 @@
   color: #2e2e2e;
 }
 
+.card-identificacao,
+.card-form-reparo {
+  width: min(100%, var(--listagem-max-width));
+  max-width: var(--listagem-max-width);
+  margin: 0 auto 24px;
+  border-radius: 12px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --mdc-elevated-card-container-shape: 12px;
+}
+
+.card-identificacao mat-card-content,
+.card-form-reparo mat-card-content {
+  padding: 24px;
+}
+
 .identificacao-doacao {
-  max-width: 880px;
-  margin: 0 auto 40px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .identificacao-doacao h2 {
@@ -52,8 +70,16 @@
   font-size: 0.92rem;
 }
 
+.dados-doacao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+
 .card-listagem {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   border-radius: 12px;
   border: 1px solid #ece3f8;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
@@ -82,8 +108,7 @@ mat-paginator {
 }
 
 .novo-reparo-titulo {
-  max-width: 700px;
-  margin: 0 auto 20px;
+  margin: 0 0 20px;
   display: flex;
   align-items: center;
 }
@@ -96,8 +121,7 @@ mat-paginator {
 }
 
 .form-reparo {
-  max-width: 700px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 mat-form-field {
@@ -129,6 +153,16 @@ mat-form-field {
 }
 
 @media (max-width: 768px) {
+  .identificacao-doacao {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dados-doacao {
+    align-items: flex-start;
+    text-align: left;
+  }
+
   .acoes-formulario {
     flex-direction: column;
   }

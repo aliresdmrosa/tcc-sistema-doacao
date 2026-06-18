@@ -4,14 +4,23 @@
     <mat-icon>arrow_back</mat-icon>
   </div>
 
-  <section class="identificacao-doacao">
-    <h2>Identificação da doação</h2>
-    <span class="badge-status" [class.status-reparo]="statusDoacao === 'REPARO'">
-      {{ statusDoacao.toLowerCase() }}
-    </span>
-    <p>ID: {{ idDoacao }}</p>
-    <p>Item: {{ equipamentoDoacao }}</p>
-  </section>
+  <mat-card class="card-identificacao elevated-container-shape">
+    <mat-card-content>
+      <section class="identificacao-doacao">
+        <div>
+          <h2>Identificação da doação</h2>
+          <span class="badge-status" [class.status-reparo]="statusDoacao === 'REPARO'">
+            {{ statusDoacao.toLowerCase() }}
+          </span>
+        </div>
+
+        <div class="dados-doacao">
+          <p>ID: {{ idDoacao }}</p>
+          <p>Item: {{ equipamentoDoacao }}</p>
+        </div>
+      </section>
+    </mat-card-content>
+  </mat-card>
 
   <mat-card class="card-listagem mat-elevation-z8">
     <mat-card-content>
@@ -65,31 +74,35 @@
     </mat-card-content>
   </mat-card>
 
-  <section class="novo-reparo-titulo" *ngIf="!somenteLeitura">
-    <h2>Novo Reparo</h2>
-  </section>
+  <mat-card class="card-form-reparo mat-elevation-z8" *ngIf="!somenteLeitura">
+    <mat-card-content>
+      <section class="novo-reparo-titulo">
+        <h2>Novo Reparo</h2>
+      </section>
 
-  <section class="form-reparo" *ngIf="!somenteLeitura">
-    <mat-form-field class="campo-descricao">
-      <mat-label>Descrição</mat-label>
-      <textarea matInput rows="5" [(ngModel)]="descricao"></textarea>
-    </mat-form-field>
+      <section class="form-reparo">
+        <mat-form-field class="campo-descricao">
+          <mat-label>Descrição</mat-label>
+          <textarea matInput rows="5" [(ngModel)]="descricao"></textarea>
+        </mat-form-field>
 
-    <div class="acoes-formulario">
-      <button mat-raised-button color="secondary" type="button" class="botao-salvar" [disabled]="!podeAdicionarReparo && !editandoReparo" (click)="salvarReparo()">
-        <mat-icon><span class="material-symbols-outlined">
-            add
-          </span></mat-icon>
-        {{ editandoReparo ? 'Salvar' : 'Adicionar' }}
-      </button>
+        <div class="acoes-formulario">
+          <button mat-raised-button color="secondary" type="button" class="botao-salvar" [disabled]="!podeAdicionarReparo && !editandoReparo" (click)="salvarReparo()">
+            <mat-icon><span class="material-symbols-outlined">
+                add
+              </span></mat-icon>
+            {{ editandoReparo ? 'Salvar' : 'Adicionar' }}
+          </button>
 
-      <button mat-raised-button color="primary" type="button" class="botao-salvar" [disabled]="!podeConcluirDoacao" (click)="concluirReparo()">
-        <mat-icon>check</mat-icon>
-        Concluir
-      </button>
+          <button mat-raised-button color="primary" type="button" class="botao-salvar" [disabled]="!podeConcluirDoacao" (click)="concluirReparo()">
+            <mat-icon>check</mat-icon>
+            Concluir
+          </button>
 
-    </div>
+        </div>
 
-  </section>
+      </section>
+    </mat-card-content>
+  </mat-card>
 
 </div>
