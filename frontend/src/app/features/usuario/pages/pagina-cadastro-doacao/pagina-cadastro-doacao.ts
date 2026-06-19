@@ -1,7 +1,6 @@
 ﻿import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -35,7 +34,6 @@ import { abrirModalAviso, abrirModalCarregamento } from '../../../../shared/util
   styleUrl: './pagina-cadastro-doacao.css'
 })
 export class PaginaCadastroDoacao {
-  private router = inject(Router);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private doacaoService = inject(DoacaoService);
@@ -61,10 +59,6 @@ export class PaginaCadastroDoacao {
     'TECLADO',
     'MOUSE'
   ];
-
-  voltar(): void {
-    this.router.navigate(['/usuario/listar-doacoes']);
-  }
 
   selecionarImagem(event: Event): void {
     const input = event.target as HTMLInputElement;

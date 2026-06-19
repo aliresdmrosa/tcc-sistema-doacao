@@ -1,0 +1,3072 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sistema de Doação API",
+    "description": "API para gerenciamento de usuarios, solicitacoes e doações.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Usuários",
+      "description": "Endpoints para gerenciamento de usuários"
+    },
+    {
+      "name": "Reparo",
+      "description": "Endpoints para gerenciamento de reparos"
+    },
+    {
+      "name": "Login",
+      "description": "Endpoint publico para autenticação de usuários"
+    },
+    {
+      "name": "Doação",
+      "description": "Endpoints para gerenciamento de doacoes"
+    },
+    {
+      "name": "Solicitacao",
+      "description": "Endpoints para gerenciamento de solicitações"
+    }
+  ],
+  "paths": {
+    "/usuarios": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar todos os usuários",
+        "operationId": "listarUsuarios",
+        "responses": {
+          "200": {
+            "description": "Usuários encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PessoaResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastrar usuário",
+        "description": "Cadastra um novo usuário no banco de dados com email unico. ",
+        "operationId": "cadastrarUsuario",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário cadastrado com sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "nome": "João Silva",
+                  "cpf": "12345678900",
+                  "email": "joao@gmail.com",
+                  "senha": "senhaSegura123"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email já cadastrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        },
+        "security": []
+      }
+    },
+    "/usuarios/tecnico": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastro de usuario Tecnico",
+        "description": "Cadastra um novo usuario no banco com permissao de tecnico",
+        "operationId": "cadastrarTecnico",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TecnicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico."
+          }
+        }
+      }
+    },
+    "/solicitacao": {
+      "get": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Lista todas as solicitações",
+        "description": "Retorna todas as solicitações no sistema.",
+        "operationId": "listarTodos",
+        "responses": {
+          "200": {
+            "description": "Lista de solicitações retornada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SolicitacaoDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Cadastra nova solicitação",
+        "description": "Cadastra uma nova solicitação associada ao usuário autenticado.",
+        "operationId": "cadastrarSolicitacao",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolicitacaoRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitacao salva com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Solicitacao"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo": {
+      "get": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Lista todos os reparos",
+        "description": "Retorna uma lista de todos os reparos cadastrado no sistema.",
+        "operationId": "listarTodosReparos",
+        "responses": {
+          "200": {
+            "description": "Reparos encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReparoResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado, nao possui permissao"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Cadastra novo reparo",
+        "description": "Retorna um novo reparo cadastrado no sistema.",
+        "operationId": "novoReparo",
+        "parameters": [
+          {
+            "name": "id_doacao",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "descricao",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Reparos cadastrado com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReparoResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReparoResponseDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "efetuarLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginDTO"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/doacao": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Listar todas as doações",
+        "description": "Retorna uma lista de todas as doações cadastradas no sistema.",
+        "operationId": "listarDoacoes",
+        "responses": {
+          "200": {
+            "description": "Doacoes encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DoacaoResponseUserDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Criar uma nova doação",
+        "description": "Cria uma nova doação com os dados fornecidos com upload da imagem associada.",
+        "operationId": "cadastrarDoacao",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DoacaoRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doação criada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "404": {
+            "description": "Arquivo não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoResponseDTO"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Formato de arquivo inválido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoResponseDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuário por ID",
+        "operationId": "listarUsuarioPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário encontrado com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Deletar usuário pelo ID",
+        "description": "Excluir usuario permitido apenas para ADMINISTRADOR ou para o próprio usuário dono do ID",
+        "operationId": "deletarUsuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Usuário deletado com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar usuário pelo ID",
+        "description": "Atualiza os dados de um usuário existente pelo ID permitido pelo ADMINISTRADOR ou usuario do ID.",
+        "operationId": "atualizarUsuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pessoa"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/reativar": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Reativar perfil",
+        "description": "Reativa um perfil previamente desativado.",
+        "operationId": "reativarPerfil",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/desativar": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Desativar perfil",
+        "description": "Desativa o perfil sem remover seus registros do banco.",
+        "operationId": "desativarPerfil",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solicitacao/{solicitacaoId}/selecionar-doacao": {
+      "patch": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Seleciona uma doação para a solicitação",
+        "description": "Associa uma doação aprovada à solicitação pelo ID fornecido.",
+        "operationId": "selecionarDoacaoParaSolicitacao",
+        "parameters": [
+          {
+            "name": "solicitacaoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doação selecionada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Solicitacao"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/solicitacao/{id}": {
+      "get": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "operationId": "listarSolicitacaoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SolicitacaoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Deleta uma solicitação pelo ID",
+        "description": "Deleta uma solicitação pelo ID fornecido.",
+        "operationId": "deletarSolicitacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Solicitação deletada com sucesso"
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Atualiza uma solicitação pelo ID",
+        "description": "Atualiza os dados de uma solicitação pelo ID fornecido.",
+        "operationId": "atualizarSolicitacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SolicitacaoRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitação atualizada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Solicitacao"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "404": {
+            "description": "Solicitação não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/solicitacao/reprovar/{id}": {
+      "patch": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Reprova uma solicitação pelo ID",
+        "description": "Marca a solicitação como reprovada pelo ID fornecido.",
+        "operationId": "reprovarSolicitacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitação reprovada com sucesso"
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/solicitacao/pendente/{id}": {
+      "patch": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Reabre a analise de uma solicitacao pelo ID",
+        "description": "Marca a solicitacao como pendente pelo ID fornecido.",
+        "operationId": "reabrirAnaliseSolicitacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analise da solicitacao reaberta com sucesso"
+          },
+          "403": {
+            "description": "Usuario nao autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/solicitacao/aprovar/{id}": {
+      "patch": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Aprova uma solicitação pelo ID",
+        "description": "Marca a solicitação como aprovada pelo ID fornecido.",
+        "operationId": "aprovarSolicitacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitação aprovada com sucesso"
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo/{id}/descricao": {
+      "patch": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Atualizar descricao do reparo",
+        "description": "Atualiza apenas a descricao de um reparo.",
+        "operationId": "atualizarDescricaoReparo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Descricao do reparo atualizada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReparoResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reparo nao encontrado"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/reparo/descarte/{id}": {
+      "patch": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Reparo sem conserto",
+        "description": "Altera o status da doação para Descarte e adiciona data de fim de reparo.",
+        "operationId": "concluirReparoDescarte",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao para descarte com sucesso"
+          },
+          "404": {
+            "description": "Reparo não encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/reparo/concluir/{id}": {
+      "patch": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Concluir reparo",
+        "description": "Altera o status da doação para Aprovado e adiciona data de fim de reparo.",
+        "operationId": "concluirReparo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Reparo não encontrada"
+          }
+        }
+      }
+    },
+    "/reparo/concluir-item/{id}": {
+      "patch": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Concluir item de reparo",
+        "description": "Altera o status do item de reparo para Concluido e adiciona data de fim do item.",
+        "operationId": "concluirReparoItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item de reparo concluido com sucesso"
+          },
+          "404": {
+            "description": "Item de reparo não encontrado"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/{id}": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Lista doacao por ID",
+        "description": "Retorna doacao com ID buscado.",
+        "operationId": "listarDoacaoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doação encontrada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoTDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doação nao encontrada.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoTDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Deletar doacao pelo ID",
+        "operationId": "deletarDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Doação deletado com sucesso"
+          },
+          "400": {
+            "description": "Requisição inválida"
+          },
+          "404": {
+            "description": "Doação não encontrado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Atualização parcial",
+        "description": "Altera apenas os campos enviados no formulário.",
+        "operationId": "atualizarDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/DoacaoRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doação criada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacaoResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Arquivo não encontrado"
+          },
+          "415": {
+            "description": "Formato de arquivo inválido"
+          }
+        }
+      }
+    },
+    "/doacao/reprovar/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Reprovar doação",
+        "description": "Altera o status da doação para REPROVADO.",
+        "operationId": "reprovarDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doação reprovada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doação não encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/reparo/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Enviar doacao para reparo",
+        "description": "Altera apenas o status da doacao para REPARO.",
+        "operationId": "enviarDoacaoParaReparo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao enviada para reparo com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/pendente/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Reabrir análise",
+        "description": "Altera apenas o status da doacao para PENDENTE.",
+        "operationId": "enviarDoacaoParaPendente",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao enviada para analise com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/estoque/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Enviar doacao para estoque",
+        "description": "Altera apenas o status da doacao para ESTOQUE.",
+        "operationId": "enviarDoacaoParaEstoque",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao enviada para estoque com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/entregar/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Entregar doacao",
+        "description": "Altera o status da doacao para ENTREGUE.",
+        "operationId": "entregarDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao entregue com sucesso"
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/doado/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Marcar doacao como doada",
+        "description": "Altera apenas o status da doacao para DOADO.",
+        "operationId": "enviarDoacaoParaDoado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao marcada como doada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/aprovar/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Aprovar doação",
+        "description": "Altera o status da doação para APROVADO.",
+        "operationId": "aprovarDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doação aprovada com sucesso"
+          },
+          "404": {
+            "description": "Doação não encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/aprovar-reparo/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Aprovar doacao para reparo",
+        "description": "Altera o status da doacao para APROVADO_REPARO.",
+        "operationId": "aprovarDoacaoParaReparo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao aprovada para reparo com sucesso"
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/doacao/aprovado-reparo/{id}": {
+      "patch": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Enviar doacao para aprovado reparo",
+        "description": "Altera apenas o status da doacao para APROVADO_REPARO.",
+        "operationId": "enviarDoacaoParaAprovadoReparo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterStatusDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Doacao enviada para aprovado reparo com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Doacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Doacao nao encontrada"
+          },
+          "500": {
+            "description": "Erro no servidor"
+          }
+        }
+      }
+    },
+    "/usuarios/cpf/{cpf}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuario por CPF",
+        "operationId": "listarUsuarioPorCpf",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario encontrado com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario nao encontrado"
+          }
+        }
+      }
+    },
+    "/solicitacao/usuario": {
+      "get": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Lista solicitações do usuário autenticado",
+        "description": "Retorna todas as solicitações associadas ao usuário autenticado.",
+        "operationId": "listarPorUsuario",
+        "responses": {
+          "200": {
+            "description": "Lista de solicitações retornada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Solicitacao"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Usuário não autenticado"
+          },
+          "404": {
+            "description": "Nenhuma solicitação encontrada para o usuário"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/solicitacao/usuario/{id}": {
+      "get": {
+        "tags": [
+          "Solicitacao"
+        ],
+        "summary": "Lista solicitacoes de um usuario pelo ID",
+        "description": "Retorna todas as solicitacoes associadas ao usuario informado.",
+        "operationId": "listarPorUsuarioId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de solicitacoes retornada com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Solicitacao"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo/{id}": {
+      "get": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Lista todos os reparos de uma doacao",
+        "description": "Retorna uma lista de todos os reparos de uma doacao.",
+        "operationId": "listaTodosReparosDoacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reparos encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReparoResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado, nao possui permissao"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo/tecnico": {
+      "get": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Lista todos os reparos de um tecnico",
+        "description": "Retorna uma lista de todos os reparos cadastrado no sistema.",
+        "operationId": "listarTodosReparosTecnico",
+        "responses": {
+          "200": {
+            "description": "Reparos encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReparoResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado, nao possui permissao"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo/tecnico/{id}": {
+      "get": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Lista todos os reparos de um tecnico por id",
+        "description": "Retorna uma lista de todos os reparos de um tecnico especifico.",
+        "operationId": "listarTodosReparosTecnicoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reparos encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReparoResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado, nao possui permissao"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/reparo/item/{id}": {
+      "get": {
+        "tags": [
+          "Reparo"
+        ],
+        "summary": "Busca um reparo por id",
+        "description": "Retorna os dados de um reparo especifico.",
+        "operationId": "buscarReparoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReparoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doacao/usuario": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Listar todas as doacoes do usuario",
+        "operationId": "listarDoacoesPorUsuario",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DoacaoResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doacao/usuario/{id}": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Listar todas as doacoes de um usuario pelo ID",
+        "operationId": "listarDoacoesPorUsuarioId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DoacaoResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doacao/tipo/{equipamento}": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Listar todas as doações que são do mesmo tipo de equipamento",
+        "description": "Retorna uma lista de todas as doações cadastradas no sistema com o tipo do equipamento.",
+        "operationId": "listarDoacoesPorEquipamento",
+        "parameters": [
+          {
+            "name": "equipamento",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "COMPUTADOR",
+                "NOTEBOOK",
+                "MONITOR",
+                "TECLADO",
+                "MOUSE"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doacoes encontrados com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Doacao"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/doacao/tecnico": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Lista doações que estao com status PENDENTE ou REPARO",
+        "description": "Retorna todas as doações com status PENDENTE ou REPARO. Usar esse endpoint para selecionar doações para avaliação técnica.",
+        "operationId": "listarDoacoesTecnico",
+        "responses": {
+          "200": {
+            "description": "Doações status rever retornadas com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DoacaoReverDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/doacao/status/{status}": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Listar doacoes por status",
+        "description": "Retorna uma lista de doacoes filtradas pelo status informado.",
+        "operationId": "listarDoacoesPorStatus",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APROVADO_REPARO",
+                "APROVADO",
+                "REPROVADO",
+                "REPARO",
+                "DOADO",
+                "ENTREGUE",
+                "DESCARTE",
+                "PENDENTE",
+                "ESTOQUE",
+                "VINCULADO"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doacoes retornadas com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DoacaoResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/doacao/dashboard": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Obtem dados para preencher Dashboard",
+        "description": "Retorna um json com todos os dados para adiciionar nos cards e graficos.",
+        "operationId": "getDashboard",
+        "responses": {
+          "200": {
+            "description": "Dados do dashboard obtidos com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDTO"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro no servidor"
+          },
+          "403": {
+            "description": "Acesso negado"
+          }
+        }
+      }
+    },
+    "/doacao/avaliacao/{id}": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "operationId": "avaliacaoIA",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoricoDoacao"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doacao/aprovada": {
+      "get": {
+        "tags": [
+          "Doação"
+        ],
+        "summary": "Lista doações aprovadas",
+        "description": "Retorna todas as doações com status APROVADO ou APROVADO_IA. Usar esse endpoint para selecionar doações para solicitações.",
+        "operationId": "listarDoacoesAprovadas",
+        "responses": {
+          "200": {
+            "description": "Doações aprovadas retornadas com sucesso",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Doacao"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UsuarioRequestDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do usuario",
+            "example": "Joao Silva"
+          },
+          "cpf": {
+            "type": "string",
+            "description": "Numero do CPF",
+            "example": 12345678900,
+            "pattern": "\\d{11}"
+          },
+          "email": {
+            "type": "string",
+            "description": "Endereco de email do usuario",
+            "example": "joao@gmail.com"
+          },
+          "perfil": {
+            "type": "string",
+            "readOnly": true
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          },
+          "ativo": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "senha": {
+            "type": "string",
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$"
+          }
+        },
+        "required": [
+          "email",
+          "nome",
+          "senha"
+        ]
+      },
+      "TecnicoDTO": {
+        "type": "object",
+        "properties": {
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioRequestDTO"
+          },
+          "curso": {
+            "type": "string",
+            "enum": [
+              "TADS",
+              "BCC",
+              "GI",
+              "HISTORIO",
+              "BIOLOGIA"
+            ]
+          },
+          "GRR": {
+            "type": "string",
+            "pattern": "\\d{8}"
+          }
+        },
+        "required": [
+          "curso",
+          "usuario"
+        ]
+      },
+      "SolicitacaoRequestDTO": {
+        "type": "object",
+        "properties": {
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "curso": {
+            "type": "string",
+            "enum": [
+              "TADS",
+              "BCC",
+              "GI",
+              "DESIGN_GRAFICO",
+              "DESIGN_DE_PRODUTO",
+              "ENGENHARIA_CIVIL",
+              "ENGENHARIA_ELETRICA",
+              "ENGENHARIA_MECANICA",
+              "ENGENHARIA_CARTOGRAFICA",
+              "ARQUITETURA_E_URBANISMO"
+            ]
+          },
+          "grr": {
+            "type": "string",
+            "pattern": "\\d{8}"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "semComputador": {
+            "type": "boolean"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "curso",
+          "equipamento"
+        ]
+      },
+      "Doacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "doadorId": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "equipamento": {
+            "type": "string",
+            "description": "Tipo de equipamento doado",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ],
+            "example": "Teclado"
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Quantidade de equipamentos doados",
+            "example": 1
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descrição do equipamento doado",
+            "example": "Equipamento em ótimo estado, pouco uso."
+          },
+          "statusConservacao": {
+            "type": "string",
+            "description": "Estado de conservação do equipamento doado",
+            "enum": [
+              "NOVO",
+              "USADO",
+              "REPARO"
+            ],
+            "example": "NOVO"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          },
+          "dataEntrega": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          },
+          "imagens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImagemDoacao"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Status da doação",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ],
+            "example": "PENDENTE"
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoricoDoacao"
+            }
+          },
+          "solicitacao": {
+            "$ref": "#/components/schemas/Solicitacao"
+          }
+        }
+      },
+      "HistoricoDoacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observacao": {
+            "type": "string"
+          },
+          "executor": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          }
+        }
+      },
+      "HistoricoSolicitacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dataAlteracao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observacao": {
+            "type": "string"
+          },
+          "executor": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          }
+        }
+      },
+      "ImagemDoacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "url": {
+            "type": "string",
+            "description": "URL da imagem doada",
+            "example": "http://exemplo.com/imagem.jpg"
+          }
+        }
+      },
+      "Solicitacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "usuarioId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipamento": {
+            "type": "string",
+            "description": "Equipamento solicitado",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ],
+            "example": "NOTEBOOK"
+          },
+          "curso": {
+            "type": "string",
+            "description": "Curso do solicitante",
+            "enum": [
+              "TADS",
+              "BCC",
+              "GI",
+              "DESIGN_GRAFICO",
+              "DESIGN_DE_PRODUTO",
+              "ENGENHARIA_CIVIL",
+              "ENGENHARIA_ELETRICA",
+              "ENGENHARIA_MECANICA",
+              "ENGENHARIA_CARTOGRAFICA",
+              "ARQUITETURA_E_URBANISMO"
+            ],
+            "example": "TADS"
+          },
+          "grr": {
+            "type": "string",
+            "description": "GRR do solicitante",
+            "example": 20210001
+          },
+          "motivo": {
+            "type": "string",
+            "description": "Motivo da solicitação",
+            "example": "Necessidade de equipamento para estudos"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Status atual da solicitação",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ],
+            "example": "PENDENTE"
+          },
+          "ativo": {
+            "type": "boolean",
+            "description": "Indica aluno tem matrícula ativa",
+            "example": true
+          },
+          "sem_computador": {
+            "type": "boolean",
+            "description": "Indica se o solicitante não possui computador",
+            "example": true
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoricoSolicitacao"
+            }
+          },
+          "doacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Doacao"
+            }
+          }
+        }
+      },
+      "ReparoResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "conclusao": {
+            "type": "string"
+          },
+          "idTecnico": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "idDoacao": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipamentoDoacao": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          }
+        }
+      },
+      "LoginRequestDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "senha": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "perfil": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "perfil",
+          "token"
+        ]
+      },
+      "DoacaoRequestDTO": {
+        "type": "object",
+        "properties": {
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "conservacao": {
+            "type": "string",
+            "enum": [
+              "NOVO",
+              "USADO",
+              "REPARO"
+            ]
+          },
+          "imagens": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "DoacaoResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          },
+          "statusConservacao": {
+            "type": "string",
+            "enum": [
+              "NOVO",
+              "USADO",
+              "REPARO"
+            ]
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataEntrega": {
+            "type": "string",
+            "format": "date"
+          },
+          "imagens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImagemDoacao"
+            }
+          }
+        }
+      },
+      "GrantedAuthority": {
+        "type": "object",
+        "properties": {
+          "authority": {
+            "type": "string"
+          }
+        }
+      },
+      "Pessoa": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do usuário",
+            "example": "João Silva"
+          },
+          "cpf": {
+            "type": "string",
+            "description": "Número do CPF",
+            "example": 12345678900
+          },
+          "email": {
+            "type": "string",
+            "description": "Endereço de email do usuário",
+            "example": "joao@gmail.com"
+          },
+          "senha": {
+            "type": "string",
+            "description": "Senha do usuário",
+            "example": "senhaSegura123"
+          },
+          "ativo": {
+            "type": "boolean",
+            "description": "Indica se o perfil pode acessar o sistema",
+            "example": true
+          },
+          "perfis": {
+            "type": "array",
+            "description": "Papel do usuário no sistema",
+            "example": "TECNICO",
+            "items": {
+              "type": "string",
+              "enum": [
+                "USUARIO",
+                "ADMINISTRADOR",
+                "TECNICO"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date",
+            "readOnly": true
+          },
+          "password": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "username": {
+            "type": "string"
+          },
+          "authorities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GrantedAuthority"
+            }
+          },
+          "accountNonExpired": {
+            "type": "boolean"
+          },
+          "accountNonLocked": {
+            "type": "boolean"
+          },
+          "credentialsNonExpired": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PessoaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "perfil": {
+            "type": "string"
+          },
+          "dataCadastro": {
+            "type": "string"
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "grr": {
+            "type": "string"
+          },
+          "curso": {
+            "type": "string"
+          }
+        }
+      },
+      "AlterStatusDTO": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string"
+          }
+        }
+      },
+      "SolicitacaoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "grr": {
+            "type": "string"
+          },
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "curso": {
+            "type": "string",
+            "enum": [
+              "TADS",
+              "BCC",
+              "GI",
+              "DESIGN_GRAFICO",
+              "DESIGN_DE_PRODUTO",
+              "ENGENHARIA_CIVIL",
+              "ENGENHARIA_ELETRICA",
+              "ENGENHARIA_MECANICA",
+              "ENGENHARIA_CARTOGRAFICA",
+              "ARQUITETURA_E_URBANISMO"
+            ]
+          },
+          "sem_computador": {
+            "type": "boolean"
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          }
+        }
+      },
+      "DoacaoResponseUserDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "statusConservacao": {
+            "type": "string"
+          },
+          "equipamento": {
+            "type": "string"
+          }
+        }
+      },
+      "DoacaoTDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          },
+          "statusConservacao": {
+            "type": "string",
+            "enum": [
+              "NOVO",
+              "USADO",
+              "REPARO"
+            ]
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date"
+          },
+          "dataEntrega": {
+            "type": "string",
+            "format": "date"
+          },
+          "imagens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImagemDoacao"
+            }
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          }
+        }
+      },
+      "DoacaoReverDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "url": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APROVADO_REPARO",
+              "APROVADO",
+              "REPROVADO",
+              "REPARO",
+              "DOADO",
+              "ENTREGUE",
+              "DESCARTE",
+              "PENDENTE",
+              "ESTOQUE",
+              "VINCULADO"
+            ]
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "statusConservacao": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "equipamento": {
+            "type": "string",
+            "enum": [
+              "COMPUTADOR",
+              "NOTEBOOK",
+              "MONITOR",
+              "TECLADO",
+              "MOUSE"
+            ]
+          },
+          "dataAlteracaoStatus": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DashboardDTO": {
+        "type": "object",
+        "properties": {
+          "totalUsuarios": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalDoacoes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalDoacoesRealizadas": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "doacoesAprovadas": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "doacoesAprovadasIA": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "doacoesReprovadas": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "doacoesReparo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "doacoesPorMes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraficoDTO"
+            }
+          },
+          "doacoesPorEquipamento": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraficoEquipamentoDTO"
+            }
+          }
+        }
+      },
+      "GraficoDTO": {
+        "type": "object",
+        "properties": {
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "GraficoEquipamentoDTO": {
+        "type": "object",
+        "properties": {
+          "equipamento": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

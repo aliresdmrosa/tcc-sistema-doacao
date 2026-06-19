@@ -4,30 +4,6 @@
   min-height: 100vh;
 }
 
-.botao-voltar {
-  width: 40px;
-  height: 40px;
-  margin: 0 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #7f7f7f;
-  font-weight: 500;
-  border-radius: 50%;
-  transition: 0.2s ease;
-}
-
-.botao-voltar:hover {
-  color: #2e2e2e;
-}
-
-.botao-voltar mat-icon {
-  font-size: 25px;
-  width: 25px;
-  height: 25px;
-}
-
 .topo-pagina {
   max-width: 600px;
   margin: 0 auto 24px auto;
