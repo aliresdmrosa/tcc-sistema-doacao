@@ -2,7 +2,7 @@
   <section class="boas-vindas">
     <h1>Bem-vindo!</h1>
   </section>
-
+   
   <section class="cards-resumo">
     <mat-card class="card-resumo">
       <mat-card-content>
@@ -35,9 +35,12 @@
     <mat-card class="chart-card">
       <mat-card-content>
         <apx-chart
+        #barChart
           [series]="barChartOptions.series"
           [chart]="barChartOptions.chart"
           [xaxis]="barChartOptions.xaxis"
+          [dataLabels]="barChartOptions.dataLabels"
+          [plotOptions]="barChartOptions.plotOptions"
           [title]="barChartOptions.title">
         </apx-chart>
       </mat-card-content>

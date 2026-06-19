@@ -34,10 +34,13 @@
     <mat-card class="chart-card">
       <mat-card-content>
         <apx-chart
+          #barChart
           [series]="barChartOptions.series"
           [chart]="barChartOptions.chart"
           [xaxis]="barChartOptions.xaxis"
-          [title]="barChartOptions.title">
+          [title]="barChartOptions.title"
+          [dataLabels]="barChartOptions.dataLabels"
+          [plotOptions]="barChartOptions.plotOptions">
         </apx-chart>
       </mat-card-content>
     </mat-card>
@@ -49,6 +52,7 @@
         <mat-icon aria-hidden="true">location_on</mat-icon>
         <p>
           <strong>Local para entrega e retirada dos equipamentos:</strong>
+          <br>
           Setor de Educação Profissional e Tecnológica UFPR - R. Dr. Alcides Vieira Arcoverde, 1225 - Jardim das Américas, Curitiba - PR, 81520-260
         </p>
       </mat-card-content>

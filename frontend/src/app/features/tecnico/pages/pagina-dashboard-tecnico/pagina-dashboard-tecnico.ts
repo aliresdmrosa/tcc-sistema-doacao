@@ -105,7 +105,8 @@ export class PaginaDashboardTecnico implements OnInit {
     },
     plotOptions: {
       bar: {
-        borderRadius: 6
+        borderRadius: 6,
+        columnWidth: '50%'
       }
     },
     title: {
