@@ -23,7 +23,7 @@ services:
       context: ./backend
     image: sistema-doacao-backend
     container_name: backend_sistema_doacao
-    restart: always
+    restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy

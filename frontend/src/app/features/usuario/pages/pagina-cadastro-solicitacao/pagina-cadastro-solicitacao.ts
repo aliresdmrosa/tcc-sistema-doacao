@@ -1,7 +1,6 @@
 ﻿import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -38,7 +37,6 @@ import { normalizarGrr } from '../../../../shared/utils/form-validations';
 })
 export class PaginaCadastroSolicitacao {
   private fb = inject(FormBuilder);
-  private router = inject(Router);
   private solicitacaoService = inject(SolicitacaoService);
   private dialog = inject(MatDialog);
   cursos = CURSOS_USUARIO;
@@ -59,10 +57,6 @@ export class PaginaCadastroSolicitacao {
     semComputador: [false, Validators.requiredTrue],
     matriculaAtiva: [false, Validators.requiredTrue]
   });
-
-  voltar(): void {
-    this.router.navigate(['/usuario/listar-solicitacoes']);
-  }
 
   cadastrar(formDirective: FormGroupDirective): void {
     const dados: SolicitacaoDTO = {

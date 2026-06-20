@@ -28,25 +28,37 @@
 
       <button mat-menu-item *ngIf="modoEdicao" (click)="salvarEdicao()">
         <mat-icon>check</mat-icon>
-        <span>Salvar alteracoes</span>
+        <span>Salvar alterações</span>
       </button>
 
       <button mat-menu-item *ngIf="modoEdicao" (click)="cancelarEdicao()">
         <mat-icon>close</mat-icon>
-        <span>Cancelar edicao</span>
+        <span>Cancelar edição</span>
       </button>
 
-      <button mat-menu-item  (click)="marcarReparo()" [disabled]="doacao.status !== 'PENDENTE'">
+      <button
+        mat-menu-item
+        (click)="marcarReparo()"
+        [disabled]="modoEdicao || doacao.status !== 'PENDENTE'"
+      >
         <mat-icon>build</mat-icon>
         <span>Aprovar para reparo</span>
       </button>
 
-      <button mat-menu-item  (click)="aprovar()" [disabled]="doacao.status !== 'PENDENTE'">
+      <button
+        mat-menu-item
+        (click)="aprovar()"
+        [disabled]="modoEdicao || doacao.status !== 'PENDENTE'"
+      >
         <mat-icon>check</mat-icon>
         <span>Aprovar</span>
       </button>
 
-      <button mat-menu-item  (click)="reprovar()" [disabled]="doacao.status !== 'PENDENTE'">
+      <button
+        mat-menu-item
+        (click)="reprovar()"
+        [disabled]="modoEdicao || doacao.status !== 'PENDENTE'"
+      >
         <mat-icon>close</mat-icon>
         <span>Reprovar</span>
       </button>
@@ -56,17 +68,32 @@
         <span>Entregue</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="reabrirAnalise()" [disabled]="doacao.status === 'PENDENTE'">
+      <button
+        mat-menu-item
+        *ngIf="podeReabrirAnalise"
+        (click)="reabrirAnalise()"
+        [disabled]="modoEdicao || doacao.status === 'PENDENTE'"
+      >
         <mat-icon>restart_alt</mat-icon>
         <span>Reabrir análise</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeMarcarDoado" (click)="marcarDoado()" [disabled]="doacao.status !== 'VINCULADO'" >
+      <button
+        mat-menu-item
+        *ngIf="podeMarcarDoado"
+        (click)="marcarDoado()"
+        [disabled]="modoEdicao || doacao.status !== 'VINCULADO'"
+      >
         <mat-icon>inventory_1</mat-icon>
         <span>Doado</span>
       </button>
 
-      <button mat-menu-item *ngIf="podeReabrirAnalise" (click)="marcarAprovadoReparo()" [disabled]="doacao.status !== 'PENDENTE'">
+      <button
+        mat-menu-item
+        *ngIf="podeReabrirAnalise"
+        (click)="marcarAprovadoReparo()"
+        [disabled]="modoEdicao || doacao.status !== 'PENDENTE'"
+      >
         <mat-icon>check</mat-icon>
         <span>Reparo</span>
       </button>

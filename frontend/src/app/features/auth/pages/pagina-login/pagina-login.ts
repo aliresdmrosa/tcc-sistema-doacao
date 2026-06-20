@@ -57,7 +57,6 @@ export class PaginaLogin {
 
     this.authService.login(dados).subscribe({
       next: () => {
-
         const perfil = this.authService.getPerfil();
 
         if (perfil === 'ADMINISTRADOR') {
