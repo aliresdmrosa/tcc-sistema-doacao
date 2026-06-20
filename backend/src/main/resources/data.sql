@@ -235,3 +235,7 @@ WHERE status = '';
 UPDATE doacao
 SET status = 'PENDENTE'
 WHERE status = '';
+
+UPDATE historico_status
+SET status = 'PENDENTE'
+WHERE status = ''
