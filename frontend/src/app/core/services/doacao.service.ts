@@ -91,6 +91,10 @@ export class DoacaoService {
         return this.http.patch<void>(`${this.apiUrl}/doado/${id}`, { motivo });
     }
 
+    enviarDoacaoReciclagem(id: number, motivo: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/reciclagem/${id}`, { motivo });
+  }
+
     doacaoId(id: number): Observable<DoacaoDTO> {
       return this.http.get<DoacaoDTO>(`${this.apiUrl}/${id}`);
     }

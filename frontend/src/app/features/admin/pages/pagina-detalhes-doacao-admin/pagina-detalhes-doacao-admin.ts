@@ -72,9 +72,7 @@ interface ImagemEdicao {
   styleUrls: ['./pagina-detalhes-doacao-admin.css']
 })
 export class PaginaDetalhesDoacaoAdmin implements OnInit {
-marcarDescarte() {
-  console.log("deve alterar para descarte")
-}
+
 
 
   private router = inject(Router);
@@ -397,170 +395,105 @@ marcarDescarte() {
     this.form.disable();
   }
 
-  marcarReparo(): void {
-
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo: 'Enviar para reparo?',
-        mensagem: 'Confirme para alterar o status desta doacao para reparo.',
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      this.acaoEmAndamento = true;
-      this.doacaoService.enviarDoacaoParaReparo(Number(this.doacao.id), 'Doacao enviada para reparo pelo administrador.').subscribe({
-        next: () => {
-          this.acaoEmAndamento = false;
-          this.abrirModalAviso('Status alterado', 'A doacao foi enviada para reparo.', 'success');
-          this.carregarDoacaoDaApi();
-        },
-        error: (erro) => {
-          console.error('Erro ao alterar status para reparo:', erro);
-          this.acaoEmAndamento = false;
-          this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel enviar a doacao para reparo.', 'error');
-        }
-      });
-    });
-  }
-
   marcarEmEstoque(): void {
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo: 'Mover para estoque?',
-        mensagem: 'Confirme para alterar o status desta doacao para estoque.',
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      const modalCarregamento = this.abrirModalCarregamento(
-        'Movendo para estoque',
-        'Aguarde enquanto o status da doacao e atualizado.'
-      );
-
-      this.acaoEmAndamento = true;
-      this.doacaoService.enviarDoacaoParaEstoque(Number(this.doacao.id), 'Doacao enviada para estoque pelo administrador.').subscribe({
-        next: () => {
-          this.acaoEmAndamento = false;
-          modalCarregamento.close();
-          this.abrirModalAviso('Doacao em estoque', 'A doacao foi movida para estoque.', 'success');
-          this.carregarDoacaoDaApi();
-        },
-        error: (erro) => {
-          console.error('Erro ao alterar status para estoque:', erro);
-          this.acaoEmAndamento = false;
-          modalCarregamento.close();
-          this.abrirModalAviso('Erro ao mover doacao', 'Nao foi possivel mover a doacao para estoque.', 'error');
-        }
-      });
-    });
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Alterar status da doação para Estoque?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para estoque.',
+    tituloCarregamento: 'Doacao Estoque',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status estoque.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para estoque.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoParaEstoque(
+      id,
+      'Doacao aprovada pelo administrador.'
+    )
+  });
+    
   }
+  marcarDescarte() {
+  this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Alterar status da doação para Reciclagem?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para reciclagem.',
+    tituloCarregamento: 'Doacao reciclada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status reciclagem.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para reciclagem.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoReciclagem(
 
+      id,
+      'Doacao aprovada pelo administrador.'
+    )
+  })
+}
+
+ 
   aprovar(): void {
-    this.confirmarAlteracaoStatus(
-      'Aprovar doacao?',
-      'Confirme para alterar o status desta doacao para aprovada.',
-      'APROVADO',
-      'Doacao aprovada com sucesso!'
-    );
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Aprovar dacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para aprovada.',
+    tituloCarregamento: 'Doacao aprovada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status aprovada.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para aprovada.',
+    requisicao: (id) => this.doacaoService.aprovarDoacao(
+      id,
+      'Doacao aprovada pelo administrador.'
+    )
+  });
   }
 
   reprovar(): void {
-    this.confirmarAlteracaoStatus(
-      'Reprovar doacao?',
-      'Confirme para alterar o status desta doacao para reprovada.',
-      'REPROVADO',
-      'Doacao reprovada com sucesso!'
-    );
-  }
-
-  aprovarParaReparo(): void {
-    this.confirmarAlteracaoStatus(
-      'Aprovar para reparo?',
-      'Confirme para alterar o status desta doacao para aprovada para reparo.',
-      'APROVADO_REPARO',
-      'Doacao aprovada para reparo com sucesso!'
-    );
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Reprovar doacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para reprovada.',
+    tituloCarregamento: 'Doacao reprovada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status reprovada.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para reprovada.',
+    requisicao: (id) => this.doacaoService.reprovarDoacao(
+      id,
+      'Doacao reprovada pelo administrador.'
+    )
+  });
   }
 
   entregar(): void {
-    if (!this.podeMarcarEntregue) {
-      this.abrirModalAviso(
-        'Acao indisponivel',
-        'A doacao so pode ser entregue quando estiver aprovada ou aprovada para reparo.',
-        'warning'
-      );
-      return;
-    }
-
-    this.confirmarAlteracaoStatus(
-      'Marcar como entregue?',
-      'Confirme que o equipamento foi entregue.',
-      'ENTREGUE',
-      'Doacao marcada como entregue!'
-    );
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Entregar dacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para entregue.',
+    tituloCarregamento: 'Doacao entregue',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status entregue.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para entregue.',
+    requisicao: (id) => this.doacaoService.entregarDoacao(
+      id,
+      'Doacao entregue pelo administrador.'
+    )
+  });
   }
 
   reabrirAnalise(): void {
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo: 'Reabrir analise?',
-        mensagem: 'Confirme para alterar o status desta doacao para pendente.',
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
+  this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Reabrir analise?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para pendente.',
+    tituloCarregamento: 'Reabrindo analise',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Analise reaberta',
+    mensagemSucesso: 'A doacao voltou para o status pendente.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para pendente.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoParaPendente(
+      id,
+      'Analise reaberta pelo administrador.'
+    )
+  });
+}
 
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      const modalCarregamento = this.abrirModalCarregamento(
-        'Reabrindo analise',
-        'Aguarde enquanto o status da doacao e atualizado.'
-      );
-
-      this.acaoEmAndamento = true;
-      this.doacaoService.enviarDoacaoParaPendente(Number(this.doacao.id), 'Analise reaberta pelo administrador.').subscribe({
-        next: () => {
-          this.acaoEmAndamento = false;
-          modalCarregamento.close();
-          this.abrirModalAviso('Analise reaberta', 'A doacao voltou para o status pendente.', 'success');
-          this.carregarDoacaoDaApi();
-        },
-        error: (erro) => {
-          console.error('Erro ao reabrir analise:', erro);
-          this.acaoEmAndamento = false;
-          modalCarregamento.close();
-          this.abrirModalAviso('Erro ao reabrir analise', 'Nao foi possivel alterar o status da doacao para pendente.', 'error');
-        }
-      });
-    });
-  }
+  
 
   marcarAprovadoReparo(): void {
     this.confirmarAlteracaoStatusDireta({
@@ -593,6 +526,22 @@ marcarDescarte() {
       )
     });
   }
+
+  marcarReparo(): void {
+  this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Enviar para reparo?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para reparo.',
+    tituloCarregamento: 'Enviando para reparo',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Status alterado',
+    mensagemSucesso: 'A doacao foi enviada para reparo.',
+    mensagemErro: 'Nao foi possivel enviar a doacao para reparo.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoParaReparo(
+      id,
+      'Doacao enviada para reparo pelo administrador.'
+    )
+  });
+}
 
   deletar(): void {
     const dialogRef = this.dialog.open(DialogBaseComponent, {
@@ -648,6 +597,8 @@ marcarDescarte() {
         return 'status-entregue';
       case 'PENDENTE':
         return 'status-pendente';
+        case 'RECICLAGEM':
+          return 'status-aprovado'
       default:
         return 'status-default';
     }
@@ -679,112 +630,13 @@ marcarDescarte() {
         return 'Descarte';
       case 'PENDENTE':
         return 'Pendente';
+      case 'RECICLAGEM':
+        return 'Reciclagem'
       default:
         return status;
     }
   }
 
-  private podeExecutarAlteracaoStatus(status: StatusAnalise): boolean {
-    if (status === 'ENTREGUE') {
-      return this.podeMarcarEntregue;
-    }
-
-    return this.podeConcluirAnalise;
-  }
-
-  private alterarStatus(status: StatusAnalise, mensagem: string): void {
-    const id = Number(this.doacao.id);
-    const requisicao = this.obterRequisicaoAlteracaoStatus(id, status, mensagem);
-
-    if (!requisicao) {
-      return;
-    }
-
-    const statusNormalizado = this.statusNormalizado(status);
-    const statusAprovado = statusNormalizado === 'APROVADO';
-    const statusReprovado = statusNormalizado === 'REPROVADO';
-    const modalCarregamento = this.abrirModalCarregamento(
-      statusAprovado
-        ? 'Aprovando doacao'
-        : statusReprovado
-          ? 'Reprovando doacao'
-          : 'Atualizando doacao',
-      'Aguarde enquanto o status da doacao e atualizado.'
-    );
-
-    this.acaoEmAndamento = true;
-
-    requisicao.subscribe({
-      next: () => {
-        this.acaoEmAndamento = false;
-        modalCarregamento.close();
-        this.abrirModalAviso(
-          statusAprovado
-            ? 'Doacao aprovada'
-            : statusReprovado
-              ? 'Doacao reprovada'
-              : 'Status atualizado',
-          mensagem,
-          'success'
-        );
-        this.carregarDoacaoDaApi();
-      },
-      error: (erro) => {
-        console.error('Erro ao alterar status da doacao:', erro);
-        this.acaoEmAndamento = false;
-        modalCarregamento.close();
-        this.abrirModalAviso('Erro ao alterar status', 'Nao foi possivel alterar o status da doacao.', 'error');
-      }
-    });
-  }
-
-  private obterRequisicaoAlteracaoStatus(id: number, status: StatusAnalise, motivo: string) {
-    switch (status) {
-      case 'APROVADO':
-        return this.doacaoService.aprovarDoacao(id, motivo);
-      case 'APROVADO_REPARO':
-        return this.doacaoService.aprovarDoacaoParaReparo(id, motivo);
-      case 'REPROVADO':
-        return this.doacaoService.reprovarDoacao(id, motivo);
-      case 'ENTREGUE':
-        return this.doacaoService.entregarDoacao(id, motivo);
-      default:
-        return null;
-    }
-  }
-
-  private confirmarAlteracaoStatus(
-    titulo: string,
-    mensagem: string,
-    status: StatusAnalise,
-    mensagemSucesso: string
-  ): void {
-    if (!this.podeExecutarAlteracaoStatus(status)) {
-      this.abrirModalAviso('Acao indisponivel', 'Esta acao so pode ser feita quando a doacao esta pendente ou em reparo.', 'warning');
-      return;
-    }
-
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo,
-        mensagem,
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      this.alterarStatus(status, mensagemSucesso);
-    });
-  }
 
   private confirmarAlteracaoStatusDireta(config: {
     tituloConfirmacao: string;
@@ -912,6 +764,7 @@ marcarDescarte() {
       case 'DOADO':
       case 'ENTREGUE':
       case 'DESCARTE':
+      case 'RECICLAGEM':
         return normalizado as StatusAnalise;
       default:
         return 'PENDENTE';

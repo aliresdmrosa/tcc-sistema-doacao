@@ -51,7 +51,7 @@
         <span>Reprovar</span>
       </button>
 
-      <button mat-menu-item  (click)="marcarEmEstoque()" [disabled]="!['APROVADO', 'APROVADO_REPARO'].includes(doacao.status)">
+      <button mat-menu-item  (click)="marcarEmEstoque()" [disabled]="!['APROVADA', 'APROVADA_REPARO'].includes(doacao.status)">
         <mat-icon>inventory_2</mat-icon>
         <span>Entregue</span>
       </button>
@@ -72,8 +72,8 @@
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="marcarDescarte()">
-        <mat-icon>delete</mat-icon>
-        <span>Descarte</span>
+        <mat-icon>recycling</mat-icon>
+        <span>Reciclagem</span>
       </button>
 
       <button mat-menu-item class="acao-perigo" (click)="deletar()">
