@@ -143,6 +143,7 @@ export class PaginaDetalhesSolicitacaoAdmin {
         this.preencherFormulario();
         this.form.disable();
         this.carregando = false;
+        console.log(solicitacao)
       },
       error: (erro) => {
         console.error('Erro ao carregar solicitação:', erro);
@@ -183,6 +184,7 @@ export class PaginaDetalhesSolicitacaoAdmin {
       case 'PENDENTE':
       case 'VINCULADO':
       case 'VINCULADA':
+      case 'ENTREGUE':
         return normalizado as StatusAnalise;
       default:
         return 'PENDENTE';
@@ -258,24 +260,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
       }
     });
     return;
-
-    const dados = this.form.getRawValue();
-
-    this.solicitacao = {
-      ...this.solicitacao,
-      nomeSolicitante: dados.nomeSolicitante ?? '',
-      grr: dados.grr ?? '',
-      curso: dados.curso ?? '',
-      dataUltimaModificacao: this.obterDataAtual(),
-      equipamento: dados.equipamentoSolicitado ?? '',
-      motivo: dados.justificativa ?? '',
-      sem_computador: !!dados.declaracaoComputador,
-      ativo: !!dados.declaracaoMatricula
-    };
-
-    this.modoEdicao = false;
-    this.form.disable();
-    this.snackBar.open('Solicitação atualizada com sucesso!', 'Fechar', { duration: 3000 });
   }
 
   cancelarEdicao(): void {
@@ -347,16 +331,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
         }
       });
       return;
-
-      this.solicitacao = {
-        ...this.solicitacao,
-        status: 'APROVADA',
-        dataUltimaModificacao: this.obterDataAtual()
-      };
-
-      this.preencherFormulario();
-      this.snackBar.open('Solicitação aprovada com sucesso!', 'Fechar', { duration: 3000 });
-      this.atribuirEquipamento();
     });
   }
 
@@ -427,48 +401,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
     });
     return;
 
-    this.abrirModalAviso(
-      'Acao indisponivel',
-      'Ainda nao existe endpoint no backend para reabrir a analise da solicitacao.',
-      'warning'
-    );
-    return;
-
-    if (!this.podeReabrirAnalise) {
-      this.snackBar.open('A análise só pode ser reaberta quando a solicitação não está pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo: 'Reabrir análise?',
-        mensagem: 'Confirme para voltar esta solicitação para pendente.',
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      this.solicitacao = {
-        ...this.solicitacao,
-        status: 'PENDENTE',
-        dataUltimaModificacao: this.obterDataAtual()
-      };
-      this.limparEquipamentoAtribuido();
-
-      this.preencherFormulario();
-      this.snackBar.open('Análise reaberta com sucesso!', 'Fechar', { duration: 3000 });
-    });
   }
 
   atribuirEquipamento(): void {
@@ -528,33 +460,14 @@ export class PaginaDetalhesSolicitacaoAdmin {
     });
     return;
 
-    const dialogRef = this.dialog.open(DialogBaseComponent, {
-      width: '420px',
-      disableClose: true,
-      data: {
-        tipo: 'confirm',
-        titulo: 'Deseja excluir esta solicitação?',
-        mensagem: 'Essa ação será permanente.',
-        textoConfirmar: 'Confirmar',
-        textoCancelar: 'Cancelar',
-        mostrarCancelar: true
-      }
-    });
 
-    dialogRef.afterClosed().subscribe((confirmou) => {
-      if (!confirmou) {
-        return;
-      }
-
-      this.snackBar.open('Solicitação excluída com sucesso!', 'Fechar', { duration: 3000 });
-      this.voltar();
-    });
   }
 
   obterClasseStatus(status: string): string {
     switch (status?.toUpperCase()) {
       case 'APROVADA':
       case 'APROVADO':
+      case 'ENTREGUE':
         return 'status-aprovado';
       case 'REPROVADA':
       case 'REPROVADO':
@@ -569,25 +482,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
     }
   }
 
-  obterTextoStatus(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'APROVADO':
-      case 'APROVADA':
-        return 'Aprovada';
-      case 'REPROVADO':
-      case 'REPROVADA':
-        return 'Reprovada';
-      case 'VINCULADO':
-      case 'VINCULADA':
-        return 'Vinculada';
-      case 'DOADO':
-        return 'Doado';
-      case 'PENDENTE':
-        return 'Pendente';
-      default:
-        return status;
-    }
-  }
 
   private alterarStatus(status: StatusAnalise, mensagem: string): void {
     const id = this.obterIdSolicitacaoValido();
@@ -625,22 +519,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
       }
     });
     return;
-
-    if (!this.podeConcluirAnalise) {
-      this.snackBar.open('Esta ação só pode ser feita quando a solicitação está pendente.', 'Fechar', {
-        duration: 3500
-      });
-      return;
-    }
-
-    this.solicitacao = {
-      ...this.solicitacao,
-      status,
-      dataUltimaModificacao: this.obterDataAtual()
-    };
-
-    this.preencherFormulario();
-    this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
   }
 
   private confirmarAlteracaoStatus(
@@ -719,16 +597,6 @@ export class PaginaDetalhesSolicitacaoAdmin {
     localStorage.removeItem(`solicitacao:${this.solicitacao.id}:equipamentoAtribuido`);
   }
 
-  private buscarStatusSolicitacao(): StatusAnalise | null {
-    if (typeof localStorage === 'undefined') {
-      return null;
-    }
-
-    const id = this.idSolicitacao ?? '1';
-    const status = localStorage.getItem(`solicitacao:${id}:status`) as StatusAnalise | null;
-
-    return status;
-  }
 
   private obterDataAtual(): string {
     return new Date().toISOString();

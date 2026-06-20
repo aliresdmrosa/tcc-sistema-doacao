@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,12 +17,13 @@ import { DoacaoService } from '../../../../core/services/doacao.service';
 import { ReparoService } from '../../../../core/services/reparo.service';
 import { DialogBaseComponent } from '../../../../shared/dialogs/dialog-base/dialog-base';
 
-type StatusDoacaoTecnico = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'VINCULADA' | 'DOADO' | 'ENTREGUE' | 'DESCARTE';
+type StatusAnalise = 'PENDENTE' | 'REPARO' | 'APROVADO_REPARO' | 'APROVADO' | 'REPROVADO' | 'APROVADA' | 'REPROVADA' | 'ESTOQUE' | 'EM_ESTOQUE' | 'VINCULADO' | 'VINCULADA' | 'DOADO' | 'ENTREGUE' | 'DESCARTE';
 
 interface ReparoHistorico {
   id: number;
   dataFim?: string | null;
 }
+
 
 @Component({
   selector: 'app-pagina-detalhes-doacao-tecnico',
@@ -46,6 +47,7 @@ interface ReparoHistorico {
 })
 
 export class PaginaDetalhesDoacaoTecnico implements OnInit {
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
@@ -53,9 +55,10 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   private snackBar = inject(MatSnackBar);
   private doacaoService = inject(DoacaoService);
   private reparoService = inject(ReparoService);
+  acaoEmAndamento = false;
 
   idDoacao = this.route.snapshot.paramMap.get('id');
-  doacao?: DoacaoDTO;
+  doacao!: DoacaoDTO;
   imagens: string[] = [];
   reparos: ReparoHistorico[] = [];
   tiposItens: string[] = [
@@ -65,6 +68,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     'TECLADO',
     'MOUSE'
   ];
+
 
   form = this.fb.group({
     nome: [{ value: '', disabled: true }],
@@ -118,8 +122,8 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   }
 
 
-  private get statusNormalizado(): StatusDoacaoTecnico | undefined {
-    return this.doacao?.status?.toUpperCase() as StatusDoacaoTecnico | undefined;
+  private get statusNormalizado(): StatusAnalise | undefined {
+    return this.doacao?.status?.toUpperCase() as StatusAnalise | undefined;
   }
 
   carregarDoacaoDaApi(): void {
@@ -133,6 +137,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
           descricao: doacao.descricao ?? '',
           estadoConservacao: doacao.statusConservacao ?? ''
         });
+        this.doacao.id = doacao.id
         console.log(doacao);
         this.imagens = doacao.imagens?.map(
           imagem => `http://localhost:8080${imagem.url}`
@@ -172,47 +177,35 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   }
 
   aprovar(): void {
-    if (!this.podeAprovar || !this.doacao) {
-      this.exibirMensagem('Esta doacao nao pode ser aprovada neste status.');
-      return;
-    }
-
-    this.executarAposConfirmacao(
-      'Aprovar doação?',
-      'Confirme para alterar o status desta doação para aprovada.',
-      () => {
-        if (!this.doacao) {
-          return;
-        }
-
-        this.doacaoService.aprovarDoacao(this.doacao.id, '').subscribe({
-          next: () => this.router.navigate(['/tecnico/doacoes']),
-          error: (error) => console.error('Erro ao aprovar a doacao:', error)
-        });
-      }
-    );
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Aprovar doacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para aprovada.',
+    tituloCarregamento: 'Doacao aprovada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status aprovada.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para aprovada.',
+    requisicao: (id) => this.doacaoService.aprovarDoacao(
+      id,
+      'Doacao aprovada pelo tecnico.'
+    )
+  });
   }
 
-  reprovar(): void {
-    if (!this.podeReprovar || !this.doacao) {
-      this.exibirMensagem('Esta doacao nao pode ser reprovada neste status.');
-      return;
-    }
-
-    this.executarAposConfirmacao(
-      'Reprovar doacao?',
-      'Confirme para alterar o status desta doacao para reprovada.',
-      () => {
-        if (!this.doacao) {
-          return;
-        }
-
-        this.doacaoService.reprovarDoacao(this.doacao.id, '').subscribe({
-          next: () => this.router.navigate(['/tecnico/doacoes']),
-          error: (error) => console.error('Erro ao reprovar a doacao:', error)
-        });
-      }
-    );
+   reprovar(): void {
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Reprovar doacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para reprovada.',
+    tituloCarregamento: 'Doacao reprovada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status reprovada.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para reprovada.',
+    requisicao: (id) => this.doacaoService.reprovarDoacao(
+      id,
+      'Doacao reprovada pelo tecnico.'
+    )
+  });
   }
 
   enviarParaReparo(): void {
@@ -224,117 +217,97 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     this.router.navigate(['/tecnico/doacoes', this.doacao?.id, 'reparo']);
   }
 
-  aprovarParaReparo(): void {
-    if (!this.podeAprovarParaReparo || !this.doacao) {
-      this.exibirMensagem('Carregue a doacao antes de aprovar para reparo.');
-      return;
-    }
-
-    this.confirmarAlteracaoStatus(
-      'Aprovar para reparo?',
-      'Confirme para alterar o status desta doacao para aprovado_reparo.',
-      'APROVADO_REPARO',
-      'Doacao aprovada para reparo com sucesso!'
-    );
-  }
+ 
 
   entregar(): void {
-    if (!this.podeMarcarEntregue || !this.doacao) {
-      this.exibirMensagem('A doacao so pode ser entregue quando estiver aprovada.');
-      return;
-    }
-
-    this.confirmarAlteracaoStatus(
-      'Marcar como entregue?',
-      'Confirme que o equipamento foi entregue.',
-      'ENTREGUE',
-      'Doacao marcada como entregue!'
-    );
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Entregar doacao?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para entregue.',
+    tituloCarregamento: 'Doacao entregue',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status entregue.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para entregue.',
+    requisicao: (id) => this.doacaoService.entregarDoacao(
+      id,
+      'Doacao entregue pelo tecnico.'
+    )
+  });
   }
 
   descartar(): void {
-    const ultimoReparo = this.obterUltimoReparo();
+    this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Alterar status da doação para Reciclagem?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para reciclagem.',
+    tituloCarregamento: 'Doacao reciclada',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Sucesso',
+    mensagemSucesso: 'A doacao esta com status reciclagem.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para reciclagem.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoReciclagem(
 
-    if (!this.podeDescartar) {
-      this.exibirMensagem('Esta doacao nao pode ser enviada para descarte neste status.');
-      return;
-    }
-
-    if (!ultimoReparo) {
-      this.exibirMensagem('E necessario existir um reparo para enviar a doacao para descarte.');
-      return;
-    }
-
-    this.executarAposConfirmacao(
-      'Enviar para descarte?',
-      'Confirme para alterar o status desta doacao para descarte.',
-      () => {
-        this.reparoService.concluirReparoDescarte(ultimoReparo.id, 'Doacao enviada para descarte').subscribe({
-          next: () => this.finalizarAlteracaoStatus('DESCARTE', 'Doacao enviada para descarte!'),
-          error: (error) => {
-            console.error('Erro ao enviar doacao para descarte:', error);
-            this.exibirMensagem('Nao foi possivel enviar a doacao para descarte.');
-          }
-        });
-      }
-    );
+      id,
+      'Doacao aprovada pelo tecnico.'
+    )
+  })
   }
 
   reabrirAnalise(): void {
-    if (!this.podeReabrirAnalise || !this.doacao) {
-      this.exibirMensagem('Carregue a doacao antes de reabrir a analise.');
-      return;
-    }
-
-    this.executarAposConfirmacao(
-      'Reabrir analise?',
-      'Confirme para voltar esta doacao para pendente.',
-      () => this.finalizarAlteracaoStatus('PENDENTE', 'Analise reaberta com sucesso!')
-    );
-  }
+  this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Reabrir analise?',
+    mensagemConfirmacao: 'Confirme para alterar o status desta doacao para pendente.',
+    tituloCarregamento: 'Reabrindo analise',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Analise reaberta',
+    mensagemSucesso: 'A doacao voltou para o status pendente.',
+    mensagemErro: 'Nao foi possivel alterar o status da doacao para pendente.',
+    requisicao: (id) => this.doacaoService.enviarDoacaoParaPendente(
+      id,
+      'Analise reaberta pelo tecnico.'
+    )
+  });
+}
 
   deletar(): void {
-    if (!this.doacao) {
+  this.confirmarAlteracaoStatusDireta({
+    tituloConfirmacao: 'Deletar doacao?',
+    mensagemConfirmacao: 'Confirme para deletar doacao.',
+    tituloCarregamento: 'Deletando doação',
+    mensagemCarregamento: 'Aguarde enquanto o status da doacao e atualizado.',
+    tituloSucesso: 'Analise reaberta',
+    mensagemSucesso: 'A doacao deletada.',
+    mensagemErro: 'Nao foi possivel deletar doacao.',
+    requisicao: (id) => this.doacaoService.deletarDoacao(
+      id,
+    )
+  });
+}
+
+
+  private confirmarAlteracaoStatusDireta(config: {
+    tituloConfirmacao: string;
+    mensagemConfirmacao: string;
+    tituloCarregamento: string;
+    mensagemCarregamento: string;
+    tituloSucesso: string;
+    mensagemSucesso: string;
+    mensagemErro: string;
+    requisicao: (id: number) => ReturnType<DoacaoService['enviarDoacaoParaDoado']>;
+  }): void {
+    const id = Number(this.doacao.id);
+
+    if (!id) {
+      this.abrirModalAviso('Doacao nao encontrada', 'Nao foi possivel identificar a doacao selecionada.', 'error');
       return;
     }
-  }
 
-  private confirmarAlteracaoStatus(
-    titulo: string,
-    mensagem: string,
-    status: StatusDoacaoTecnico,
-    mensagemSucesso: string
-  ): void {
-    this.executarAposConfirmacao(titulo, mensagem, () => {
-      if (!this.doacao) {
-        return;
-      }
-
-      const requisicao = this.obterRequisicaoAlteracaoStatus(this.doacao.id, status, mensagemSucesso);
-
-      if (!requisicao) {
-        this.finalizarAlteracaoStatus(status, mensagemSucesso);
-        return;
-      }
-
-      requisicao.subscribe({
-        next: () => this.finalizarAlteracaoStatus(status, mensagemSucesso),
-        error: (error: unknown) => {
-          console.error('Erro ao alterar status da doacao:', error);
-          this.exibirMensagem('Nao foi possivel alterar o status da doacao.');
-        }
-      });
-    });
-  }
-
-  private executarAposConfirmacao(titulo: string, mensagem: string, acao: () => void): void {
     const dialogRef = this.dialog.open(DialogBaseComponent, {
       width: '420px',
       disableClose: true,
       data: {
         tipo: 'confirm',
-        titulo,
-        mensagem,
+        titulo: config.tituloConfirmacao,
+        mensagem: config.mensagemConfirmacao,
         textoConfirmar: 'Confirmar',
         textoCancelar: 'Cancelar',
         mostrarCancelar: true
@@ -342,100 +315,63 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((confirmou) => {
-      if (confirmou) {
-        acao();
+      if (!confirmou) {
+        return;
+      }
+
+      const modalCarregamento = this.abrirModalCarregamento(
+        config.tituloCarregamento,
+        config.mensagemCarregamento
+      );
+
+      this.acaoEmAndamento = true;
+      config.requisicao(id).subscribe({
+        next: () => {
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso(config.tituloSucesso, config.mensagemSucesso, 'success');
+          this.carregarDoacaoDaApi();
+        },
+        error: (erro) => {
+          console.error('Erro ao alterar status da doacao:', erro);
+          this.acaoEmAndamento = false;
+          modalCarregamento.close();
+          this.abrirModalAviso('Erro ao alterar status', config.mensagemErro, 'error');
+        }
+      });
+    });
+  }
+
+  private abrirModalCarregamento(titulo: string, mensagem: string) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        tipo: 'confirm',
+        titulo,
+        mensagem,
+        mostrarConfirmar: false,
+        carregando: true
       }
     });
   }
 
-  private exibirMensagem(mensagem: string, duration = 3500): void {
-    this.snackBar.open(mensagem, 'Fechar', { duration });
+  private abrirModalAviso(
+    titulo: string,
+    mensagem: string,
+    tipo: 'success' | 'error' | 'warning' | 'confirm' = 'warning'
+  ) {
+    return this.dialog.open(DialogBaseComponent, {
+      width: '420px',
+      data: {
+        tipo,
+        titulo,
+        mensagem,
+        textoConfirmar: 'OK'
+      }
+    });
   }
 
-  private obterRequisicaoAlteracaoStatus(id: number, status: StatusDoacaoTecnico, motivo: string) {
-    switch (status) {
-      case 'APROVADO_REPARO':
-        return this.doacaoService.aprovarDoacaoParaReparo(id, motivo);
-      case 'ENTREGUE':
-        return this.doacaoService.entregarDoacao(id, motivo);
-      default:
-        return null;
-    }
-  }
+  
 
-  private finalizarAlteracaoStatus(status: StatusDoacaoTecnico, mensagem: string): void {
-    if (this.doacao) {
-      this.doacao = {
-        ...this.doacao,
-        status
-      };
-    }
-
-    this.exibirMensagem(mensagem, 3000);
-  }
-
-  private obterUltimoReparo(): ReparoHistorico | undefined {
-    return this.reparos[this.reparos.length - 1];
-  }
-
-  obterClasseStatus(status?: string): string {
-    switch (status?.toUpperCase()) {
-      case 'APROVADA':
-      case 'APROVADO':
-      case 'APROVADO_REPARO':
-        return 'status-aprovado';
-      case 'REPROVADA':
-      case 'REPROVADO':
-        return 'status-reprovado';
-      case 'REPARO':
-      case 'EM_ANALISE':
-        return 'status-analise';
-      case 'PENDENTE':
-        return 'status-pendente';
-      case 'EM_ESTOQUE':
-      case 'ESTOQUE':
-      case 'VINCULADA':
-      case 'VINCULADO':
-      case 'DOADO':
-      case 'ENTREGUE':
-        return 'status-entregue';
-      case 'DESCARTE':
-        return 'status-reprovado';
-      default:
-        return 'status-default';
-    }
-  }
-
-  obterTextoStatus(status?: string): string {
-    switch (status?.toUpperCase()) {
-      case 'APROVADA':
-      case 'APROVADO':
-        return 'Aprovada';
-      case 'APROVADO_REPARO':
-        return 'aprovado_reparo';
-      case 'REPROVADA':
-      case 'REPROVADO':
-        return 'Reprovada';
-      case 'REPARO':
-        return 'Reparo';
-      case 'EM_ANALISE':
-        return 'Em análise';
-      case 'PENDENTE':
-        return 'Pendente';
-      case 'EM_ESTOQUE':
-      case 'ESTOQUE':
-        return 'Em estoque';
-      case 'ENTREGUE':
-        return 'Entregue';
-      case 'VINCULADA':
-      case 'VINCULADO':
-        return 'Vinculada';
-      case 'DOADO':
-        return 'Doado';
-      case 'DESCARTE':
-        return 'Descarte';
-      default:
-        return status ?? 'Status desconhecido';
-    }
-  }
 }

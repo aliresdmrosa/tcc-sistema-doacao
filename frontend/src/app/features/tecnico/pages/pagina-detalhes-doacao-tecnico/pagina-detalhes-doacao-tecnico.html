@@ -10,8 +10,8 @@
       <div class="datas">
         <p>Data do cadastro: {{ doacao?.dataCadastro | date:'dd/MM/yyyy' }}</p>
       </div>
-      <span class="badge-status" [ngClass]="obterClasseStatus(doacao?.status)">
-        {{ obterTextoStatus(doacao?.status) }}
+      <span class="badge-status" >
+        {{ doacao?.status }}
       </span>
     </div>
 

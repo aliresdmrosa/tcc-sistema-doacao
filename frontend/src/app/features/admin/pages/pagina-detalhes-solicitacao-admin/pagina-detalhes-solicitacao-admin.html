@@ -13,7 +13,7 @@
       </div>
 
       <span class="badge-status" [ngClass]="obterClasseStatus(solicitacao.status)">
-        {{ obterTextoStatus(solicitacao.status) }}
+        {{ solicitacao.status}}
       </span>
 
       <div class="equipamento-atribuido" *ngIf="equipamentoAtribuido">

@@ -33,7 +33,7 @@ public class TokenService {
 
     private Instant dataExpiracao() {
         // Define que o token vale por 2 horas
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(24).toInstant(ZoneOffset.of("-03:00"));
     }
 
     public String validarToken(String tokenJWT) {
