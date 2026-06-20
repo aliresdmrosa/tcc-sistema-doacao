@@ -66,7 +66,12 @@ export class PaginaHistoricoReparosComponent implements AfterViewInit, OnInit {
   idTecnicoAdmin = Number(this.route.snapshot.paramMap.get('id'));
   private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) 
+  set paginator(paginator: MatPaginator | undefined) {
+    if (paginator) {
+      this.dataSource.paginator = paginator;
+    }
+  }
 
   ngOnInit(): void {
     this.carregarHistorico();

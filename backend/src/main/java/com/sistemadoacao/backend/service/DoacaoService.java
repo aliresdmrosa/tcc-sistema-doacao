@@ -548,7 +548,7 @@ public class DoacaoService {
             try {
                 analise = openAIService.analisarImagens(doacaoRequest.imagens());
                 log.debug("Resposta da IA: {}", analise);
-                novaDoacao.setStatus(Status.PENDENTE);
+                novaDoacao.setStatus(analise.status());
                 observacaoHistorico = analise.descricao() + " - " + analise.recomendacao();
             } catch (RequestImageIaException e) {
                 log.error("Erro na analise da IA. Doacao sera cadastrada como PENDENTE: {}", e.getMessage());

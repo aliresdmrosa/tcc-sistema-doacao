@@ -44,7 +44,12 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
   termoPesquisa = '';
   private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) 
+  set paginator(paginator: MatPaginator | undefined) {
+    if (paginator) {
+      this.dataSource.paginator = paginator;
+    }
+  }
 
   ngOnInit(): void {
     // chamada de api substituir mock por:

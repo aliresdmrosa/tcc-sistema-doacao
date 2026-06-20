@@ -43,7 +43,12 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
   private doacaoService = inject(DoacaoService);
   doacoes : DoacaoDTO[] = [];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) 
+  set paginator(paginator: MatPaginator | undefined) {
+    if (paginator) {
+      this.dataSource.paginator = paginator;
+    }
+  }
 
   carregando = false;
   erroAoCarregar = false;

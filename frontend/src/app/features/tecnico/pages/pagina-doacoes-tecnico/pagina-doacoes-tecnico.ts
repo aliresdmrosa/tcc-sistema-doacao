@@ -67,7 +67,12 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
   erroAoCarregar = false;
   private timeoutCarregamento?: ReturnType<typeof setTimeout>;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) 
+  set paginator(paginator: MatPaginator | undefined) {
+    if (paginator) {
+      this.dataSource.paginator = paginator;
+    }
+  }
 
   ngOnInit(): void {
     this.buscarDoacoesDaApi();
@@ -96,7 +101,7 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     this.erroAoCarregar = false;
     this.iniciarTimeoutCarregamento();
 
-    this.doacaoService.listarDoacoesTecnico().pipe(timeout(5000)).subscribe({
+    this.doacaoService.listarTodasDoacoes().pipe(timeout(5000)).subscribe({
       next: (doacoes) => {
         this.limparTimeoutCarregamento();
         console.log('Doacoes recebidas da API:', doacoes);

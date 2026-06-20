@@ -43,7 +43,12 @@ export class PaginaListarSolicitacao implements AfterViewInit {
   private cdf = inject(ChangeDetectorRef);
   solicitacoes: SolicitacaoResponseDTO[] = [];
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator)
+  set paginator(paginator: MatPaginator | undefined) {
+    if (paginator) {
+      this.dataSource.paginator = paginator;
+    }
+  }
 
   carregando = false;
   erroAoCarregar = false;
@@ -91,7 +96,7 @@ export class PaginaListarSolicitacao implements AfterViewInit {
     this.dataSource.filterPredicate = (solicitacao: SolicitacaoResponseDTO, filtro: string): boolean => {
       const termo = filtro.trim().toLowerCase();
       const texto = [
-        solicitacao,
+        solicitacao.id,
         solicitacao.grr,
         solicitacao.nome,
         solicitacao.cpf,
@@ -118,13 +123,7 @@ export class PaginaListarSolicitacao implements AfterViewInit {
   }
 
   tentarNovamente(): void {
-    this.carregando = true;
-    this.erroAoCarregar = false;
-
-    setTimeout(() => {
-      this.carregando = false;
-      this.dataSource.data = this.solicitacoes;
-    }, 800);
+    this.carregarSolicitacoes();
   }
 
   verDetalhes(solicitacao: SolicitacaoResponseDTO): void {
