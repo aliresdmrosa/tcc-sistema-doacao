@@ -225,3 +225,13 @@ INSERT IGNORE INTO historico_status
 (5231, 'doacao', '2025-12-14 10:00:00', 'Doacao aprovada antes da vinculacao.', 'Tecnico Teste', 'APROVADO', 3118, NULL),
 (5232, 'doacao', '2025-12-18 10:00:00', 'Doacao aprovada antes da vinculacao.', 'Tecnico Teste', 'APROVADO', 3119, NULL),
 (5233, 'doacao', '2025-12-22 10:00:00', 'Doacao aprovada antes da vinculacao.', 'Tecnico Teste', 'APROVADO', 3120, NULL);
+
+-- Corrigir solicitações sem status
+UPDATE solicitacao
+SET status = 'PENDENTE'
+WHERE status = '';
+
+-- Corrigir doações sem status
+UPDATE doacao
+SET status = 'PENDENTE'
+WHERE status = '';
