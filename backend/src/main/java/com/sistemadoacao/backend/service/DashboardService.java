@@ -1,7 +1,6 @@
 package com.sistemadoacao.backend.service;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.dto.DashboardDTO;
@@ -14,11 +13,14 @@ import com.sistemadoacao.backend.repository.UsuarioRepository;
 @Service
 public class DashboardService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private DoacaoRepository doacaoRepository;
+    private final DoacaoRepository doacaoRepository;
+
+    DashboardService(UsuarioRepository usuarioRepository, DoacaoRepository doacaoRepository) {
+        this.usuarioRepository = usuarioRepository;
+        this.doacaoRepository = doacaoRepository;
+    }
 
     public DashboardDTO gerarRelatorioGeral() {
         return new DashboardDTO(

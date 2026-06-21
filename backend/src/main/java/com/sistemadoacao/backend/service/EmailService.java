@@ -2,7 +2,6 @@ package com.sistemadoacao.backend.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,8 +12,11 @@ public class EmailService {
 
 // CORRETO
 private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     public void enviarEmailCadastro(String email, String nome, String senha) {
         

@@ -111,7 +111,6 @@ public class UsuarioController {
     }
 
     @GetMapping()
-    // TODO: Adicionar @PreAuthorize("hasRole('ADMINISTRADOR')") pois só adm pode ver todos os usuarios
     @Operation(summary = "Listar todos os usuários")
     @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
@@ -147,7 +146,6 @@ public class UsuarioController {
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    // TODO: Verificar documentacao se esta correto retornar void ou se é melhor retornar um ResponseEntity com status 204
     public ResponseEntity<Void> deletarUsuario(@PathVariable @NonNull Long id) {
         boolean deleted = false;
         deleted = usuarioService.deleteUsuario(id);

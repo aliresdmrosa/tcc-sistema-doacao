@@ -1,6 +1,6 @@
 package com.sistemadoacao.backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
@@ -37,17 +37,20 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "Login", description = "Endpoint publico para autenticação de usuários")
 public class LoginController {
     
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
 
-    @Autowired
-    private PessoaRepository repository;
+    private final PessoaRepository repository;
 
-    @Autowired
-    private TokenService tokenService;
+    private final  TokenService tokenService;
 
-    @Autowired
-    private LoginService loginService;
+    private final LoginService loginService;
+
+    LoginController(AuthenticationManager manager, PessoaRepository repository, TokenService tokenService, LoginService loginService) {
+        this.manager = manager;
+        this.repository = repository;
+        this.tokenService = tokenService;
+        this.loginService = loginService;
+    }
 
     @PostMapping
     public ResponseEntity<LoginDTO> efetuarLogin(@RequestBody @Valid LoginRequestDTO dados) {
