@@ -4,7 +4,9 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { criarTraducaoPaginador } from './core/config/paginator-intl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +15,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient( withFetch(), withInterceptors([authInterceptor])),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    {
+      provide: MatPaginatorIntl,
+      useFactory: criarTraducaoPaginador
+    }
   ]
 };
