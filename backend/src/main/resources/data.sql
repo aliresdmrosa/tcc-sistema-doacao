@@ -12,8 +12,8 @@ INSERT IGNORE INTO pessoa (id, nome, cpf, email, senha, ativo, data_cadastro) VA
 (1008, 'Elisa Rocha Aluna', '65559241016', 'elisa.aluna@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-03-01');
 
 INSERT  INTO pessoa (id, nome, cpf, email, senha, ativo, data_cadastro) VALUES
-(1011, 'Doador Teste', '15390911040', 'doador@sistemadoacao.com', '$2b$10$7A16dwUe49PmNDA/XzoEGeI11tJIkp5pMBbD37tnwvjvRfQa6ijPC', true, '2026-06-25'),
-(1010, 'Solicitante Teste', '38743781012', 'solicitante@sistemadoacao.com', '$2b$10$JegIBxNV.U6TFGcIru65HOnZ0/BSzAPwAwP2KXmf5dj8R5nxjGhQ6', true, '2026-06-25');
+(1020, 'Doador Teste', '15390911040', 'doador@sistemadoacao.com', '$2b$10$7A16dwUe49PmNDA/XzoEGeI11tJIkp5pMBbD37tnwvjvRfQa6ijPC', true, '2026-06-25'),
+(1030, 'Solicitante Teste', '38743781012', 'solicitante@sistemadoacao.com', '$2b$10$JegIBxNV.U6TFGcIru65HOnZ0/BSzAPwAwP2KXmf5dj8R5nxjGhQ6', true, '2026-06-25');
 
 INSERT IGNORE INTO administrador (id) VALUES (1001);
 INSERT IGNORE INTO tecnico (id, grr, curso) VALUES (1002, '20240001', 'TADS');
