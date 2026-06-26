@@ -209,10 +209,7 @@ export class PaginaDetalhesDoacaoTecnico implements OnInit {
   }
 
   enviarParaReparo(): void {
-    if (!this.podeMarcarReparo) {
-      return;
-    }
-
+    
     console.log('Enviar para reparo:', this.doacao?.id);
     this.router.navigate(['/tecnico/doacoes', this.doacao?.id, 'reparo']);
   }

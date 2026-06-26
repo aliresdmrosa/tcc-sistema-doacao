@@ -56,7 +56,7 @@ public class OpenAIService {
                 "- REPROVADA: não tem conserto\n\n" +
                 "Responda formato com no maximo 20 caracteres:\n" +
                 "{\n" +
-                "  \"status\": \"APROVADA | APROVADA_REPAROARO | REPROVADA\",\n" +
+                "  \"status\": \"APROVADA | APROVADA_REPROVADA | REPROVADA\",\n" +
                 "  \"descricao\": \"Descreva o problema ou estado de forma resumida\",\n" +
                 "  \"recomendacao\": \"escreva o que deve ser feito de forma resumida\"\n" +
                 "}"
