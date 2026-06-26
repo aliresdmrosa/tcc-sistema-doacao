@@ -6,6 +6,7 @@ public interface DoacaoResponseUserDTO {
     Long getId();
     String getDescricao();
     LocalDate getDataCadastro();
+    LocalDate getDataEntrega();
     String getStatus();
     String getEquipamento();
     String getStatusConservacao();

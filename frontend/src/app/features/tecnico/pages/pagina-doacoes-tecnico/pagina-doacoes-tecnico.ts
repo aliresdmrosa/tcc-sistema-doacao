@@ -16,6 +16,7 @@ import { DoacaoService } from '../../../../core/services/doacao.service';
 import { abrirJanelaEtiquetaVazia, imprimirEtiquetaDoacao } from '../../../../shared/utils/etiqueta-doacao';
 
 interface DoacaoTecnico {
+  dataEntrega: any;
   id?: number;
   cpf?: string;
   nome?: string;
@@ -56,7 +57,7 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
     'nome',
     'equipamento',
     'dataCadastro',
-    'dataUltimaAtualizacao',
+    'dataEntrega',
     'status',
     'acoes'
   ];
@@ -88,7 +89,7 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
         doacao.nome,
         doacao.equipamento,
         doacao.dataCadastro,
-        doacao.dataUltimaAtualizacao,
+        doacao.dataEntrega,
         doacao.status
       ].join(' ').toLowerCase();
 
@@ -111,7 +112,7 @@ export class PaginaDoacoesTecnicoComponent implements AfterViewInit, OnInit {
           nome: doacao.nome,
           equipamento: doacao.equipamento,
           dataCadastro: doacao.dataCadastro,
-          dataUltimaAtualizacao: doacao.dataAlteracaoStatus,
+          dataEntrega: doacao.dataEntrega,
           status: doacao.status
         }));
         this.carregando = false;

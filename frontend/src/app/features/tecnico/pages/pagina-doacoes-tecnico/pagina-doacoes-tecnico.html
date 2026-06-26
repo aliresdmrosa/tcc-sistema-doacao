@@ -73,9 +73,10 @@
             <td mat-cell *matCellDef="let doacao">{{ doacao.dataCadastro | date:'dd/MM/yyyy'}}</td>
           </ng-container>
 
-          <ng-container matColumnDef="dataUltimaAtualizacao">
-            <th mat-header-cell *matHeaderCellDef>Data última Atualização</th>
-            <td mat-cell *matCellDef="let doacao">{{ doacao.dataUltimaAtualizacao | date:'dd/MM/yyyy'}}</td>
+          <ng-container matColumnDef="dataEntrega">
+            <th mat-header-cell *matHeaderCellDef>Data Entrega</th>
+            <td mat-cell *matCellDef="let doacao">
+              {{ doacao.dataEntrega ? (doacao.dataEntrega | date:'dd/MM/yyyy') : '-'}}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
