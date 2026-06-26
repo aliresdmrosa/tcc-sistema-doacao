@@ -1,15 +1,17 @@
 -- Dados de teste idempotentes para desenvolvimento local.
--- Senhas: admin123, tecnico123, usuario123 e teste123.
+-- Senhas: admin123, tecnico123, usuario123, doador123, solicitante123 e teste123.
 
 INSERT IGNORE INTO pessoa (id, nome, cpf, email, senha, ativo, data_cadastro) VALUES
 -- (1001, 'Administrador Teste', '00000000000', 'admin@sistemadoacao.com', '$2a$10$8pcVZqCE019QcjNj0QbmQuTgX64fCjzwxiPFJzBPcTdAIXq/R/Bje', true, '2025-01-02'),
-(1002, 'Tecnico Teste', '11111111111', 'tecnico@sistemadoacao.com', '$2a$10$jO0B/BqMet3aNUBrFXsw8.ubOSm3oNT1Au03lfz.WOR9fiG2zAsG6', true, '2025-01-03'),
-(1003, 'Usuario Teste', '22222222222', 'usuario@sistemadoacao.com', '$2a$10$Zs0tNOn8FnySrzulEn3RmuxKzbCzjZMGqPsjJPVOujFvPUUlOPBJu', true, '2025-01-04'),
-(1004, 'Ana Paula Doadora', '33333333333', 'ana.doadora@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-05'),
-(1005, 'Bruno Lima Doador', '44444444444', 'bruno.doador@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-06'),
-(1006, 'Carla Souza Doadora', '55555555555', 'carla.doadora@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-07'),
-(1007, 'Diego Martins Aluno', '66666666666', 'diego.aluno@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-02-01'),
-(1008, 'Elisa Rocha Aluna', '77777777777', 'elisa.aluna@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-03-01');
+(1002, 'Tecnico Teste', '02867277060', 'tecnico@sistemadoacao.com', '$2a$10$jO0B/BqMet3aNUBrFXsw8.ubOSm3oNT1Au03lfz.WOR9fiG2zAsG6', true, '2025-01-03'),
+(1003, 'Usuario Teste', '26054908073', 'usuario@sistemadoacao.com', '$2a$10$Zs0tNOn8FnySrzulEn3RmuxKzbCzjZMGqPsjJPVOujFvPUUlOPBJu', true, '2025-01-04'),
+(1004, 'Ana Paula Doadora', '85746401072', 'ana.doadora@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-05'),
+(1005, 'Bruno Lima Doador', '13865162010', 'bruno.doador@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-06'),
+(1006, 'Carla Souza Doadora', '58144887000', 'carla.doadora@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-01-07'),
+(1007, 'Diego Martins Aluno', '08483311097', 'diego.aluno@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-02-01'),
+(1008, 'Elisa Rocha Aluna', '65559241016', 'elisa.aluna@teste.com', '$2a$10$BABWkBKe4WB5uWyzMRnN..QCwor22qPke0M8mDpzLT0A46DUt9/3C', true, '2025-03-01'),
+(1004, 'Doador Teste', '15390911040', 'doador@sistemadoacao.com', '$2b$10$7A16dwUe49PmNDA/XzoEGeI11tJIkp5pMBbD37tnwvjvRfQa6ijPC', true, '2026-06-25'),
+(1005, 'Solicitante Teste', '38743781012', 'solicitante@sistemadoacao.com', '$2b$10$JegIBxNV.U6TFGcIru65HOnZ0/BSzAPwAwP2KXmf5dj8R5nxjGhQ6', true, '2026-06-25');
 
 INSERT IGNORE INTO administrador (id) VALUES (1001);
 INSERT IGNORE INTO tecnico (id, grr, curso) VALUES (1002, '20240001', 'TADS');
