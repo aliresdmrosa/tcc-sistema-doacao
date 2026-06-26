@@ -67,49 +67,62 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
     List<DoacaoReverDTO> buscarDoacoesComDoador(@Param("status") List<Status> status);
 
     @Query(value = """
-                        SELECT
-                            d.id as id,
-                            d.descricao as descricao,
-                            d.data_cadastro as dataCadastro,
-                            d.data_entrega as dataEntrega,
-                            d.quantidade as quantidade,
-                            d.status as status,
-                            d.equipamento as equipamento,
-                            d.status_conservacao,
-                            p.nome as nome,
-                            p.cpf as cpf
-                        FROM doacao d
-                        JOIN pessoa p ON d.doador_id = p.id
-            """, nativeQuery = true)
+                            SELECT
+                                d.id as id,
+                                d.solicitacao_id as idSolicitacao,
+                                d.descricao as descricao,
+                                d.data_cadastro as dataCadastro,
+                                d.data_entrega as dataEntrega,
+                                d.quantidade as quantidade,
+                                d.status as status,
+                                d.equipamento as equipamento,
+                                d.status_conservacao,
+                                p.nome as nome,
+                                p.cpf as cpf
+                            FROM doacao d
+                            JOIN pessoa p ON d.doador_id = p.id
+                            ORDER BY
+            CASE d.status
+                WHEN 'PENDENTE' THEN 1
+                WHEN 'APROVADO_REPARO' THEN 2
+                WHEN 'APROVADO' THEN 3
+                WHEN 'VINCULADO' THEN 4
+                WHEN 'ENTREGUE' THEN 5
+                WHEN 'DOADO' THEN 6
+                WHEN 'REPROVADO' THEN 7
+                ELSE 99
+            END,
+            d.data_cadastro DESC
+                """, nativeQuery = true)
     List<DoacaoResponseUserDTO> buscarTodasUser();
 
     @Query(value = """
-                                      SELECT
-                                          d.id as id,
-                                          d.descricao as descricao,
-                                          d.data_cadastro as dataCadastro,
-                                          d.quantidade as quantidade,
-                                          d.status as status,
-                                          d.equipamento as equipamento,
-                                          d.status_conservacao,
-                                          p.nome as nome,
-                                          p.cpf as cpf,
-                                          h.data_alteracao as dataAlteracaoStatus,
-                                          i.url as url
-                                      FROM doacao d
-                                      LEFT JOIN imagem_doacao i ON i.id = (
-                                          SELECT MIN(i2.id) FROM imagem_doacao i2 WHERE i2.doacao_id = d.id
-                                      )
-                                      LEFT JOIN historico_status h ON h.id = (SELECT MAX(h2.id) FROM historico_status h2 WHERE h2.doacao_id = d.id)
-                                      JOIN pessoa p ON d.doador_id = p.id
-                                      WHERE d.status IN ('APROVADO_REPARO',
-                                                        'APROVADO',
-                                                        'REPROVADO',
-                                                        'REPARO',
-                                                        'DESCARTE',
-                                                        'PENDENTE',
-                                                        'ESTOQUE')
-                                  """, nativeQuery = true)
+                SELECT
+                    d.id as id,
+                    d.descricao as descricao,
+                    d.data_cadastro as dataCadastro,
+                    d.quantidade as quantidade,
+                    d.status as status,
+                    d.equipamento as equipamento,
+                    d.status_conservacao,
+                    p.nome as nome,
+                    p.cpf as cpf,
+                    h.data_alteracao as dataAlteracaoStatus,
+                    i.url as url
+                FROM doacao d
+                LEFT JOIN imagem_doacao i ON i.id = (
+                    SELECT MIN(i2.id) FROM imagem_doacao i2 WHERE i2.doacao_id = d.id
+                )
+                LEFT JOIN historico_status h ON h.id = (SELECT MAX(h2.id) FROM historico_status h2 WHERE h2.doacao_id = d.id)
+                JOIN pessoa p ON d.doador_id = p.id
+                WHERE d.status IN ('APROVADO_REPARO',
+                                  'APROVADO',
+                                  'REPROVADO',
+                                  'REPARO',
+                                  'DESCARTE',
+                                  'PENDENTE',
+                                  'ESTOQUE')
+            """, nativeQuery = true)
     List<DoacaoReverDTO> buscarDoacoesTecnico();
 
 }

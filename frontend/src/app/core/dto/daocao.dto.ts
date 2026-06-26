@@ -1,5 +1,6 @@
 export interface DoacaoDTO {
     id: number;
+    idSolicitacao : number;
     equipamento?: string;
     quantidade: number;
     descricao?: string;

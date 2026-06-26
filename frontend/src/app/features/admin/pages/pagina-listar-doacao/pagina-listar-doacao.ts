@@ -51,6 +51,7 @@ export class PaginaListarDoacaoAdmin implements AfterViewInit {
 
   displayedColumns: string[] = [
     'id',
+    'id_solicitacao',
     'cpf',
     'nome',
     'equipamento',
