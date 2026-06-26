@@ -144,7 +144,7 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
         this.dataSource.data = [reparo];
         this.idDoacao = String(reparo.idDoacao);
         this.equipamentoDoacao = reparo.equipamentoDoacao ?? '--';
-        this.statusDoacao = reparo.dataFim ? 'FINALIZADO' : 'EM ANDAMENTO';
+        // this.statusDoacao = reparo.dataFim ? 'FINALIZADO' : 'EM ANDAMENTO';
       },
       error: (erro) => console.error('Erro ao buscar reparo:', erro)
     });
