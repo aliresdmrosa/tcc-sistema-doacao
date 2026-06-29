@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, AfterViewInit, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -10,6 +10,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { ReparoService } from '../../../../core/services/reparo.service';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+
 
 interface ReparoHistorico {
   id: number;
@@ -25,8 +27,8 @@ interface ReparoHistorico {
 @Component({
   selector: 'app-pagina-reparo-doacao',
   standalone: true,
-  imports: [ CommonModule, FormsModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatFormFieldModule,
-    MatInputModule, MatCardModule ],
+  imports: [CommonModule, FormsModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatFormFieldModule,
+    MatInputModule, MatCardModule],
   templateUrl: './pagina-reparo-doacao.html',
   styleUrls: ['./pagina-reparo-doacao.css']
 })
@@ -35,13 +37,15 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private reparoService = inject(ReparoService);
+  private doacaoService = inject(DoacaoService);
+  private cdr = inject(ChangeDetectorRef);
 
-  somenteLeitura = this.route.snapshot.data['somenteLeitura'] === true;
+
   idTecnicoAdmin = Number(this.route.snapshot.paramMap.get('id'));
   idReparoAdmin = Number(this.route.snapshot.paramMap.get('idReparo'));
   idDoacao = this.route.snapshot.paramMap.get('id') ?? '';
   equipamentoDoacao = '--';
-  statusDoacao = 'REPARO';
+  statusDoacao = 'TESTE';
 
   displayedColumns: string[] = [
     'data',
@@ -50,20 +54,6 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     'descricao',
     'acoes'
   ];
-
-  // // mock
-  // historicoMock: ReparoHistorico[] = [
-  //   {
-  //     data: '10/05/2025',
-  //     tecnico: 'João',
-  //     descricao: 'Troca de teclado iniciada.'
-  //   },
-  //   {
-  //     data: '12/05/2025',
-  //     tecnico: 'João',
-  //     descricao: 'Teste inicial realizado.'
-  //   }
-  // ];
 
   dataSource = new MatTableDataSource<ReparoHistorico>();
 
@@ -94,25 +84,12 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    if (this.somenteLeitura) {
-      this.displayedColumns = this.displayedColumns.filter((coluna) => coluna !== 'acoes');
-      this.buscarReparoPorId();
-      return;
-    }
-
     this.buscarHistoricoDaApi();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
-
-  // // mock
-  // carregarDadosMock(): void {
-  //   this.dataSource.data = this.historicoMock;
-  // }
-
-  // chamada api
   buscarHistoricoDaApi(): void {
     const idDoacao = Number(this.idDoacao);
 
@@ -123,14 +100,24 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
 
     this.reparoService.listarReparosDoacao(idDoacao).subscribe({
       next: (dados) => {
-        console.log('Dados do historico de reparos da doacao:', dados);
         this.dataSource.data = dados;
-        this.equipamentoDoacao = dados[0]?.equipamentoDoacao ?? '--';
       },
       error: (erro) => {
         console.error('Erro ao buscar historico de reparos:', erro);
       }
     });
+
+    this.doacaoService.doacaoId(idDoacao).subscribe({
+      next: (dados) => {
+        this.equipamentoDoacao = dados.equipamento ?? '--';
+        this.statusDoacao = dados.status ?? '';
+        console.log("status: ", this.statusDoacao)
+        this.cdr.detectChanges()
+      },
+      error: (error) => {
+        console.error('Erro ao buscar historico de reparos:', error);
+      }
+    })
   }
 
   buscarReparoPorId(): void {
@@ -162,7 +149,6 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
       next: () => {
         console.log('Doacao enviada para estoque com sucesso');
         this.buscarHistoricoDaApi();
-        this.atualizarStatusDoacao('ESTOQUE');
       }
       ,
       error: (erro) => console.error('Erro ao concluir doacao:', erro)
@@ -180,13 +166,14 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     });
 
   }
-      
+
 
   salvarReparo(): void {
 
+     console.log("1");
+
     if (!this.descricao.trim()) {
       console.warn('Preencha a descrição do reparo');
-      return;
     }
 
     if (this.indiceEdicao !== null) {
@@ -199,16 +186,18 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
           reparosAtualizados[indice] = reparoAtualizado;
           this.dataSource.data = reparosAtualizados;
           this.resetarFormulario();
+          this.buscarHistoricoDaApi();
+           console.log("2");
         },
         error: (erro) => console.error('Erro ao atualizar descricao do reparo:', erro)
       });
-      return;
+
     }
 
     if (!this.podeAdicionarReparo) {
       console.warn('Conclua o ultimo reparo antes de adicionar um novo');
-      return;
     }
+
 
     const novoReparo: ReparoHistorico = {
       id: 0,
@@ -217,24 +206,23 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
       equipamentoDoacao: '', // Substituir com o nome do equipamento
       descricao: this.descricao.trim(),
       dataInicio: this.formatarDataAtual(),
-      
+
     };
 
-    const idNumerico = Number(this.idDoacao);
-    if (Number.isFinite(idNumerico)) {
-      this.reparoService.salvarReparo(idNumerico, novoReparo.descricao).subscribe({
-        next: (reparoSalvo) => this.finalizarCadastroReparo(reparoSalvo),
-        error: (erro) => console.error('Erro ao salvar reparo:', erro)
-      });
-      return;
-    }
+    this.reparoService.salvarReparo(Number(this.idDoacao), novoReparo.descricao).subscribe({
+      next: (reparoSalvo) => {
+        this.finalizarCadastroReparo(reparoSalvo)
+        this.buscarHistoricoDaApi();
+        console.log("3");
+      }
+      ,
+      error: (erro) => console.error('Erro ao salvar reparo:', erro)
+    });
 
-    this.finalizarCadastroReparo(novoReparo);
   }
 
   private finalizarCadastroReparo(novoReparo: ReparoHistorico): void {
     this.dataSource.data = [...this.dataSource.data, novoReparo];
-    this.atualizarStatusDoacao('REPARO');
     this.resetarFormulario();
   }
 
@@ -248,13 +236,8 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     this.indiceEdicao = indice;
     this.descricao = reparo.descricao;
   }
-  
-  voltar(): void {
-    if (this.somenteLeitura) {
-      this.router.navigate(['/admin/tecnicos', this.idTecnicoAdmin]);
-      return;
-    }
 
+  voltar(): void {
     this.router.navigate(['/tecnico/doacoes']);
   }
 
@@ -267,10 +250,5 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
     return new Date().toLocaleDateString('pt-BR');
   }
 
-  private atualizarStatusDoacao(status: string): void {
-    setTimeout(() => {
-      this.statusDoacao = status;
-    });
-  }
 
 }
