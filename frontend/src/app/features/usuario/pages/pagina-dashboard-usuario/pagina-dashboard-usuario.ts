@@ -5,6 +5,7 @@ ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } fr
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { DoacaoService } from '../../../../core/services/doacao.service';
+import { ApexTooltip } from 'apexcharts';
 
 
 
@@ -27,6 +28,7 @@ export type BarChartOptions = {
   dataLabels: ApexDataLabels;
   plotOptions: ApexPlotOptions;
   title: ApexTitleSubtitle;
+  tootip : ApexTooltip;
 };
 
 @Component({
@@ -134,6 +136,12 @@ export class PaginaDashboardUsuario implements OnInit {
       toolbar: {
         show: false
       }
+    },
+    tootip: {
+    enabled: true,
+    y: {
+      formatter: (value: number) => `${value} alunos`
+    }
     },
     xaxis: {
       categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']

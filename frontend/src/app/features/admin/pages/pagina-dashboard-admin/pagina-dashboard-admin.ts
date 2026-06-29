@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, ViewChild } from '@angular/core';
 import {
   ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexResponsive, ApexStroke,
-  ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule
+  ApexTitleSubtitle, ApexXAxis, ApexYAxis, ApexTooltip, ChartComponent, NgApexchartsModule
 } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +26,7 @@ export type BarChartOptions = {
   yaxis: ApexYAxis;
   dataLabels: ApexDataLabels;
   plotOptions: ApexPlotOptions;
+  tooltip?: ApexTooltip;
   title: ApexTitleSubtitle;
 };
 
@@ -139,6 +140,12 @@ export class PaginaDashboardAdmin {
       height: 280,
       toolbar: {
         show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      y: {
+        formatter: (value: number) => `${value} alunos`
       }
     },
     xaxis: {

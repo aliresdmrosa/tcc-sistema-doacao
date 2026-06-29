@@ -4,6 +4,7 @@ import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxis
 ApexStroke, ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
 import { DoacaoService } from '../../../../core/services/doacao.service';
+import { ApexTooltip } from 'apexcharts';
 
 export type DonutChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -24,6 +25,7 @@ export type BarChartOptions = {
   dataLabels: ApexDataLabels;
   plotOptions: ApexPlotOptions;
   title: ApexTitleSubtitle;
+  tootip: ApexTooltip;
 };
 
 @Component({
@@ -91,6 +93,12 @@ export class PaginaDashboardTecnico implements OnInit {
     chart: {
       type: 'bar',
       height: 280
+    },
+    tootip: {
+    enabled: true,
+    y: {
+      formatter: (value: number) => `${value} alunos`
+    }
     },
     xaxis: {
       categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
