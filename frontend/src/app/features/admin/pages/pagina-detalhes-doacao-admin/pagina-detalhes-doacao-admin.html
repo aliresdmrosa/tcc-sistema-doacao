@@ -9,7 +9,7 @@
 
       <div class="datas">
         <p>Data do cadastro: {{ doacao.dataCadastro | date:'dd/MM/yyyy' }}</p>
-        <p>Última modificação em: {{ doacao.dataUltimaModificacao | date:'dd/MM/yyyy' }}</p>
+        <!-- <p>Última modificação em: {{ doacao.dataUltimaModificacao | date:'dd/MM/yyyy' }}</p> -->
         <span class="badge-status" [ngClass]="obterClasseStatus(doacao.status)">
           {{ obterTextoStatus(doacao.status) }}
         </span>

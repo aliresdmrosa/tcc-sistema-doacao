@@ -191,7 +191,7 @@ export class PaginaReparoDoacaoComponent implements AfterViewInit, OnInit {
         },
         error: (erro) => console.error('Erro ao atualizar descricao do reparo:', erro)
       });
-
+      return;
     }
 
     if (!this.podeAdicionarReparo) {
