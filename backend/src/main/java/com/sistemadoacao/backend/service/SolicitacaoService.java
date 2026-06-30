@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sistemadoacao.backend.config.Utils;
 import com.sistemadoacao.backend.dto.SolicitacaoDTO;
 import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
 import com.sistemadoacao.backend.model.Doacao;
@@ -31,10 +32,14 @@ public class SolicitacaoService {
 
     private final SolicitacaoRepository solicitacaoRepository;
     private final DoacaoRepository doacaoRepository;
+    private final EmailService emailService;
+    private final Utils utils;
 
-    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, DoacaoRepository doacaoRepository) {
+    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, DoacaoRepository doacaoRepository, EmailService emailService, Utils utils) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.doacaoRepository = doacaoRepository;
+        this.emailService = emailService;
+        this.utils = utils;
 
     }
 
@@ -70,6 +75,9 @@ public class SolicitacaoService {
         log.info("Salvando solicitação para usuário ID: {}", usuarioId);
         log.debug("Detalhes da solicitação: {}", solicitacaoEntity);
         Solicitacao nova = solicitacaoRepository.save(solicitacaoEntity);
+
+        emailService.enviarEmail(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado());
+        
 
         return nova;
     }
@@ -326,6 +334,8 @@ public class SolicitacaoService {
         solicitacao.getHistorico().add(h);
 
         doacaoRepository.save(doacaoEscolhida);
+
+        emailService.enviarEmailRetirarDoacao(utils.getEmailUsuarioLogado(), utils.getNomeUsuarioLogado(), doacaoId);
         return solicitacaoRepository.save(solicitacao);
         } catch (Exception e) {
             throw new AprovarErroException("Erro ao vincular doacao a solicitacao");

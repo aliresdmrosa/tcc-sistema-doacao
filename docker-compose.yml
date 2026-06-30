@@ -34,8 +34,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-segredo-do-tcc-2026}
       SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.gmail.com}
       SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
-      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-teste@email.com}
-      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-123456}
+      SPRING_MAIL_USERNAME: ${EMAIL:-teste@email.com}
+      SPRING_MAIL_PASSWORD: ${SENHA_APP:-123456}
       API_KEY: ${API_KEY:-}
       UPLOAD_PATH: /app/uploads/
     ports:

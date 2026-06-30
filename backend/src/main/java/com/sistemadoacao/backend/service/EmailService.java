@@ -7,11 +7,13 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import lombok.NonNull;
+
 @Service
 public class EmailService {
 
-// CORRETO
-private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+    // CORRETO
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
 
     EmailService(JavaMailSender mailSender) {
@@ -19,29 +21,28 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     }
 
     public void enviarEmailCadastro(String email, String nome, String senha) {
-        
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
             message.setSubject("Cadastro realizado com sucesso!");
-            message.setText("Olá " + nome + ",\n\nSeu cadastro no sistema de doações foi realizado com sucesso!\n\nObrigado por se juntar a nós.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
-            if(!senha.isBlank()){
+            message.setText("Olá " + nome
+                    + ",\n\nSeu cadastro no sistema de doações foi realizado com sucesso!\n\nObrigado por se juntar a nós.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            if (!senha.isBlank()) {
                 message.setText("Olá \" + nome + \",\\n" + //
-                                        "\\n" + //
-                                        "Seu cadastro no sistema de doações foi realizado com sucesso!\\n" + //
-                                        "\\n" + //
-                                        "\\Sua senha temporaria é: "+ senha + //
-                                        "\\Obrigado por se juntar a nós.\\n" + //
-                                        "\\n" + //
-                                        "Atenciosamente,\\n" + //
-                                        "Equipe do Sistema de Doaçõessenha temporaria:" + senha);
+                        "\\n" + //
+                        "Seu cadastro no sistema de doações foi realizado com sucesso!\\n" + //
+                        "\\n" + //
+                        "\\Sua senha temporaria é: " + senha + //
+                        "\\Obrigado por se juntar a nós.\\n" + //
+                        "\\n" + //
+                        "Atenciosamente,\\n" + //
+                        "Equipe do Sistema de Doaçõessenha temporaria:" + senha);
             }
             mailSender.send(message);
 
-
-
             logger.info("Email enviado com sucesso para " + email);
-            
+
         } catch (MailException e) {
             logger.error("Erro ao enviar email para " + email + ": " + e.getMessage());
         }
@@ -50,14 +51,18 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     public void enviarEmailAvaliacaoIA(String email, String nome, String resultado) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            if(email != null && !email.isBlank()) {
+            if (email != null && !email.isBlank()) {
                 message.setTo(email);
-            }else {
-                logger.warn("Email do destinatário está vazio ou nulo. Não será possível enviar o email de avaliação da IA., destinatário: " + nome);
+            } else {
+                logger.warn(
+                        "Email do destinatário está vazio ou nulo. Não será possível enviar o email de avaliação da IA., destinatário: "
+                                + nome);
                 return;
             }
             message.setSubject("Avaliação da IA para sua doação");
-            message.setText("Olá " + nome + ",\n\nA avaliação da IA para a sua doação foi concluída. O resultado é: " + resultado + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            message.setText("Olá " + nome + ",\n\nA avaliação da IA para a sua doação foi concluída. O resultado é: "
+                    + resultado
+                    + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
             mailSender.send(message);
             logger.info("Email de avaliação da IA enviado com sucesso para " + email);
         } catch (MailException e) {
@@ -68,18 +73,22 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     public void enviarEmailStatusDoacao(String email, String nome, String status) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            if(email != null && !email.isBlank()) {
+            if (email != null && !email.isBlank()) {
                 message.setTo(email);
-            }else {
-                logger.warn("Email do destinatário está vazio ou nulo. Não será possível enviar o email de status da doação., destinatário: " + nome);
+            } else {
+                logger.warn(
+                        "Email do destinatário está vazio ou nulo. Não será possível enviar o email de status da doação., destinatário: "
+                                + nome);
                 return;
             }
             message.setSubject("Atualização do status da sua doação");
-            message.setText("Olá " + nome + ",\n\nO status da sua doação foi atualizado para: " + status + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            message.setText("Olá " + nome + ",\n\nO status da sua doação foi atualizado para: " + status
+                    + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
             mailSender.send(message);
             logger.info("Email de atualização de status da doação enviado com sucesso para " + email);
         } catch (MailException e) {
-            logger.error("Erro ao enviar email de atualização de status da doação para " + email + ": " + e.getMessage());
+            logger.error(
+                    "Erro ao enviar email de atualização de status da doação para " + email + ": " + e.getMessage());
         }
     }
 
@@ -88,11 +97,48 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
             message.setSubject("Recuperação de senha");
-            message.setText("Olá " + nome + ",\n\nRecebemos uma solicitação para redefinir sua senha.\n\nAcesse o link abaixo para criar uma nova senha:\n" + link + "\n\nEste link expira em 30 minutos.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            message.setText("Olá " + nome
+                    + ",\n\nRecebemos uma solicitação para redefinir sua senha.\n\nAcesse o link abaixo para criar uma nova senha:\n"
+                    + link + "\n\nEste link expira em 30 minutos.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
             mailSender.send(message);
             logger.info("Email de recuperação de senha enviado com sucesso para " + email);
         } catch (MailException e) {
             logger.error("Erro ao enviar email de recuperação de senha para " + email + ": " + e.getMessage());
+        }
+    }
+
+    public void enviarEmail(String emailUsuarioLogado, String nomeUsuarioLogado) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(emailUsuarioLogado);
+            message.setSubject("Cadastro de Solicitacao");
+            message.setText("Olá " + nomeUsuarioLogado
+                    + ",\n\nSua solicitação foi cadastrada com Sucesso.\n\nAguarde avaliação do Administrador.\n\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error(
+                    "Erro ao enviar email de cadastro de solicitacao " + emailUsuarioLogado + ": " + e.getMessage());
+        }
+    }
+
+    public void enviarEmailRetirarDoacao(String emailUsuarioLogado, String nomeUsuarioLogado, Long doacaoId) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(emailUsuarioLogado);
+            message.setSubject("Doação disponivel para retirada");
+            message.setText(
+                    "Olá, " + nomeUsuarioLogado + ",\n\n" +
+                            "Informamos que sua solicitação foi aprovada e a doação está disponível para retirada.\n\n"
+                            +
+                            "Para realizar a retirada, informe o ID da doação: " + doacaoId + ".\n\n" +
+                            "A retirada deverá ser realizada no seguinte endereço:\n " +
+                            "Setor de Educação Profissional e Tecnológica UFPR - R. Dr. Alcides Vieira Arcoverde, 1225 - Jardim das Américas, Curitiba - PR, 81520-260"+
+                            "Atenciosamente,\n\n" +
+                            "Equipe do Sistema de Doações");
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.error(
+                    "Erro ao enviar email de cadastro de solicitacao " + emailUsuarioLogado + ": " + e.getMessage());
         }
     }
 }
