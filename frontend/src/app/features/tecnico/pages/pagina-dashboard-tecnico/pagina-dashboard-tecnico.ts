@@ -109,7 +109,7 @@ export class PaginaDashboardTecnico implements OnInit {
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: true
     },
     plotOptions: {
       bar: {

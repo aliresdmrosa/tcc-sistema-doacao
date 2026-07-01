@@ -152,7 +152,7 @@ export class PaginaDashboardUsuario implements OnInit {
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: true
     },
     plotOptions: {
       bar: {

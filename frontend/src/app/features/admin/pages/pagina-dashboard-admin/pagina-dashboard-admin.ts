@@ -157,7 +157,7 @@ export class PaginaDashboardAdmin {
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: true
     },
     plotOptions: {
       bar: {
